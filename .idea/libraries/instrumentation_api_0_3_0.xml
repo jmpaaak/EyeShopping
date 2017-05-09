@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="instrumentation-api-0.3.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.instrumentation/instrumentation-api/0.3.0/a2e145e7a7567c6372738f5c5a6f3ba6407ac354/instrumentation-api-0.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.instrumentation/instrumentation-api/0.3.0/51b668d9fa43aaec50a6a93a95784ec949b75ff/instrumentation-api-0.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

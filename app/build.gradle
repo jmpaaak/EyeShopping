@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    android {
+        packagingOptions {
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/INDEX.LIST'
+            exclude 'com/fasterxml/jackson/core/json/VERSION.txt'
+            exclude 'META-INF/gradle-plugins/protobuf.properties'
+            exclude 'project.properties'
+            exclude 'META-INF/io.netty.versions.properties'
+        }
+    }
+    defaultConfig {
+        applicationId "com.google.sample.cloudvision"
+        minSdkVersion 22
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile 'com.android.support:design:25.1.1'
+    compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.cloud:google-cloud-vision:0.17.1-beta'
+    compile 'com.google.apis:google-api-services-vision:v1-rev354-1.22.0'
+}
+
+configurations {
+    compile.exclude group: "org.apache.httpcomponents", module: "httpclient"
+    compile.exclude group: "org.json", module: "json"
+}

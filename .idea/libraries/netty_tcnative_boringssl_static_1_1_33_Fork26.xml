@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="netty-tcnative-boringssl-static-1.1.33.Fork26">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.netty/netty-tcnative-boringssl-static/1.1.33.Fork26/3f6a7805566d6fccd8a128f6688c3541a7069d5/netty-tcnative-boringssl-static-1.1.33.Fork26.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.netty/netty-tcnative-boringssl-static/1.1.33.Fork26/715f9688a60a1647ffbe3366ec85f68ac77ca05b/netty-tcnative-boringssl-static-1.1.33.Fork26-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
