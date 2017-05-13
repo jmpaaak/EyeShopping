@@ -34,10 +34,16 @@ captures/
 
 # Intellij
 *.iml
-.idea/
+.idea/*
 
 # Keystore files
 *.jks
 .DS_Store
 
 .DS_Store
+
+# CMake 파일은 sdk와 프로젝트 소스 path에 따라 바뀜
+CMakeLists.txt
+
+# bakup file
+*.bak
