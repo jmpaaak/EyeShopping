@@ -17,21 +17,26 @@
 package com.team.formal.eyeshopping;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -56,13 +61,21 @@ import com.google.api.services.vision.v1.model.WebEntity;
 import com.google.api.services.vision.v1.model.WebImage;
 import com.google.api.services.vision.v1.model.WebPage;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+
     private static final String CLOUD_VISION_API_KEY = ""; // input ur key
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
@@ -77,39 +90,180 @@ public class MainActivity extends AppCompatActivity {
     private TextView mImageDetails;
     private ImageView mMainImage;
 
+
+
+//    private static final String TAG = "opencv";
+    private CameraBridgeViewBase mOpenCvCameraView;
+    private Mat matInput;
+    private Mat matResult;
+
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder
-                        .setMessage(R.string.dialog_select_prompt)
-                        .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startGalleryChooser();
-                            }
-                        })
-                        .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startCamera();
-                            }
-                        });
-                builder.create().show();
-            }
-        });
+        //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//                builder
+//                        .setMessage(R.string.dialog_select_prompt)
+//                        .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                startGalleryChooser();
+//                            }
+//                        })
+//                        .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                startCamera();
+//                            }
+//                        });
+//                builder.create().show();
+//            }
+//        });
 
         mImageDetails = (TextView) findViewById(R.id.image_details);
         mMainImage = (ImageView) findViewById(R.id.main_image);
+
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //퍼미션 상태 확인
+            if (!hasPermissions(PERMISSIONS)) {
+
+                //퍼미션 허가 안되어있다면 사용자에게 요청
+                requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+            }
+        }
+
+        mOpenCvCameraView = (CameraBridgeViewBase)findViewById(R.id.activity_surface_view);
+        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+        mOpenCvCameraView.setCvCameraViewListener(this);
+        mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
+
     }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                {
+                    mOpenCvCameraView.enableView();
+                } break;
+                default:
+                {
+                    super.onManagerConnected(status);
+                } break;
+            }
+        }
+    };
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        if (!OpenCVLoader.initDebug()) {
+            Log.d(TAG, "onResume :: Internal OpenCV library not found.");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, mLoaderCallback);
+        } else {
+            Log.d(TAG, "onResume :: OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+    }
+
+
+    @Override
+    public void onCameraViewStarted(int width, int height) {
+
+    }
+
+    @Override
+    public void onCameraViewStopped() {
+
+    }
+
+    @Override
+    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+
+        matInput = inputFrame.rgba();
+
+        if ( matResult != null ) matResult.release();
+        matResult = new Mat(matInput.rows(), matInput.cols(), matInput.type());
+
+        ConvertRGBtoGray(matInput.getNativeObjAddr(), matResult.getNativeObjAddr());
+
+        return matResult;
+    }
+
+
+
+    //여기서부턴 퍼미션 관련 메소드
+    static final int PERMISSIONS_REQUEST_CODE = 1000;
+    String[] PERMISSIONS  = {"android.permission.CAMERA"};
+
+
+    private boolean hasPermissions(String[] permissions) {
+        int result;
+
+        //스트링 배열에 있는 퍼미션들의 허가 상태 여부 확인
+        for (String perms : permissions){
+
+            result = ContextCompat.checkSelfPermission(this, perms);
+
+            if (result == PackageManager.PERMISSION_DENIED){
+                //허가 안된 퍼미션 발견
+                return false;
+            }
+        }
+
+        //모든 퍼미션이 허가되었음
+        return true;
+    }
+
+
+
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void showDialogForPermission(String msg) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder( MainActivity.this);
+        builder.setTitle("알림");
+        builder.setMessage(msg);
+        builder.setCancelable(false);
+        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id){
+                requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+            }
+        });
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                finish();
+            }
+        });
+        builder.create().show();
+    }
+
+
+
+
+
 
     public void startGalleryChooser() {
         if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
