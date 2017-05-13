@@ -15,7 +15,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.google.sample.cloudvision"
+        applicationId "com.team.formal.eyeshopping"
         minSdkVersion 22
         targetSdkVersion 25
         versionCode 1

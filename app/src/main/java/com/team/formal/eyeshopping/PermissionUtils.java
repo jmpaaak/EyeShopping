@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.sample.cloudvision;
+package com.team.formal.eyeshopping;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;

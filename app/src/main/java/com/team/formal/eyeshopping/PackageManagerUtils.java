@@ -1,4 +1,4 @@
-package com.google.sample.cloudvision;
+package com.team.formal.eyeshopping;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
