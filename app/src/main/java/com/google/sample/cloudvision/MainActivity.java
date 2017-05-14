@@ -17,7 +17,6 @@
 package com.google.sample.cloudvision;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -26,9 +25,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -52,9 +49,7 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.WebDetection;
-import com.google.api.services.vision.v1.model.WebEntity;
 import com.google.api.services.vision.v1.model.WebImage;
-import com.google.api.services.vision.v1.model.WebPage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,7 +58,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = ""; // input ur key
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ"; // input ur key
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -73,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
+
+    public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQEST = 4;
 
     private TextView mImageDetails;
     private ImageView mMainImage;
@@ -84,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,9 +104,18 @@ public class MainActivity extends AppCompatActivity {
                 builder.create().show();
             }
         });
+        */
 
-        mImageDetails = (TextView) findViewById(R.id.image_details);
-        mMainImage = (ImageView) findViewById(R.id.main_image);
+        //mImageDetails = (TextView) findViewById(R.id.image_details);
+        //mMainImage = (ImageView) findViewById(R.id.main_image);
+    }
+
+    public void onCameraButtonClick(View view) {
+        startCamera();
+    }
+
+    public void onGalleryButtonClick(View view) {
+        startGalleryChooser();
     }
 
     public void startGalleryChooser() {
@@ -144,11 +151,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Bitmap bitmap = null;
+
         if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            uploadImage(data.getData());
-        } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
+            bitmap = uploadImage(data.getData());
+
+            Intent intent = new Intent(getApplicationContext(), Activity_ShowVisuallySimilarImages.class);
+            intent.putExtra("bitmap", bitmap);
+            startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQEST);
+        }
+        else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
-            uploadImage(photoUri);
+            bitmap = uploadImage(photoUri);
+
+            Intent intent = new Intent(getApplicationContext(), Activity_ShowVisuallySimilarImages.class);
+            intent.putExtra("bitmap", bitmap);
+            startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQEST);
         }
     }
 
@@ -170,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void uploadImage(Uri uri) {
+    public Bitmap uploadImage(Uri uri) {
         if (uri != null) {
             try {
                 // scale the image to save on bandwidth
@@ -180,23 +198,27 @@ public class MainActivity extends AppCompatActivity {
 //                                1200);
                 System.out.println("respones!" + uri.getPath());
 
-                callCloudVision(bitmap);
-                mMainImage.setImageBitmap(bitmap);
+                //callCloudVision(bitmap);
+                //mMainImage.setImageBitmap(bitmap);
                 //detectWebDetections()
+
+                return bitmap;
 
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
                 Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
+                return null;
             }
         } else {
             Log.d(TAG, "Image picker gave us a null image.");
             Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
+            return null;
         }
     }
 
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Switch text to loading
-        mImageDetails.setText(R.string.loading_message);
+        //mImageDetails.setText(R.string.loading_message);
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, String>() {
@@ -249,11 +271,10 @@ public class MainActivity extends AppCompatActivity {
                         annotateImageRequest.setImage(base64EncodedImage);
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                            Feature labelDetection = new Feature();
-                            labelDetection.setType("WEB_DETECTION");
-                            //labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(20);
-                            add(labelDetection);
+                            Feature webDetection = new Feature();
+                            webDetection.setType("WEB_DETECTION");
+                            webDetection.setMaxResults(20);
+                            add(webDetection);
                         }});
 
                         // Add the list of one thing to the request
@@ -268,9 +289,6 @@ public class MainActivity extends AppCompatActivity {
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
                     return convertResponseToString(response);
-                    //return convertResponseToStringLabel(response);
-
-
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
                 } catch (IOException e) {
@@ -281,7 +299,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             protected void onPostExecute(String result) {
-                mImageDetails.setText(result);
+
+
             }
         }.execute();
     }
@@ -311,9 +330,36 @@ public class MainActivity extends AppCompatActivity {
         String message = "I found these things!!!!!!!!:\n\n";
         WebDetection annotation =   response.getResponses().get(0).getWebDetection();
         if (annotation != null) {
+
+            for (WebImage image : annotation.getVisuallySimilarImages()) {
+                message += String.format(Locale.KOREAN, "%s", image.getUrl());
+                message += "\n";
+            }
+
+        } else {
+            message += "nothing";
+        }
+
+        return message;
+    }
+
+    private String convertResponseToStringLabel(BatchAnnotateImagesResponse response) {
+
+        String message = "I found these things!!!!!!!!:\n\n";
+        java.util.List<EntityAnnotation> annotations = response.getResponses().get(0).getLabelAnnotations();
+        if (annotations != null) {
             System.out.println("Entity:Score");
             System.out.println("===============");
-//            for (WebEntity entity : annotation.getWebEntities()) {
+            for (EntityAnnotation entity : annotations) {
+                message += String.format(Locale.KOREAN, "%.3f: %s", entity.getScore(), entity.getDescription());
+                message += "\n";
+                System.out.println(entity.getDescription() + " : "  + entity.getScore());
+            }
+        } else {
+            message += "nothing";
+        }
+
+        //            for (WebEntity entity : annotation.getWebEntities()) {
 //                 message += String.format(Locale.KOREAN, "%.3f: %s", entity.getScore(), entity.getDescription());
 //                message += "\n";
 //                System.out.println(entity.getDescription() + " : "  + entity.getScore());
@@ -339,34 +385,6 @@ public class MainActivity extends AppCompatActivity {
 //                    System.out.println(image.getUrl() + " : " + image.getScore());
 //                }
 //            }
-            for (WebImage image : annotation.getVisuallySimilarImages()) {
-                System.out.println(image.getUrl() + " : " + image.getScore());
-                message += String.format(Locale.KOREAN, "%s: %s", image.getUrl(), image.getScore());
-                message += "\n";
-            }
-        } else {
-            message += "nothing";
-        }
-
-        return message;
-    }
-
-
-    private String convertResponseToStringLabel(BatchAnnotateImagesResponse response) {
-
-        String message = "I found these things!!!!!!!!:\n\n";
-        java.util.List<EntityAnnotation> annotations = response.getResponses().get(0).getLabelAnnotations();
-        if (annotations != null) {
-            System.out.println("Entity:Score");
-            System.out.println("===============");
-            for (EntityAnnotation entity : annotations) {
-                message += String.format(Locale.KOREAN, "%.3f: %s", entity.getScore(), entity.getDescription());
-                message += "\n";
-                System.out.println(entity.getDescription() + " : "  + entity.getScore());
-            }
-        } else {
-            message += "nothing";
-        }
 
         return message;
     }
