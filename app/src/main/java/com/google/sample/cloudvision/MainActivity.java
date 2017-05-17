@@ -17,8 +17,10 @@
 package com.google.sample.cloudvision;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -60,7 +62,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class MainActivity extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = ""; // input ur key
@@ -76,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mImageDetails;
     private ImageView mMainImage;
+
+    SQLiteDatabase db;
+    MySQLiteOpenHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +118,23 @@ public class MainActivity extends AppCompatActivity {
 
         mImageDetails = (TextView) findViewById(R.id.image_details);
         mMainImage = (ImageView) findViewById(R.id.main_image);
+
+        helper = new MySQLiteOpenHelper(MainActivity.this,"eyeshopping.db",null,1);
+        //데이터 저장
+        insert(1,"hp\ngaming\nnotebook",false);
+
+
+    }
+
+    public void insert(int id, String combination_keyword, boolean like){
+        db = helper.getWritableDatabase(); //db 객체를 얻어옴
+
+        ContentValues values = new ContentValues();
+        values.put("combination_keyword", combination_keyword);
+        values.put("date", System.currentTimeMillis());
+        values.put("like", like);
+        db.insert("searched_product",null,values);
+
     }
 
     public void startGalleryChooser() {
