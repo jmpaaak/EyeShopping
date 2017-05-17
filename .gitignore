@@ -47,3 +47,6 @@ CMakeLists.txt
 
 # bakup file
 *.bak
+
+# externalNativeBuild
+app/.externalNativeBuild/
