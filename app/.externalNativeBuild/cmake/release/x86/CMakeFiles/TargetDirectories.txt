@@ -1,0 +1,3 @@
+D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/release/x86/CMakeFiles/native-lib.dir
+D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/release/x86/CMakeFiles/edit_cache.dir
+D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/release/x86/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,46 @@
+
+{
+	"buildFiles" : [ "D:/git-local-repos/workspace.android/EyeShopping/app/CMakeLists.txt" ],
+	"cleanCommands" : 
+	[
+		"C:\\Users\\jongmin\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.3155560\\bin\\cmake.exe --build D:\\git-local-repos\\workspace.android\\EyeShopping\\app\\.externalNativeBuild\\cmake\\debug\\mips --target clean"
+	],
+	"cppFileExtensions" : [ "cpp" ],
+	"libraries" : 
+	{
+		"lib_opencv-Debug-mips" : 
+		{
+			"abi" : "mips",
+			"artifactName" : "lib_opencv",
+			"buildType" : "debug",
+			"output" : "D:/git-local-repos/workspace.android/EyeShopping/app/src/main/jniLibs/mips/libopencv_java3.so",
+			"toolchain" : "1152887637"
+		},
+		"native-lib-Debug-mips" : 
+		{
+			"abi" : "mips",
+			"artifactName" : "native-lib",
+			"buildCommand" : "C:\\Users\\jongmin\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.3155560\\bin\\cmake.exe --build D:\\git-local-repos\\workspace.android\\EyeShopping\\app\\.externalNativeBuild\\cmake\\debug\\mips --target native-lib",
+			"buildType" : "debug",
+			"files" : 
+			[
+				
+				{
+					"flags" : "  --target=mipsel-none-linux-android --gcc-toolchain=C:/Users/jongmin/AppData/Local/Android/sdk/ndk-bundle/toolchains/mips64el-linux-android-4.9/prebuilt/windows-x86_64 --sysroot=C:/Users/jongmin/AppData/Local/Android/sdk/ndk-bundle/platforms/android-22/arch-mips  -Dnative_lib_EXPORTS -ID:\\git-local-repos\\workspace.android\\opencv-3.2.0-android-sdk\\OpenCV-android-sdk\\sdk\\native\\jni\\include -isystem C:\\Users\\jongmin\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\include -isystem C:\\Users\\jongmin\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\libs\\mips\\include -isystem C:\\Users\\jongmin\\AppData\\Local\\Android\\sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\include\\backward  -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mips32 -Wa,--noexecstack -Wformat -Werror=format-security  -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mips32 -Wa,--noexecstack -Wformat -Werror=format-security   -std=gnu++11 -O0 -fno-limit-debug-info -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/git-local-repos/workspace.android/EyeShopping/app/src/main/cpp/native-lib.cpp",
+					"workingDirectory" : "D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/debug/mips"
+				}
+			],
+			"output" : "D:/git-local-repos/workspace.android/EyeShopping/app/build/intermediates/cmake/debug/obj/mips/libnative-lib.so",
+			"toolchain" : "1152887637"
+		}
+	},
+	"toolchains" : 
+	{
+		"1152887637" : 
+		{
+			"cCompilerExecutable" : "C:/Users/jongmin/AppData/Local/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
+			"cppCompilerExecutable" : "C:/Users/jongmin/AppData/Local/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe"
+		}
+	}
+}
