@@ -103,9 +103,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
-
-
-
+    // TODO
+    public native Mat CornerHarrisDemo();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +154,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
+
+
+        // TODO
+        Mat a = CornerHarrisDemo();
+
+        Log.i("harris res", a.toString());
 
     }
 
@@ -217,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     //여기서부턴 퍼미션 관련 메소드
     static final int PERMISSIONS_REQUEST_CODE = 1000;
     String[] PERMISSIONS  = {"android.permission.CAMERA"};
-
 
     private boolean hasPermissions(String[] permissions) {
         int result;
