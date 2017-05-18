@@ -18,6 +18,7 @@ int max_thresh = 255;
 
 char* source_window = "Source image";
 char* corners_window = "Corners detected";
+extern "C" {
 
 JNIEXPORT Mat JNICALL
 /** @function main */
@@ -38,11 +39,14 @@ int main(int argc, char **argv) {
     return (0);
 }
 */
+
 Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobject instance) {
 
     /// Load source image and convert it to gray
-    src = imread("../res/drawable-xxhdpi/cvtest.png", 1);
-    cvtColor(src, src_gray, CV_BGR2GRAY);
+
+    src = imread("/Users/NaJM/github/EyeShopping/app/src/main/res/drawable-xxhdpi/cvtest.png", 1);
+    cv::cvtColor(src, src_gray, CV_BGR2GRAY);
+
 
     cout << "imread src: " << src << endl;
 
@@ -84,4 +88,5 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
 
     return dst_norm_scaled;
 
+}
 }
