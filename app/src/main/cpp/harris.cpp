@@ -7,18 +7,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <jni.h>
+#include <android/log.h>
+
+#define  LOG_TAG    "NDK_TEST"
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 using namespace cv;
 using namespace std;
 
 /// Global variables
 Mat src, src_gray;
+Mat dst, dst_norm, dst_norm_scaled;
 int thresh = 200;
 int max_thresh = 255;
 
-char* source_window = "Source image";
-char* corners_window = "Corners detected";
+char * source_window = "Source image";
+char * corners_window = "Corners detected";
+const char * nPath;
 
+extern "C" {
 JNIEXPORT Mat JNICALL
 /** @function main */
 /*
@@ -38,21 +46,31 @@ int main(int argc, char **argv) {
     return (0);
 }
 */
-Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobject instance) {
+Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobject instance,
+                                                                long addrInputImage) {
+
+
+    //nPath = env->GetStringUTFChars(filename, NULL);
+    //path_size=env->GetArrayLength(path);
+
+    //LOGD("path: %s \n", nPath);
+
 
     /// Load source image and convert it to gray
-    src = imread("../res/drawable-xxhdpi/cvtest.png", 1);
-    cvtColor(src, src_gray, CV_BGR2GRAY);
+    //src = imread(nPath, 1);
+    Mat * pInputImage = (Mat*)addrInputImage;
+    cvtColor((*pInputImage), src_gray, CV_BGR2GRAY);
 
-    cout << "imread src: " << src << endl;
+    LOGD("src_Gray_data: %s", src_gray.data);
+
 
 //    /// Create a window and a trackbar
 //    namedWindow(source_window, CV_WINDOW_AUTOSIZE);
 //    createTrackbar("Threshold: ", source_window, &thresh, max_thresh, cornerHarris_demo);
 //    imshow(source_window, src);
 
-    Mat dst, dst_norm, dst_norm_scaled;
-    dst = Mat::zeros(src.size(), CV_32FC1);
+
+    dst = Mat::zeros((*pInputImage).size(), CV_32FC1);
 
     /// Detector parameters
     int blockSize = 2;
@@ -60,8 +78,8 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
     double k = 0.04;
 
     /// Detecting corners
+    // TODO: dst data 눈으로 확인하는 법!
     cornerHarris(src_gray, dst, blockSize, apertureSize, k, BORDER_DEFAULT);
-
     /// Normalizing
     normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
     convertScaleAbs(dst_norm, dst_norm_scaled);
@@ -84,4 +102,5 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
 
     return dst_norm_scaled;
 
+}
 }
