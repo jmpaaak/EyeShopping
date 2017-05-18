@@ -22,6 +22,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -60,13 +62,21 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
+
+import static org.opencv.imgcodecs.Imgcodecs.imread;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
     // TODO
-    public native Mat CornerHarrisDemo();
+    public native Mat CornerHarrisDemo(long addrInputImage);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +160,53 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
 
         // TODO
-        Mat a = CornerHarrisDemo();
+
+
+        Mat img = null;
+        try {
+            img = Utils.loadResource(this, R.drawable.cvtest, CvType.CV_8UC4);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        File fileRoot = Environment.getExternalStorageDirectory();
+//
+//        String fileName ="cvtest.png";
+//
+//        File mFile2 = new File(fileRoot, fileName);
+//        try {
+//            FileOutputStream outStream;
+//
+//            outStream = new FileOutputStream(mFile2);
+//
+//            bitMap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+//
+//            outStream.flush();
+//
+//            outStream.close();
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        String config_path = getApplicationContext().getFilesDir().toString();
+//        Log.i("config_path", config_path);
+//
+//        String sdPath = "/media"+"/"+fileName;
+//
+//        Log.i("Saved", " IMAGE ABSOLUTE PATH: "+sdPath);
+//
+//        File temp=new File(sdPath);
+//
+//        if(!temp.exists()){
+//            Log.e("file", "no image file at location :"+sdPath);
+//        }
+
+
+        Log.i("mat", img.toString());
+        Mat a = CornerHarrisDemo(img.getNativeObjAddr());
 
         Log.i("harris res", a.toString());
 
@@ -382,8 +438,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
                     Vision vision = builder.build();
 
-                    BatchAnnotateImagesRequest batchAnnotateImagesRequest =
-                            new BatchAnnotateImagesRequest();
+                    BatchAnnotateImagesRequest batchAnnotateImagesRequest = new BatchAnnotateImagesRequest();
                     batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
                         AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
 
@@ -411,8 +466,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                         add(annotateImageRequest);
                     }});
 
-                    Vision.Images.Annotate annotateRequest =
-                            vision.images().annotate(batchAnnotateImagesRequest);
+                    Vision.Images.Annotate annotateRequest = vision.images().annotate(batchAnnotateImagesRequest);
                     // Due to a bug: requests to Vision API containing large images fail when GZipped.
                     annotateRequest.setDisableGZipContent(true);
                     Log.d(TAG, "created Cloud Vision request object, sending request");
