@@ -11,3 +11,6 @@
      - 참고자료
        - http://webnautes.tistory.com/1054
        - https://blog.qwaz.io
+       
+#### B. Core ex. of Object detection algo. (using openCV)
+- http://docs.opencv.org/2.4/doc/tutorials/features2d/detection_of_planar_objects/detection_of_planar_objects.html#detectionofplanarobjects
