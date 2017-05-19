@@ -3,11 +3,7 @@
 //
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/features2d/features2d.hpp"
 
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <jni.h>
 #include <android/log.h>
 
@@ -83,7 +79,6 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
     double k = 0.04;
 
     /// Detecting corners
-    // TODO: dst data 눈으로 확인하는 법!
     cornerHarris(src_gray, dst, blockSize, apertureSize, k, BORDER_DEFAULT);
     /// Normalizing
     normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());

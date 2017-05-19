@@ -67,6 +67,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -107,8 +108,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
-    // TODO
     public native void CornerHarrisDemo(long addrInputImage, long addrOutput);
+
+    public native void AkazeFeatureMatching(long userSelImage, long naverPrImage, long addrOutput);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,17 +165,24 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         // TODO
 
 
-        Mat img = null;
+        Mat userSelImg = null;
+        Mat naverPrImg = null;
         try {
-            img = Utils.loadResource(this, R.drawable.cvtest, CvType.CV_8UC4);
+            userSelImg = Utils.loadResource(this, R.drawable.user_image, CvType.CV_8UC4);
+            naverPrImg = Utils.loadResource(this, R.drawable.marmont_bag, CvType.CV_8UC4);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Mat addrOutput = new Mat(img.rows(), img.cols(), CvType.CV_8UC4);
+        Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
+        Mat naverPrImgTarget = new Mat(naverPrImg.width(), naverPrImg.height(), CvType.CV_8UC4);
 
-        Log.i("mat", img.toString());
-        CornerHarrisDemo(img.getNativeObjAddr(), addrOutput.getNativeObjAddr());
+        Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_RGB2BGR);
+        Imgproc.cvtColor(naverPrImg, naverPrImgTarget, Imgproc.COLOR_RGB2BGR);
+
+        Mat addrOutput = new Mat(280, 280, CvType.CV_8UC4);
+
+        AkazeFeatureMatching(userSelImgTarget.getNativeObjAddr(), naverPrImgTarget.getNativeObjAddr(), addrOutput.getNativeObjAddr());
 
         Bitmap bmp = Bitmap.createBitmap(addrOutput.cols(), addrOutput.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(addrOutput, bmp);
