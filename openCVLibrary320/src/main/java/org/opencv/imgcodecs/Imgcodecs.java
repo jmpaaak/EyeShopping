@@ -103,16 +103,17 @@ public class Imgcodecs {
     //
 
     //javadoc: imread(filename, flags)
-    public static Mat imread()
+    public static Mat imread(String filename, int flags)
     {
-        
+
+
         Mat retVal = new Mat(imread_0(filename, flags));
         
         return retVal;
     }
 
     //javadoc: imread(filename)
-    public static Mat imread(int filename)
+    public static Mat imread(String filename)
     {
         
         Mat retVal = new Mat(imread_1(filename));
