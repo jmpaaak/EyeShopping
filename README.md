@@ -11,3 +11,8 @@
      - 참고자료
        - http://webnautes.tistory.com/1054
        - https://blog.qwaz.io
+       
+#### B. Core ex. of Object detection algo. (using openCV)
+- http://docs.opencv.org/2.4/doc/tutorials/features2d/detection_of_planar_objects/detection_of_planar_objects.html#detectionofplanarobjects
+- http://docs.opencv.org/2.4/doc/tutorials/features2d/feature_homography/feature_homography.html#feature-homography : 구체적 코드 예제
+  1. FLANN matcher : kd-tree(http://snisni.tistory.com/98) 로 빠른 매칭 수행
