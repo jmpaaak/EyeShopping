@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
     // TODO
-    public native Mat CornerHarrisDemo(long addrInputImage);
+    public native void CornerHarrisDemo(long addrInputImage, long addrOutput);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,10 +154,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             }
         }
 
-        mOpenCvCameraView = (CameraBridgeViewBase)findViewById(R.id.activity_surface_view);
-        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-        mOpenCvCameraView.setCvCameraViewListener(this);
-        mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
+//        mOpenCvCameraView = (CameraBridgeViewBase)findViewById(R.id.activity_surface_view);
+//        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+//        mOpenCvCameraView.setCvCameraViewListener(this);
+//        mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
 
         // TODO
 
@@ -169,47 +169,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             e.printStackTrace();
         }
 
-//        File fileRoot = Environment.getExternalStorageDirectory();
-//
-//        String fileName ="cvtest.png";
-//
-//        File mFile2 = new File(fileRoot, fileName);
-//        try {
-//            FileOutputStream outStream;
-//
-//            outStream = new FileOutputStream(mFile2);
-//
-//            bitMap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-//
-//            outStream.flush();
-//
-//            outStream.close();
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        String config_path = getApplicationContext().getFilesDir().toString();
-//        Log.i("config_path", config_path);
-//
-//        String sdPath = "/media"+"/"+fileName;
-//
-//        Log.i("Saved", " IMAGE ABSOLUTE PATH: "+sdPath);
-//
-//        File temp=new File(sdPath);
-//
-//        if(!temp.exists()){
-//            Log.e("file", "no image file at location :"+sdPath);
-//        }
-
+        Mat addrOutput = new Mat(img.rows(), img.cols(), CvType.CV_8UC4);
 
         Log.i("mat", img.toString());
-        Mat a = CornerHarrisDemo(img.getNativeObjAddr());
+        CornerHarrisDemo(img.getNativeObjAddr(), addrOutput.getNativeObjAddr());
 
-        Log.i("harris res", a.toString());
+        Bitmap bmp = Bitmap.createBitmap(addrOutput.cols(), addrOutput.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(addrOutput, bmp);
 
+        mMainImage.setImageBitmap(bmp);
+
+        Log.i("complete","complete");
     }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -238,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, mLoaderCallback);
         } else {
             Log.d(TAG, "onResume :: OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+//            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
 

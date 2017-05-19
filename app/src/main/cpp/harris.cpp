@@ -29,7 +29,7 @@ char * corners_window = "Corners detected";
 const char * nPath;
 
 extern "C" {
-JNIEXPORT Mat JNICALL
+JNIEXPORT void JNICALL
 /** @function main */
 /*
 int main(int argc, char **argv) {
@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
 }
 */
 Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobject instance,
-                                                                long addrInputImage) {
+                                                                jlong addrInputImage,
+                                                                jlong addrOutput) {
 
 
     //nPath = env->GetStringUTFChars(filename, NULL);
@@ -60,8 +61,10 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
 
     /// Load source image and convert it to gray
     //src = imread(nPath, 1);
-    Mat * pInputImage = (Mat*)addrInputImage;
-    cvtColor((*pInputImage), src_gray, CV_BGR2GRAY);
+    Mat& inputImage = *(Mat*)addrInputImage;
+    Mat& output = *(Mat*)addrOutput;
+
+    cvtColor(inputImage, src_gray, CV_BGR2GRAY);
 
     LOGD("src_Gray_data: %s", src_gray.data);
 
@@ -72,7 +75,7 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
 //    imshow(source_window, src);
 
 
-    dst = Mat::zeros((*pInputImage).size(), CV_32FC1);
+    dst = Mat::zeros(inputImage.size(), CV_32FC1);
 
     /// Detector parameters
     int blockSize = 2;
@@ -95,14 +98,9 @@ Java_com_team_formal_eyeshopping_MainActivity_CornerHarrisDemo(JNIEnv *env, jobj
         }
     }
 
-//    /// Showing the result
-//    namedWindow(corners_window, CV_WINDOW_AUTOSIZE);
-//    imshow(corners_window, dst_norm_scaled);
+    output = dst_norm_scaled;
 
-
-    waitKey(0);
-
-    return dst_norm_scaled;
+    return;
 
 }
 }
