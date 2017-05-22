@@ -16,10 +16,12 @@
 
 package com.google.sample.cloudvision;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -50,6 +52,8 @@ import com.google.api.services.vision.v1.model.WebDetection;
 import com.google.api.services.vision.v1.model.WebImage;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -87,9 +91,30 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SELECT_REQUEST) {
+
+        }
+    }
+
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
+            final ProgressDialog asyncDialog = new ProgressDialog(Activity_ShowVisuallySimilarImages.this);
+
+            @Override
+            protected void onPreExecute() {
+                asyncDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                asyncDialog.setMax(20);
+                asyncDialog.setMessage("Downloading Visually Similar Images..");
+
+                // show dialog
+                asyncDialog.show();
+                super.onPreExecute();
+            }
+
             @Override
             protected ArrayList<String> doInBackground(Object... params) {
                 try {
@@ -169,6 +194,7 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
 
             protected void onPostExecute(ArrayList<String> result) {
                 final ArrayList<String> urls = result;
+                asyncDialog.setMax(urls.size());
 
                 new AsyncTask<Object, Void, ArrayList<VisuallySimilar_GridItem>>() {
                     @Override
@@ -178,8 +204,28 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
                         for(int i=0;i<urls.size();i++) {
                             try {
                                 URL url = new URL(urls.get(i));
+                                String uri;
                                 Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                                items.add(new VisuallySimilar_GridItem(bitmap ,urls.get(i)));
+
+                                //String tempname = Long.valueOf(new Date().getTime()).toString();
+                                File tempDir= getApplicationContext().getFilesDir();
+                                tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+                                tempDir.mkdir();
+                                File tempFile = File.createTempFile("selected_image", ".jpg", tempDir);
+                                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                                byte[] bitmapData = bytes.toByteArray();
+
+                                //write the bytes in file
+                                FileOutputStream fos = new FileOutputStream(tempFile);
+                                fos.write(bitmapData);
+                                fos.flush();
+                                fos.close();
+                                uri = Uri.fromFile(tempFile).toString();
+
+                                items.add(new VisuallySimilar_GridItem(bitmap ,urls.get(i),uri));
+
+                                asyncDialog.setProgress(i+1);
                             } catch (IOException e) {
                                 System.out.println(e);
                             }
@@ -191,30 +237,12 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
                     protected void onPostExecute(ArrayList<VisuallySimilar_GridItem> items) {
                         gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
                         gridview.setAdapter(gridViewAdapter);
+
+                        asyncDialog.dismiss();
                     }
                 }.execute();
             }
         }.execute();
-    }
-
-    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
-
-        int originalWidth = bitmap.getWidth();
-        int originalHeight = bitmap.getHeight();
-        int resizedWidth = maxDimension;
-        int resizedHeight = maxDimension;
-
-        if (originalHeight > originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
-        } else if (originalWidth > originalHeight) {
-            resizedWidth = maxDimension;
-            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
-        } else if (originalHeight == originalWidth) {
-            resizedHeight = maxDimension;
-            resizedWidth = maxDimension;
-        }
-        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
     private ArrayList<String> convertResponseToString(BatchAnnotateImagesResponse response) {
@@ -272,10 +300,12 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
     private class VisuallySimilar_GridItem {
         private Bitmap image;
         private String url;
+        private String uri;
 
-        public VisuallySimilar_GridItem(Bitmap image, String url) {
+        public VisuallySimilar_GridItem(Bitmap image, String url, String uri) {
             this.image = image;
             this.url = url;
+            this.uri = uri;
         }
 
         public Bitmap getImage() {
@@ -286,6 +316,8 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
             return this.url;
         }
 
+        public String getUri() { return this.uri; }
+
         public void setImage(Bitmap image) {
             this.image = image;
         }
@@ -293,6 +325,8 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         public void setUrl(String url) {
             this.url = url;
         }
+
+        public void setUri(String uri) { this.uri = uri; }
 
     }
 
@@ -313,25 +347,13 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Bitmap bitmap = aItem.getImage();
-                    final String url = aItem.getUrl();
+                    String url = aItem.getUrl();
+                    String uri = aItem.getUri();
 
-                    /*
-                    setContentView(R.layout.grid_view_select);
-
-                    ImageView select_image_view = (ImageView)findViewById(R.id.selection_image_view);
-                    select_image_view.setImageBitmap(bitmap);
-                    */
-
-                    Intent intent = new Intent(getApplicationContext(), Activity_ShowVisually_Select.class);
+                    Intent intent = new Intent(getApplicationContext(), Activity_ShowVisuallySimilarImages_Select.class);
                     intent.putExtra("url", url);
+                    intent.putExtra("uri", uri);
                     startActivityForResult(intent, SELECT_REQUEST);
-
-
-                    /*
-                    Intent intent = new Intent(getApplicationContext(), Activity_Next.class);
-                    intent.putExtra("url", url);
-                    startActivityForResult(intent, NEXT_REQUEST);
-                    */
                 }
             });
         }
