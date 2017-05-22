@@ -16,14 +16,12 @@ using namespace cv;
 using namespace std;
 
 extern "C" {
-JNIEXPORT void JNICALL
-Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, jobject instance,
+JNIEXPORT jint JNICALL
+Java_com_team_formal_eyeshopping_CVMainActivity_AkazeFeatureMatching(JNIEnv *env, jobject instance,
                                                                jlong addrSelectedImage,
-                                                               jlong addrSearchedImage,
-                                                               jlong addrOutput) {
+                                                               jlong addrSearchedImage) {
     Mat selMat = *(Mat*) addrSelectedImage;
     Mat schMat = *(Mat*) addrSearchedImage;
-    Mat& outputMat = *(Mat*) addrOutput;
 
     vector<KeyPoint> kptVecSel, kptVecSch;
     Mat descMatSel, descMatSch;
@@ -64,19 +62,27 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
 
     Mat res;
     if(!hMat.empty()) { // Detecting !!!!
-        drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
+        // drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
+
+        LOGI("A-KAZE Matching Results\n");
+        LOGI("*******************************\n");
+        LOGI("# Keypoints UserSel:              \t%d\n", (int)kptVecSel.size());
+        LOGI("# Keypoints NaverPR:              \t%d\n", (int)kptVecSch.size());
+        LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
+        return 1;
     } else {
         LOGI("NOT Detected !\n");
         LOGI("NOT Detected !\n");
         LOGI("NOT Detected !\n");
+
+        LOGI("A-KAZE Matching Results\n");
+        LOGI("*******************************\n");
+        LOGI("# Keypoints UserSel:              \t%d\n", (int)kptVecSel.size());
+        LOGI("# Keypoints NaverPR:              \t%d\n", (int)kptVecSch.size());
+        LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
+        return 0;
     }
 
-    LOGI("A-KAZE Matching Results\n");
-    LOGI("*******************************\n");
-    LOGI("# Keypoints UserSel:              \t%d\n", (int)kptVecSel.size());
-    LOGI("# Keypoints NaverPR:              \t%d\n", (int)kptVecSch.size());
-    LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
-
-    outputMat = res;
+    // outputMat = res;
 }
 }

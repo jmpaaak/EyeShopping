@@ -18,6 +18,7 @@ package com.team.formal.eyeshopping;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,6 +30,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -36,8 +39,14 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,55 +77,81 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
 import static org.opencv.imgcodecs.Imgcodecs.imread;
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class CVMainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
-    private static final String CLOUD_VISION_API_KEY = ""; // input ur key
     public static final String FILE_NAME = "temp.jpg";
-    private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
-    private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
-
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int GALLERY_PERMISSIONS_REQUEST = 0;
-    private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
-
-    private TextView mImageDetails;
-    private ImageView mMainImage;
-
-
-
-//    private static final String TAG = "opencv";
-    private CameraBridgeViewBase mOpenCvCameraView;
-    private Mat matInput;
-    private Mat matResult;
+    //여기서부턴 퍼미션 관련 메소드
+    static final int PERMISSIONS_REQUEST_CODE = 1000;
+    private static final String CLOUD_VISION_API_KEY = ""; // input ur key
+    private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
+    private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
+    private static final String TAG = CVMainActivity.class.getSimpleName();
+    private static final int GALLERY_PERMISSIONS_REQUEST = 0;
+    private static final int GALLERY_IMAGE_REQUEST = 1;
 
     static {
         System.loadLibrary("native-lib");
     }
 
+    String[] PERMISSIONS = {"android.permission.CAMERA"};
+    private TextView mImageDetails;
+    private ImageView mMainImage;
+    private Bitmap mNaverPrImg;
+    private Mat userSelImg = null; // TODO
+
+    //    private static final String TAG = "opencv";
+    private CameraBridgeViewBase mOpenCvCameraView;
+    private Mat matInput;
+    private Mat matResult;
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS: {
+                    mOpenCvCameraView.enableView();
+                }
+                break;
+                default: {
+                    super.onManagerConnected(status);
+                }
+                break;
+            }
+        }
+    };
+
     public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
     public native void CornerHarrisDemo(long addrInputImage, long addrOutput);
 
-    public native void AkazeFeatureMatching(long userSelImage, long naverPrImage, long addrOutput);
+    public native int AkazeFeatureMatching(long userSelImage, long naverPrImage);
 
+
+    private ViewGroup mRelativeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.content_main);
+
+        mRelativeLayout = (ViewGroup) findViewById(R.id.contentMain);
+
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
@@ -143,9 +178,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 //            }
 //        });
 
-        mImageDetails = (TextView) findViewById(R.id.image_details);
-        mMainImage = (ImageView) findViewById(R.id.main_image);
-
+       // mImageDetails = (TextView) findViewById(R.id.image_details);
+        // mMainImage = (ImageView) findViewById(R.id.main_image);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -164,53 +198,84 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         // TODO
 
-
-        Mat userSelImg = null;
-        Mat naverPrImg = null;
         try {
-            userSelImg = Utils.loadResource(this, R.drawable.user_image, CvType.CV_8UC4);
-            naverPrImg = Utils.loadResource(this, R.drawable.marmont_bag, CvType.CV_8UC4);
+            // TODO 이것도 naverPrImgTarget 처럼.. url로 처리
+            userSelImg = Utils.loadResource(this, R.drawable.user_image, CvType.CV_8UC4); // return BGR 순
+//            naverPrImg = Utils.loadResource(this, R.drawable.marmont_bag, CvType.CV_8UC4);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
-        Mat naverPrImgTarget = new Mat(naverPrImg.width(), naverPrImg.height(), CvType.CV_8UC4);
+        // SET DUMMY DATA
+        final Shop dummyShop = new Shop();
+        dummyShop.setImage("http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+        dummyShop.setTitle("Marmont Handbag");
+        dummyShop.setLprice(2340958);
 
-        Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_RGB2BGR);
-        Imgproc.cvtColor(naverPrImg, naverPrImgTarget, Imgproc.COLOR_RGB2BGR);
+        // Thread로 웹서버에 접속
+        new Thread() {
+            public void run() {
+                mNaverPrImg = getBitmapFromURL(dummyShop.getImage()); // 입력 이미지 Url
 
-        Mat addrOutput = new Mat(280, 280, CvType.CV_8UC4);
-
-        AkazeFeatureMatching(userSelImgTarget.getNativeObjAddr(), naverPrImgTarget.getNativeObjAddr(), addrOutput.getNativeObjAddr());
-
-        Bitmap bmp = Bitmap.createBitmap(addrOutput.cols(), addrOutput.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(addrOutput, bmp);
-
-        mMainImage.setImageBitmap(bmp);
-
-        Log.i("complete","complete");
+                Bundle bun = new Bundle();
+                bun.putSerializable("productInfo", dummyShop);
+                Message msg = detectHandler.obtainMessage();
+                msg.setData(bun);
+                detectHandler.sendMessage(msg);
+            }
+        }.start();
     }
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                {
-                    mOpenCvCameraView.enableView();
-                } break;
-                default:
-                {
-                    super.onManagerConnected(status);
-                } break;
+    Handler detectHandler = new Handler() {
+        public void handleMessage(Message msg) {
+
+            Bundle bun = msg.getData();
+            Shop dummyShop = (Shop) bun.getSerializable("productInfo");
+
+            Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
+            Mat naverPrImgTarget = new Mat(mNaverPrImg.getWidth(), mNaverPrImg.getHeight(), CvType.CV_8UC4);
+
+            Utils.bitmapToMat(mNaverPrImg, naverPrImgTarget);
+
+            Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_BGR2RGB);
+
+            Imgproc.cvtColor(naverPrImgTarget, naverPrImgTarget, Imgproc.COLOR_RGBA2RGB);
+
+            int ret = AkazeFeatureMatching(userSelImgTarget.getNativeObjAddr(),
+                                            naverPrImgTarget.getNativeObjAddr());
+
+            if(ret == 1) { // find one!
+
+                for(int i=0; i<3; i++) {
+                    View productLayout = LayoutInflater.from(getBaseContext()).inflate(R.layout.product, mRelativeLayout, false);
+
+                    TextView productName = (TextView) productLayout.findViewById(R.id.productName);
+                    productName.setText(dummyShop.getTitle());
+
+                    ImageView productThumb = (ImageView) productLayout.findViewById(R.id.Thumbnail);
+                    productThumb.setImageBitmap(mNaverPrImg);
+
+                    TextView productPrice = (TextView) productLayout.findViewById(R.id.price);
+                    productPrice.setText(String.valueOf(dummyShop.getLprice()));
+
+                    mRelativeLayout.addView(productLayout);
+                }
+
+            } else {
+                // goto next thumbnail img or next comb. keyword
             }
+
+            // Bitmap bmp = Bitmap.createBitmap(addrOutput.cols(), addrOutput.rows(), Bitmap.Config.ARGB_8888);
+            // Utils.matToBitmap(addrOutput, bmp);
+
+            // mMainImage.setImageBitmap(bmp);
+
+            Log.i("complete", "complete");
         }
     };
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 
         if (!OpenCVLoader.initDebug()) {
@@ -221,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 //            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
-
 
     @Override
     public void onCameraViewStarted(int width, int height) {
@@ -238,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         matInput = inputFrame.rgba();
 
-        if ( matResult != null ) matResult.release();
+        if (matResult != null) matResult.release();
         matResult = new Mat(matInput.rows(), matInput.cols(), matInput.type());
 
         ConvertRGBtoGray(matInput.getNativeObjAddr(), matResult.getNativeObjAddr());
@@ -246,21 +310,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         return matResult;
     }
 
-
-
-    //여기서부턴 퍼미션 관련 메소드
-    static final int PERMISSIONS_REQUEST_CODE = 1000;
-    String[] PERMISSIONS  = {"android.permission.CAMERA"};
-
     private boolean hasPermissions(String[] permissions) {
         int result;
 
         //스트링 배열에 있는 퍼미션들의 허가 상태 여부 확인
-        for (String perms : permissions){
+        for (String perms : permissions) {
 
             result = ContextCompat.checkSelfPermission(this, perms);
 
-            if (result == PackageManager.PERMISSION_DENIED){
+            if (result == PackageManager.PERMISSION_DENIED) {
                 //허가 안된 퍼미션 발견
                 return false;
             }
@@ -271,17 +329,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
 
-
-
     @TargetApi(Build.VERSION_CODES.M)
     private void showDialogForPermission(String msg) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder( MainActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(CVMainActivity.this);
         builder.setTitle("알림");
         builder.setMessage(msg);
         builder.setCancelable(false);
         builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id){
+            public void onClick(DialogInterface dialog, int id) {
                 requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
             }
         });
@@ -292,10 +348,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
         builder.create().show();
     }
-
-
-
-
 
 
     public void startGalleryChooser() {
@@ -494,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
 
         String message = "I found these things!!!!!!!!:\n\n";
-        WebDetection annotation =   response.getResponses().get(0).getWebDetection();
+        WebDetection annotation = response.getResponses().get(0).getWebDetection();
         if (annotation != null) {
             System.out.println("Entity:Score");
             System.out.println("===============");
@@ -547,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             for (EntityAnnotation entity : annotations) {
                 message += String.format(Locale.KOREAN, "%.3f: %s", entity.getScore(), entity.getDescription());
                 message += "\n";
-                System.out.println(entity.getDescription() + " : "  + entity.getScore());
+                System.out.println(entity.getDescription() + " : " + entity.getScore());
             }
         } else {
             message += "nothing";
@@ -556,4 +608,23 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         return message;
     }
 
+    public Bitmap getBitmapFromURL(String src) {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(src);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            BitmapFactory.Options op = new BitmapFactory.Options();
+            op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap myBitmap = BitmapFactory.decodeStream(input, null, op);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
 }
