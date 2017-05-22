@@ -25,11 +25,12 @@
         android:id="@+id/grid_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
         android:stretchMode="columnWidth"
-        android:verticalSpacing="1dp"
-        android:horizontalSpacing="1dp"
+        android:padding="10dp"
+        android:verticalSpacing="5dp"
+        android:horizontalSpacing="5dp"
+        android:background="#11555555"
         android:numColumns="2">
-    </GridView>>
+    </GridView>
 
 </LinearLayout>

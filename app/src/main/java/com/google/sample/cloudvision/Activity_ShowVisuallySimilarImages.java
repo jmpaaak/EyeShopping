@@ -20,17 +20,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -59,11 +56,11 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ"; // input ur key
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
-    private static final int NEXT_REQUEST = 1000;
+    private static final int SELECT_REQUEST = 1000;
 
     private static final String TAG = Activity_ShowVisuallySimilarImages.class.getSimpleName();
 
@@ -91,9 +88,6 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
     }
 
     private void callCloudVision(final Bitmap bitmap) throws IOException {
-        // Switch text to loading
-        //mImageDetails.setText(R.string.loading_message);
-
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
             @Override
@@ -174,7 +168,6 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
             }
 
             protected void onPostExecute(ArrayList<String> result) {
-                ArrayList<VisuallySimilar_GridItem> items = new ArrayList<>();
                 final ArrayList<String> urls = result;
 
                 new AsyncTask<Object, Void, ArrayList<VisuallySimilar_GridItem>>() {
@@ -196,105 +189,6 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
                     }
 
                     protected void onPostExecute(ArrayList<VisuallySimilar_GridItem> items) {
-                        for(int i=0;i< urls.size();i=i+2)
-                        {
-                            if(i+1 < urls.size()) {
-                                Bitmap bitmap1 = items.get(i).getImage();
-                                Bitmap bitmap2 = items.get(i+1).getImage();
-
-                                Bitmap resizedBitmap1;
-                                Bitmap resizedBitmap2;
-
-                                int bitmap1_width = bitmap1.getWidth();
-                                int bitmap1_height = bitmap1.getHeight();
-
-                                int bitmap2_width = bitmap2.getWidth();
-                                int bitmap2_height = bitmap2.getHeight();
-
-                                int sum_width = bitmap1_width + bitmap2_width;
-                                int sum_height = bitmap1_height + bitmap2_height;
-
-                                WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
-                                Display dis = wm.getDefaultDisplay();
-                                Point pt = new Point();
-                                dis.getSize(pt);
-
-                                int device_width = pt.x;
-                                int device_height = pt.y;
-
-                                int higher_width;
-                                int higher_height;
-
-                                if(bitmap1_width >= bitmap2_width) {
-                                    if(bitmap1_width/2 > device_width) {
-
-                                    }
-                                    else {
-                                        if(bitmap1_height >= bitmap2_height) {
-                                            Log.d(TAG, Integer.toString(bitmap1_width));
-                                            Log.d(TAG, Integer.toString(sum_width));
-                                            Log.d(TAG, Integer.toString(device_width));
-                                            Log.d(TAG, Integer.toString((int)((float)bitmap1_width/(float)sum_width * (float)device_width)));
-
-                                            resizedBitmap1 = Bitmap.createScaledBitmap(bitmap1,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap1_height, false);
-
-                                            resizedBitmap2 = Bitmap.createScaledBitmap(bitmap2,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap1_height, false);
-
-                                            items.get(i).setImage(resizedBitmap1);
-                                            items.get(i+1).setImage(resizedBitmap2);
-                                        }
-                                        else {
-                                            resizedBitmap1 = Bitmap.createScaledBitmap(bitmap1,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap2_height, false);
-
-                                            resizedBitmap2 = Bitmap.createScaledBitmap(bitmap2,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap2_height, false);
-
-                                            items.get(i).setImage(resizedBitmap1);
-                                            items.get(i+1).setImage(resizedBitmap2);
-                                        }
-                                    }
-                                }
-                                else {
-                                    if(bitmap2_width/2 > device_width) {
-
-                                    }
-                                    else {
-                                        if(bitmap1_height >= bitmap2_height) {
-                                            resizedBitmap1 = Bitmap.createScaledBitmap(bitmap1,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap1_height, false);
-
-                                            resizedBitmap2 = Bitmap.createScaledBitmap(bitmap2,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap1_height, false);
-
-                                            items.get(i).setImage(resizedBitmap1);
-                                            items.get(i+1).setImage(resizedBitmap2);
-                                        }
-                                        else {
-                                            resizedBitmap1 = Bitmap.createScaledBitmap(bitmap1,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap2_height, false);
-
-                                            resizedBitmap2 = Bitmap.createScaledBitmap(bitmap2,
-                                                    (int)((float)bitmap1_width/(float)sum_width * (float)device_width),
-                                                    bitmap2_height, false);
-
-                                            items.get(i).setImage(resizedBitmap1);
-                                            items.get(i+1).setImage(resizedBitmap2);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
                         gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
                         gridview.setAdapter(gridViewAdapter);
                     }
@@ -419,12 +313,25 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Bitmap bitmap = aItem.getImage();
-                    String url = aItem.getUrl();
+                    final String url = aItem.getUrl();
 
+                    /*
+                    setContentView(R.layout.grid_view_select);
+
+                    ImageView select_image_view = (ImageView)findViewById(R.id.selection_image_view);
+                    select_image_view.setImageBitmap(bitmap);
+                    */
+
+                    Intent intent = new Intent(getApplicationContext(), Activity_ShowVisually_Select.class);
+                    intent.putExtra("url", url);
+                    startActivityForResult(intent, SELECT_REQUEST);
+
+
+                    /*
                     Intent intent = new Intent(getApplicationContext(), Activity_Next.class);
-                    //intent.putExtra("bitmap", bitmap);
                     intent.putExtra("url", url);
                     startActivityForResult(intent, NEXT_REQUEST);
+                    */
                 }
             });
         }
@@ -433,6 +340,4 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
             this.image.setImageBitmap(bitmap);
         }
     }
-
-    
 }
