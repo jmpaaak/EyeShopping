@@ -16,6 +16,7 @@ out/
 # Gradle files
 .gradle/
 build/
+build.gradle
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -34,7 +35,19 @@ captures/
 
 # Intellij
 *.iml
-.idea/workspace.xml
+.idea/*
 
 # Keystore files
 *.jks
+.DS_Store
+
+.DS_Store
+
+# CMake ������ sdk�� ������Ʈ �ҽ� path�� ���� �ٲ�
+CMakeLists.txt
+
+# bakup file
+*.bak
+
+# externalNativeBuild
+app/.externalNativeBuild/
