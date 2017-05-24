@@ -34,6 +34,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+
 public class MainActivity extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ"; // input ur key
     public static final String FILE_NAME = "temp.jpg";
@@ -89,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         startGalleryChooser();
     }
 
+
     public void startGalleryChooser() {
         if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Intent intent = new Intent();
@@ -141,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -177,5 +180,4 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
-
 }

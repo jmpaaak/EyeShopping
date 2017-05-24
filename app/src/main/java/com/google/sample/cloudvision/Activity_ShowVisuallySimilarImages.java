@@ -73,7 +73,6 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         setContentView(R.layout.activity_visually_similar_image);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         Intent intent = getIntent();
         Bitmap bitmap = intent.getParcelableExtra("bitmap");
 
@@ -87,7 +86,7 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
-    private void callCloudVision(final Bitmap bitmap) throws IOException {
+    public void callCloudVision(final Bitmap bitmap) throws IOException {
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
             @Override
@@ -217,7 +216,7 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-    private ArrayList<String> convertResponseToString(BatchAnnotateImagesResponse response) {
+    public ArrayList<String> convertResponseToString(BatchAnnotateImagesResponse response) {
 
         ArrayList<String> urls = new ArrayList<>();
 
@@ -340,4 +339,6 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
             this.image.setImageBitmap(bitmap);
         }
     }
+
+
 }
