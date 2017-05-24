@@ -1,3 +1,0 @@
-D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/native-lib.dir
-D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/edit_cache.dir
-D:/git-local-repos/workspace.android/EyeShopping/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/rebuild_cache.dir
