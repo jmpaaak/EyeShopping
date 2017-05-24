@@ -23,40 +23,41 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Activity_Next extends AppCompatActivity {
+public class Activity_ShowVisuallySimilarImages_Select extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ"; // input ur key
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
     private static final int NEXT_REQUEST = 1000;
-
-    private static final String TAG = Activity_Next.class.getSimpleName();
+    private static final String TAG = Activity_ShowVisuallySimilarImages_Select.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_next);
+        setContentView(R.layout.activity_visually_similar_image_select);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Button cancleButton = (Button)findViewById(R.id.selection_cancle);
+        Button selectButton = (Button)findViewById(R.id.selection_select);
+
         Intent intent = getIntent();
-        String url = intent.getStringExtra("url");
-        Uri uri = Uri.parse(intent.getStringExtra("uri"));
+        final String url = intent.getStringExtra("url");
+        final Uri uri = Uri.parse(intent.getStringExtra("uri"));
 
-        TextView textView = (TextView)findViewById(R.id.text_view);
-        String text = "Url : " + url + "\nUri: " +uri.toString();
-        textView.setText(text);
-
-        Bitmap bitmap = null;
         // get Bitmap image from uri
         try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            ImageView imageView = (ImageView)findViewById(R.id.selection_image_view);
+            imageView.setImageBitmap(bitmap);
+
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -65,7 +66,21 @@ public class Activity_Next extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        ImageView imageView = (ImageView)findViewById(R.id.image_view);
-        imageView.setImageBitmap(bitmap);
+        cancleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), Activity_Next.class);
+                intent.putExtra("url", url);
+                intent.putExtra("uri", uri.toString());
+                startActivityForResult(intent, NEXT_REQUEST);
+            }
+        });
     }
 }
