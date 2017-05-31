@@ -15,7 +15,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.google.sample.cloudvision"
+        applicationId "com.team.formal.eyeshopping"
         minSdkVersion 22
         targetSdkVersion 25
         versionCode 1
@@ -25,6 +25,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
         }
     }
 }
@@ -38,6 +43,7 @@ dependencies {
     compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
     compile 'com.google.cloud:google-cloud-vision:0.17.1-beta'
     compile 'com.google.apis:google-api-services-vision:v1-rev354-1.22.0'
+    compile project(':openCVLibrary320')
 }
 
 configurations {
