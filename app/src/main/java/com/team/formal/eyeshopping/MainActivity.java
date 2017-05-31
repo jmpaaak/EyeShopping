@@ -33,7 +33,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
@@ -58,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
     static final int PERMISSIONS_REQUEST_CODE = 1000;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
+    public String our_uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             bitmap = uploadImage(data.getData());
 
             Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImages.class);
-            intent.putExtra("bitmap", bitmap);
+            intent.putExtra("uri", our_uri);
             startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST);
         }
         else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             bitmap = uploadImage(photoUri);
 
             Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImages.class);
-            intent.putExtra("bitmap", bitmap);
+            intent.putExtra("uri", our_uri);
             startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST);
         }
     }
@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 // scale the image to save on bandwidth
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 System.out.println("respones!" + uri.getPath());
+                our_uri = uri.toString();
                 return bitmap;
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
