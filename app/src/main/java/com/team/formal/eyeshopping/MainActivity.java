@@ -33,6 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
@@ -49,13 +50,13 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public static final String FILE_NAME = "temp.jpg";
-    static final int PERMISSIONS_REQUEST_CODE = 1000;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
+    static final int PERMISSIONS_REQUEST_CODE = 1000;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
 
     @Override
@@ -304,3 +305,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+
