@@ -17,6 +17,7 @@
 package com.team.formal.eyeshopping;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -26,7 +27,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -41,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class ActivityFindingResults extends Activity {
 
@@ -48,6 +53,10 @@ public class ActivityFindingResults extends Activity {
     private ViewGroup mRelativeLayout;
     private Bitmap mNaverPrImg;
     private Mat userSelImg = null;
+
+    // Grid View 전역 변수
+    GridView gridView;
+    GridViewAdapter gridViewAdapter;
 
     static {
         System.loadLibrary("native-lib");
@@ -64,7 +73,7 @@ public class ActivityFindingResults extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finding_results);
 
-        mRelativeLayout = (ViewGroup) findViewById(R.id.contentMain);
+        gridView = (GridView) findViewById(R.id.list_view);
 
         try {
             // TODO 이것도 naverPrImgTarget 처럼.. url로 처리
@@ -114,20 +123,16 @@ public class ActivityFindingResults extends Activity {
 
             if(ret == 1) { // find one!
 
-                for(int i=0; i<3; i++) {
-                    View productLayout = LayoutInflater.from(getBaseContext()).inflate(R.layout.product, mRelativeLayout, false);
+                ArrayList<Results_GridItem> items = new ArrayList<>();
 
-                    TextView productName = (TextView) productLayout.findViewById(R.id.productName);
-                    productName.setText(dummyShop.getTitle());
-
-                    ImageView productThumb = (ImageView) productLayout.findViewById(R.id.Thumbnail);
-                    productThumb.setImageBitmap(mNaverPrImg);
-
-                    TextView productPrice = (TextView) productLayout.findViewById(R.id.price);
-                    productPrice.setText(String.valueOf(dummyShop.getLprice()));
-
-                    mRelativeLayout.addView(productLayout);
+                for(int i=0; i<20; i++) {
+                    items.add(new Results_GridItem(dummyShop.getTitle(),
+                                                    mNaverPrImg,
+                                                    dummyShop.getLprice()));
                 }
+
+                gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
+                gridView.setAdapter(gridViewAdapter);
 
             } else {
                 // goto next thumbnail img or next comb. keyword
@@ -185,6 +190,99 @@ public class ActivityFindingResults extends Activity {
             return null;
         } finally {
             if (connection != null) connection.disconnect();
+        }
+    }
+
+    /*
+        그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
+     */
+    private class GridViewAdapter extends BaseAdapter {
+        Context context;
+        ArrayList<ActivityFindingResults.Results_GridItem> gridItems;
+
+        private GridViewAdapter(Context context, ArrayList<ActivityFindingResults.Results_GridItem> gridItems) {
+            this.context = context;
+            this.gridItems = gridItems;
+        }
+
+        public int getCount() {
+            return gridItems.size();
+        }
+
+        public ActivityFindingResults.Results_GridItem getItem(int position) {
+            return gridItems.get(position);
+        }
+
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ActivityFindingResults.Results_GridView gridView;
+
+            if(convertView == null) {
+                gridView = new ActivityFindingResults.Results_GridView(this.context, this.gridItems.get(position));
+            } else {
+                gridView = (ActivityFindingResults.Results_GridView) convertView;
+            }
+
+            return gridView;
+        }
+    }
+
+    /*
+        그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
+     */
+    private class Results_GridItem {
+        private Bitmap thumb;
+        private String productName;
+        private int price;
+
+        public Results_GridItem(String productName, Bitmap thumb, int price) {
+            this.thumb = thumb;
+            this.productName = productName;
+            this.price = price;
+        }
+    }
+
+    /*
+        그리드뷰 뷰, xml과 연결된 레이아웃 클래스
+     */
+    private class Results_GridView extends LinearLayout {
+        private ViewGroup vGroup;
+        private ImageView thumbView;
+        private TextView productNameView;
+        private TextView priceView;
+
+        public Results_GridView(Context context, final ActivityFindingResults.Results_GridItem aItem) {
+            super(context);
+
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            inflater.inflate(R.layout.grid_list_item, this, true);
+
+            vGroup = (ViewGroup) findViewById(R.id.grid_item_list_view);
+            thumbView = (ImageView) findViewById(R.id.product_thumbnail);
+            productNameView = (TextView) findViewById(R.id.product_name);
+            priceView = (TextView) findViewById(R.id.product_price);
+
+            thumbView.setImageBitmap(aItem.thumb);
+            productNameView.setText(aItem.productName);
+            priceView.setText(String.valueOf(aItem.price));
+
+//            image.setOnClickListener(new OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Bitmap bitmap = aItem.getImage();
+//                    String url = aItem.getUrl();
+//                    String uri = aItem.getUri();
+//
+//                    Intent intent = new Intent(getApplicationContext(), ActivityFindingResults.class);
+//                    intent.putExtra("url", url);
+//                    intent.putExtra("uri", uri);
+//                    startActivityForResult(intent, 77777);
+//                }
+//            });
         }
     }
 
