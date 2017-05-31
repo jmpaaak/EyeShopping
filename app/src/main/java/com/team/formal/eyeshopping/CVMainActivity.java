@@ -136,12 +136,6 @@ public class CVMainActivity extends AppCompatActivity implements CameraBridgeVie
         }
     };
 
-    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
-
-    public native void CornerHarrisDemo(long addrInputImage, long addrOutput);
-
-    public native int AkazeFeatureMatching(long userSelImage, long naverPrImage);
-
 
     private ViewGroup mRelativeLayout;
 
@@ -151,36 +145,6 @@ public class CVMainActivity extends AppCompatActivity implements CameraBridgeVie
         setContentView(R.layout.content_main);
 
         mRelativeLayout = (ViewGroup) findViewById(R.id.contentMain);
-
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-
-        //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-//                builder
-//                        .setMessage(R.string.dialog_select_prompt)
-//                        .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                startGalleryChooser();
-//                            }
-//                        })
-//                        .setNegativeButton(R.string.dialog_select_camera, new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                startCamera();
-//                            }
-//                        });
-//                builder.create().show();
-//            }
-//        });
-
-       // mImageDetails = (TextView) findViewById(R.id.image_details);
-        // mMainImage = (ImageView) findViewById(R.id.main_image);
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //퍼미션 상태 확인

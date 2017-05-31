@@ -17,7 +17,7 @@ using namespace std;
 
 extern "C" {
 JNIEXPORT jint JNICALL
-Java_com_team_formal_eyeshopping_CVMainActivity_AkazeFeatureMatching(JNIEnv *env, jobject instance,
+Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNIEnv *env, jobject instance,
                                                                jlong addrSelectedImage,
                                                                jlong addrSearchedImage) {
     Mat selMat = *(Mat*) addrSelectedImage;

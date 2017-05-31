@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     return (0);
 }
 */
-Java_com_team_formal_eyeshopping_CVMainActivity_CornerHarrisDemo(JNIEnv *env, jobject instance,
+Java_com_team_formal_eyeshopping_ActivityFindingResults_CornerHarrisDemo(JNIEnv *env, jobject instance,
                                                                 jlong addrInputImage,
                                                                 jlong addrOutput) {
 

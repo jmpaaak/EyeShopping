@@ -36,15 +36,17 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.android.support:design:25.1.1'
     compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
     compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
+    compile project(':openCVLibrary320')
+    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile 'com.android.support:design:25.1.1'
     compile 'com.google.cloud:google-cloud-vision:0.17.1-beta'
     compile 'com.google.apis:google-api-services-vision:v1-rev354-1.22.0'
-    compile project(':openCVLibrary320')
+    compile 'com.android.support.constraint:constraint-layout:+'
+    testCompile 'junit:junit:4.12'
 }
+
 
 configurations {
     compile.exclude group: "org.apache.httpcomponents", module: "httpclient"
