@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public static final int CAMERA_IMAGE_REQUEST = 3;
     //여기서부턴 퍼미션 관련 메소드
     static final int PERMISSIONS_REQUEST_CODE = 1000;
-    private static final String CLOUD_VISION_API_KEY = ""; // input ur key
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -105,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public native void CornerHarrisDemo(long addrInputImage, long addrOutput);
 
     public native int AkazeFeatureMatching(long userSelImage, long naverPrImage);
-
 
     private ViewGroup mRelativeLayout;
 
@@ -348,11 +346,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
     }
 }
-
-
-
-
-
 
 
 // TODO
