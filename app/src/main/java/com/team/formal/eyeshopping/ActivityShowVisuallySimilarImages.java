@@ -24,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -53,6 +54,7 @@ import com.google.api.services.vision.v1.model.WebImage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -63,11 +65,10 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
-
     private static final int SELECT_REQUEST = 1000;
-
     private static final String TAG = ActivityShowVisuallySimilarImages.class.getSimpleName();
 
+    // Grid View 전역 변수
     GridView gridview;
     GridViewAdapter gridViewAdapter;
 
@@ -77,9 +78,22 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         setContentView(R.layout.activity_visually_similar_image);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Intent intent = getIntent();
-        Bitmap bitmap = intent.getParcelableExtra("bitmap");
+        Uri uri = Uri.parse(intent.getStringExtra("uri"));
+        Bitmap bitmap = null;
+        // get Bitmap image from uri
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         gridview = (GridView)findViewById(R.id.grid_view);
 
@@ -91,6 +105,9 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    /*
+        Child Activity에서 종료시 호출 되는 함수
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -99,6 +116,10 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    /*
+        비젼 API 호출 후, Image Url을 저장하고 이를 그리드 뷰에 담는다.
+        총 2개의 비동기
+     */
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
@@ -244,6 +265,9 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         }.execute();
     }
 
+    /*
+        비동기 태스크 후 호출 되는 함수
+     */
     private ArrayList<String> convertResponseToString(BatchAnnotateImagesResponse response) {
 
         ArrayList<String> urls = new ArrayList<>();
@@ -261,6 +285,9 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         return urls;
     }
 
+    /*
+        그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
+     */
     private class GridViewAdapter extends BaseAdapter {
         Context context;
         ArrayList<VisuallySimilar_GridItem> gridItems;
@@ -296,6 +323,9 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    /*
+        그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
+     */
     private class VisuallySimilar_GridItem {
         private Bitmap image;
         private String url;
@@ -329,6 +359,9 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
 
     }
 
+    /*
+        그리드뷰 뷰, xml과 연결된 레이아웃 클래스
+     */
     private class VisuallySimilar_GridView extends LinearLayout {
 
         private ImageView image;

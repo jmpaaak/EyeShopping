@@ -49,7 +49,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public static final String FILE_NAME = "temp.jpg";
-    static final int PERMISSIONS_REQUEST_CODE = 1000;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
     private static final int GALLERY_IMAGE_REQUEST = 1;
@@ -57,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_IMAGE_REQUEST = 3;
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
+    static final int PERMISSIONS_REQUEST_CODE = 1000;
+
+    public String our_uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,14 +152,15 @@ public class MainActivity extends AppCompatActivity {
             bitmap = uploadImage(data.getData());
 
             Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImages.class);
-            intent.putExtra("bitmap", bitmap);
+            intent.putExtra("uri", our_uri);
+
             startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST);
         } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
             bitmap = uploadImage(photoUri);
 
             Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImages.class);
-            intent.putExtra("bitmap", bitmap);
+            intent.putExtra("uri", our_uri);
             startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST);
         }
     }
@@ -186,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 // scale the image to save on bandwidth
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 System.out.println("respones!" + uri.getPath());
+                our_uri = uri.toString();
                 return bitmap;
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());

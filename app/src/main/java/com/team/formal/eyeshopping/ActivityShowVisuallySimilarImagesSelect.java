@@ -45,16 +45,22 @@ public class ActivityShowVisuallySimilarImagesSelect extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         Button cancleButton = (Button)findViewById(R.id.selection_cancle);
         Button selectButton = (Button)findViewById(R.id.selection_select);
 
+        // Url과 Uri를 부모 액티비티에서 받는다.
         Intent intent = getIntent();
         final String url = intent.getStringExtra("url");
         final Uri uri = Uri.parse(intent.getStringExtra("uri"));
 
         // get Bitmap image from uri
         try {
+            // 비트맵을 내부 저장소에서 Uri를 활용해 얻는다
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            // 이미지 뷰에 띄운다
             ImageView imageView = (ImageView)findViewById(R.id.selection_image_view);
             imageView.setImageBitmap(bitmap);
 
