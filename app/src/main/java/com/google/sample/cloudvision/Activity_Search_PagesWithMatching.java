@@ -33,6 +33,7 @@ import com.google.api.services.vision.v1.model.WebPage;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -40,12 +41,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -216,6 +216,7 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
 
                     String checkFirstResult = null;
                     try {
+
                         checkFirstResult = naverShopApi(firstStr);
                         Log.d("cfr__",checkFirstResult);
                     } catch (Exception e) {
@@ -396,35 +397,35 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                HttpURLConnection urlConn = null;
+                HttpURLConnection urlConnection = null;
                 try {
-                    urlConn = (HttpURLConnection) url.openConnection();
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestProperty("X-Naver-Client-ID", clientID);
+                    urlConnection.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+                    urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
+                    urlConnection.setRequestProperty("Accept","*/*");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                urlConn.setRequestProperty("X-Naver-Client-ID", clientID);
-                urlConn.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                urlConn.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
-                urlConn.setRequestProperty("Accept","*/*");
-
-                urlConn.setDoOutput(true);
-                BufferedReader br = null;
-
-                try {//
-                    InputStream is = urlConn.getInputStream();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                InputStream in = null;
                 try {
-                    br = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+                    in = new BufferedInputStream(urlConnection.getInputStream());
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
                 }
 
                 String data = "";
                 String msg = null;
+
+                BufferedReader br = null;
+                try {
+                    br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
 
                 try {
                     while ((msg = br.readLine()) != null) {
@@ -433,6 +434,9 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                Log.i("msg of br: ", data);
+
                 return data;
 
             }
