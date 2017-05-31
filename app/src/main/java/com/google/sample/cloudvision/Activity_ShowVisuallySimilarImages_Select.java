@@ -76,7 +76,8 @@ public class Activity_ShowVisuallySimilarImages_Select extends AppCompatActivity
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), Activity_Next.class);
+                // search_pageswithmatching 로 수정...
+                Intent intent = new Intent(getApplicationContext(), Activity_Search_PagesWithMatching.class);
                 intent.putExtra("url", url);
                 intent.putExtra("uri", uri.toString());
                 startActivityForResult(intent, NEXT_REQUEST);
