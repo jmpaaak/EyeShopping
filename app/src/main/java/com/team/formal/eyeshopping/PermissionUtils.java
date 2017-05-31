@@ -48,7 +48,6 @@ public class PermissionUtils {
         }
     }
 
-
     public static boolean permissionGranted(
             int requestCode, int permissionCode, int[] grantResults) {
         if (requestCode == permissionCode) {

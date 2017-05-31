@@ -9,7 +9,7 @@ using namespace cv;
 
 extern "C" {
 JNIEXPORT void JNICALL
-Java_com_team_formal_eyeshopping_CVMainActivity_ConvertRGBtoGray(JNIEnv *env,
+Java_com_team_formal_eyeshopping_MainActivity_ConvertRGBtoGray(JNIEnv *env,
                                                                jobject instance,
                                                                jlong matAddrInput,
                                                                jlong matAddrResult) {

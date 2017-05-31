@@ -29,27 +29,27 @@ import android.widget.TextView;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Activity_Next extends AppCompatActivity {
+public class AcvitiyNext extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ"; // input ur key
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
     private static final int NEXT_REQUEST = 1000;
 
-    private static final String TAG = Activity_Next.class.getSimpleName();
+    private static final String TAG = AcvitiyNext.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.google.sample.cloudvision.R.layout.activity_next);
-        Toolbar toolbar = (Toolbar) findViewById(com.google.sample.cloudvision.R.id.toolbar);
+        setContentView(R.layout.activity_next);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
         String url = intent.getStringExtra("url");
         Uri uri = Uri.parse(intent.getStringExtra("uri"));
 
-        TextView textView = (TextView)findViewById(com.google.sample.cloudvision.R.id.text_view);
+        TextView textView = (TextView)findViewById(R.id.text_view);
         String text = "Url : " + url + "\nUri: " +uri.toString();
         textView.setText(text);
 
@@ -65,7 +65,7 @@ public class Activity_Next extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        ImageView imageView = (ImageView)findViewById(com.google.sample.cloudvision.R.id.image_view);
+        ImageView imageView = (ImageView)findViewById(R.id.image_view);
         imageView.setImageBitmap(bitmap);
     }
 }

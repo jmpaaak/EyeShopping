@@ -33,20 +33,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.WebDetection;
 import com.google.api.services.vision.v1.model.WebImage;
-
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,59 +47,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
-
+public class MainActivity extends AppCompatActivity {
     public static final String FILE_NAME = "temp.jpg";
-    public static final int CAMERA_PERMISSIONS_REQUEST = 2;
-    public static final int CAMERA_IMAGE_REQUEST = 3;
-    //여기서부턴 퍼미션 관련 메소드
     static final int PERMISSIONS_REQUEST_CODE = 1000;
-    private static final String CLOUD_VISION_API_KEY = ""; // input ur key
-    private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
-    private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
     private static final int GALLERY_IMAGE_REQUEST = 1;
-
+    public static final int CAMERA_PERMISSIONS_REQUEST = 2;
+    public static final int CAMERA_IMAGE_REQUEST = 3;
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
-    static {
-        System.loadLibrary("native-lib");
-    }
-
     String[] PERMISSIONS = {"android.permission.CAMERA"};
-    private TextView mImageDetails;
-    private ImageView mMainImage;
-    private Bitmap mNaverPrImg;
-    private Mat userSelImg = null; // TODO
-
-    //    private static final String TAG = "opencv";
-    private CameraBridgeViewBase mOpenCvCameraView;
-    private Mat matInput;
-    private Mat matResult;
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
-                    mOpenCvCameraView.enableView();
-                }
-                break;
-                default: {
-                    super.onManagerConnected(status);
-                }
-                break;
-            }
-        }
-    };
-
-    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
-
-    public native void CornerHarrisDemo(long addrInputImage, long addrOutput);
-
-    public native int AkazeFeatureMatching(long userSelImage, long naverPrImage);
-
-
-    private ViewGroup mRelativeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,15 +66,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setSupportActionBar(toolbar);
     }
 
+    /*
+        Camera Button Click시 호출
+     */
     public void onCameraButtonClick(View view) {
         startCamera();
     }
 
+    /*
+        Gallery Button Click시 호출
+     */
     public void onGalleryButtonClick(View view) {
         startGalleryChooser();
         setContentView(R.layout.content_main);
-
-        mRelativeLayout = (ViewGroup) findViewById(R.id.contentMain);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //퍼미션 상태 확인
@@ -184,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         return new File(dir, FILE_NAME);
     }
 
+    /*
+        Chile Activity 종료 후 돌아올 시 이벤트 처리 함수
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -193,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             bitmap = uploadImage(data.getData());
 
-            Intent intent = new Intent(getApplicationContext(), Activity_ShowVisuallySimilarImages.class);
+            Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImages.class);
             intent.putExtra("bitmap", bitmap);
             startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST);
         }
@@ -201,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
             bitmap = uploadImage(photoUri);
 
-            Intent intent = new Intent(getApplicationContext(), Activity_ShowVisuallySimilarImages.class);
+            Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImages.class);
             intent.putExtra("bitmap", bitmap);
             startActivityForResult(intent, SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST);
         }
@@ -348,101 +304,3 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
     }
 }
-
-
-
-
-
-
-
-// TODO
-/*
-        try {
-            // TODO 이것도 naverPrImgTarget 처럼.. url로 처리
-            userSelImg = Utils.loadResource(this, R.drawable.user_image, CvType.CV_8UC4); // return BGR 순
-//            naverPrImg = Utils.loadResource(this, R.drawable.marmont_bag, CvType.CV_8UC4);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // SET DUMMY DATA
-        final Shop dummyShop = new Shop();
-        dummyShop.setImage("http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
-        dummyShop.setTitle("Marmont Handbag");
-        dummyShop.setLprice(2340958);
-
-        // Thread로 웹서버에 접속
-        new Thread() {
-            public void run() {
-                mNaverPrImg = getBitmapFromURL(dummyShop.getImage()); // 입력 이미지 Url
-
-                Bundle bun = new Bundle();
-                bun.putSerializable("productInfo", dummyShop);
-                Message msg = detectHandler.obtainMessage();
-                msg.setData(bun);
-                detectHandler.sendMessage(msg);
-            }
-        }.start();
-    }
-
-    Handler detectHandler = new Handler() {
-        public void handleMessage(Message msg) {
-
-            Bundle bun = msg.getData();
-            Shop dummyShop = (Shop) bun.getSerializable("productInfo");
-
-            Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
-            Mat naverPrImgTarget = new Mat(mNaverPrImg.getWidth(), mNaverPrImg.getHeight(), CvType.CV_8UC4);
-
-            Utils.bitmapToMat(mNaverPrImg, naverPrImgTarget);
-
-            Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_BGR2RGB);
-
-            Imgproc.cvtColor(naverPrImgTarget, naverPrImgTarget, Imgproc.COLOR_RGBA2RGB);
-
-            int ret = AkazeFeatureMatching(userSelImgTarget.getNativeObjAddr(),
-                                            naverPrImgTarget.getNativeObjAddr());
-
-            if(ret == 1) { // find one!
-
-                for(int i=0; i<3; i++) {
-                    View productLayout = LayoutInflater.from(getBaseContext()).inflate(R.layout.product, mRelativeLayout, false);
-
-                    TextView productName = (TextView) productLayout.findViewById(R.id.productName);
-                    productName.setText(dummyShop.getTitle());
-
-                    ImageView productThumb = (ImageView) productLayout.findViewById(R.id.Thumbnail);
-                    productThumb.setImageBitmap(mNaverPrImg);
-
-                    TextView productPrice = (TextView) productLayout.findViewById(R.id.price);
-                    productPrice.setText(String.valueOf(dummyShop.getLprice()));
-
-                    mRelativeLayout.addView(productLayout);
-                }
-
-            } else {
-                // goto next thumbnail img or next comb. keyword
-            }
-
-            // Bitmap bmp = Bitmap.createBitmap(addrOutput.cols(), addrOutput.rows(), Bitmap.Config.ARGB_8888);
-            // Utils.matToBitmap(addrOutput, bmp);
-
-            // mMainImage.setImageBitmap(bmp);
-
-            Log.i("complete", "complete");
-        }
-    };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "onResume :: Internal OpenCV library not found.");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, mLoaderCallback);
-        } else {
-            Log.d(TAG, "onResume :: OpenCV library found inside package. Using it!");
-//            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
-    }
-*/

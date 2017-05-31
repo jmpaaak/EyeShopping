@@ -6,7 +6,7 @@
     android:background="@drawable/grid_item_border"
     android:padding="1dp">
 
-    <com.google.sample.cloudvision.SquareImageView
+    <com.team.formal.eyeshopping.SquareImageView
         android:id="@+id/grid_item_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

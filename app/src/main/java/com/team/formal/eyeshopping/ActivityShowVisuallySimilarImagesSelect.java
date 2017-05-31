@@ -30,32 +30,38 @@ import android.widget.ImageView;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Activity_ShowVisuallySimilarImages_Select extends AppCompatActivity {
+public class ActivityShowVisuallySimilarImagesSelect extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ"; // input ur key
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 
     private static final int NEXT_REQUEST = 1000;
-    private static final String TAG = Activity_ShowVisuallySimilarImages_Select.class.getSimpleName();
+    private static final String TAG = ActivityShowVisuallySimilarImagesSelect.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.google.sample.cloudvision.R.layout.activity_visually_similar_image_select);
-        Toolbar toolbar = (Toolbar) findViewById(com.google.sample.cloudvision.R.id.toolbar);
+        setContentView(R.layout.activity_visually_similar_image_select);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button cancleButton = (Button)findViewById(com.google.sample.cloudvision.R.id.selection_cancle);
-        Button selectButton = (Button)findViewById(com.google.sample.cloudvision.R.id.selection_select);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        Button cancleButton = (Button)findViewById(R.id.selection_cancle);
+        Button selectButton = (Button)findViewById(R.id.selection_select);
+
+        // Url과 Uri를 부모 액티비티에서 받는다.
         Intent intent = getIntent();
         final String url = intent.getStringExtra("url");
         final Uri uri = Uri.parse(intent.getStringExtra("uri"));
 
         // get Bitmap image from uri
         try {
+            // 비트맵을 내부 저장소에서 Uri를 활용해 얻는다
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            ImageView imageView = (ImageView)findViewById(com.google.sample.cloudvision.R.id.selection_image_view);
+            // 이미지 뷰에 띄운다
+            ImageView imageView = (ImageView)findViewById(R.id.selection_image_view);
             imageView.setImageBitmap(bitmap);
 
         } catch (FileNotFoundException e) {
@@ -76,7 +82,7 @@ public class Activity_ShowVisuallySimilarImages_Select extends AppCompatActivity
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), Activity_Next.class);
+                Intent intent = new Intent(getApplicationContext(), AcvitiyNext.class);
                 intent.putExtra("url", url);
                 intent.putExtra("uri", uri.toString());
                 startActivityForResult(intent, NEXT_REQUEST);

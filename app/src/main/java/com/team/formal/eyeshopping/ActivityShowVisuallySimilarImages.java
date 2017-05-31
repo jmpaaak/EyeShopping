@@ -59,29 +59,30 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
+public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyCct00PWxWPoXzilFo8BrgeAKawR9OiRZQ";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
-
     private static final int SELECT_REQUEST = 1000;
+    private static final String TAG = ActivityShowVisuallySimilarImages.class.getSimpleName();
 
-    private static final String TAG = Activity_ShowVisuallySimilarImages.class.getSimpleName();
-
+    // Grid View 전역 변수
     GridView gridview;
     GridViewAdapter gridViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.google.sample.cloudvision.R.layout.activity_visually_similar_image);
-        Toolbar toolbar = (Toolbar) findViewById(com.google.sample.cloudvision.R.id.toolbar);
+        setContentView(R.layout.activity_visually_similar_image);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Intent intent = getIntent();
         Bitmap bitmap = intent.getParcelableExtra("bitmap");
 
-        gridview = (GridView)findViewById(com.google.sample.cloudvision.R.id.grid_view);
+        gridview = (GridView)findViewById(R.id.grid_view);
 
         try {
             callCloudVision(bitmap);
@@ -91,6 +92,9 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    /*
+        Child Activity에서 종료시 호출 되는 함수
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -99,10 +103,14 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    /*
+        비젼 API 호출 후, Image Url을 저장하고 이를 그리드 뷰에 담는다.
+        총 2개의 비동기
+     */
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
-            final ProgressDialog asyncDialog = new ProgressDialog(Activity_ShowVisuallySimilarImages.this);
+            final ProgressDialog asyncDialog = new ProgressDialog(ActivityShowVisuallySimilarImages.this);
 
             @Override
             protected void onPreExecute() {
@@ -244,6 +252,9 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         }.execute();
     }
 
+    /*
+        비동기 태스크 후 호출 되는 함수
+     */
     private ArrayList<String> convertResponseToString(BatchAnnotateImagesResponse response) {
 
         ArrayList<String> urls = new ArrayList<>();
@@ -261,6 +272,9 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         return urls;
     }
 
+    /*
+        그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
+     */
     private class GridViewAdapter extends BaseAdapter {
         Context context;
         ArrayList<VisuallySimilar_GridItem> gridItems;
@@ -296,6 +310,9 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
         }
     }
 
+    /*
+        그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
+     */
     private class VisuallySimilar_GridItem {
         private Bitmap image;
         private String url;
@@ -329,6 +346,9 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
 
     }
 
+    /*
+        그리드뷰 뷰, xml과 연결된 레이아웃 클래스
+     */
     private class VisuallySimilar_GridView extends LinearLayout {
 
         private ImageView image;
@@ -337,9 +357,9 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
             super(context);
 
             LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            inflater.inflate(com.google.sample.cloudvision.R.layout.grid_view_item, this, true);
+            inflater.inflate(R.layout.grid_view_item, this, true);
 
-            image = (ImageView)findViewById(com.google.sample.cloudvision.R.id.grid_item_image_view);
+            image = (ImageView)findViewById(R.id.grid_item_image_view);
             image.setImageBitmap(aItem.getImage());
 
             image.setOnClickListener(new OnClickListener() {
@@ -349,7 +369,7 @@ public class Activity_ShowVisuallySimilarImages extends AppCompatActivity {
                     String url = aItem.getUrl();
                     String uri = aItem.getUri();
 
-                    Intent intent = new Intent(getApplicationContext(), Activity_ShowVisuallySimilarImages_Select.class);
+                    Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImagesSelect.class);
                     intent.putExtra("url", url);
                     intent.putExtra("uri", uri);
                     startActivityForResult(intent, SELECT_REQUEST);
