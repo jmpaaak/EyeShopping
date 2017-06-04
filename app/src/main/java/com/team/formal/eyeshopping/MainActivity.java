@@ -19,6 +19,7 @@ package com.team.formal.eyeshopping;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -45,9 +46,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static DBHelper DBInstance;
+
     public static final String FILE_NAME = "temp.jpg";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
@@ -58,11 +63,29 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
+    static final String DBName = "EyeShopping.db";
+
     public String our_uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // if you want to rest call this.deleteDatabase("EyeShopping.db")
+        this.deleteDatabase(DBName); // initialize DB tables
+        DBInstance = new DBHelper(this, DBName, null, 1);
+//        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
+//        DBInstance.insertSearchedProduct("test2 cKeyword", (new Date()).getTime(), 0);
+
+//        Cursor c = DBInstance.getTuples("searched_product");
+//        while(c.moveToNext()) {
+//            Log.i("id", ""+c.getInt(0));
+//            Log.i("cKeys", c.getString(1));
+//            Log.i("date", ""+c.getInt(2));
+//            boolean like = c.getInt(3) > 0;
+//            Log.i("like", ""+like);
+//        }
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

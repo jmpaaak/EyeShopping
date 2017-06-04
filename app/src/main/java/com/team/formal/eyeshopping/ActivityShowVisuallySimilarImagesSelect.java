@@ -63,7 +63,6 @@ public class ActivityShowVisuallySimilarImagesSelect extends AppCompatActivity {
             // 이미지 뷰에 띄운다
             ImageView imageView = (ImageView)findViewById(R.id.selection_image_view);
             imageView.setImageBitmap(bitmap);
-
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
