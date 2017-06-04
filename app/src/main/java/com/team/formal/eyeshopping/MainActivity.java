@@ -55,6 +55,9 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
+
+    public static DBHelper DBInstance;
+
     public static final String FILE_NAME = "temp.jpg";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
+    static final String DBName = "EyeShopping.db";
     // 갤러리 카메라에서 받은 이미지를 다음 액티비티로 넘겨주기 위한 URI
     public String our_uri;
 
@@ -84,6 +88,22 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // if you want to rest call this.deleteDatabase("EyeShopping.db")
+        this.deleteDatabase(DBName); // initialize DB tables
+        DBInstance = new DBHelper(this, DBName, null, 1);
+//        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
+//        DBInstance.insertSearchedProduct("test2 cKeyword", (new Date()).getTime(), 0);
+
+//        Cursor c = DBInstance.getTuples("searched_product");
+//        while(c.moveToNext()) {
+//            Log.i("id", ""+c.getInt(0));
+//            Log.i("cKeys", c.getString(1));
+//            Log.i("date", ""+c.getInt(2));
+//            boolean like = c.getInt(3) > 0;
+//            Log.i("like", ""+like);
+//        }
+
         setContentView(R.layout.activity_main);
 
         // View Pager 초기 설정
