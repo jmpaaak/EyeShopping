@@ -23,34 +23,35 @@
     <ImageView
         android:id="@+id/selection_image_view"
         android:layout_width="match_parent"
-        android:layout_height="520dp">
+        android:layout_height="0dp"
+        android:layout_weight="8">
     </ImageView>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/selection_cancle"
-            android:layout_width="205dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
             android:text="Cancle"
             android:layout_gravity="center"
             />
 
         <Button
             android:id="@+id/selection_select"
-            android:layout_width="205dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
             android:text="Select"
             android:layout_gravity="center"
             />
 
     </LinearLayout>
-
-
-
-
-
 </LinearLayout>
