@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ActivityFindingResults extends Activity {
@@ -87,8 +88,9 @@ public class ActivityFindingResults extends Activity {
         final Shop dummyShop = new Shop();
         dummyShop.setImage("http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
         dummyShop.setTitle("Marmont Handbag");
-        dummyShop.setLprice(2340958);
-
+        DecimalFormat df = new DecimalFormat("#,###");
+        String num = df.format(123456);
+        dummyShop.setLprice("최저가 " +num+"원");
         // Thread로 웹서버에 접속
         new Thread() {
             public void run() {
@@ -234,12 +236,12 @@ public class ActivityFindingResults extends Activity {
     /*
         그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
      */
-    private class Results_GridItem {
+    class Results_GridItem {
         private Bitmap thumb;
         private String productName;
-        private int price;
+        private String price;
 
-        public Results_GridItem(String productName, Bitmap thumb, int price) {
+        public Results_GridItem(String productName, Bitmap thumb, String price) {
             this.thumb = thumb;
             this.productName = productName;
             this.price = price;
@@ -249,7 +251,7 @@ public class ActivityFindingResults extends Activity {
     /*
         그리드뷰 뷰, xml과 연결된 레이아웃 클래스
      */
-    private class Results_GridView extends LinearLayout {
+    static class Results_GridView extends LinearLayout {
         private ViewGroup vGroup;
         private ImageView thumbView;
         private TextView productNameView;

@@ -55,6 +55,7 @@
         </activity>
 
         <activity
+<<<<<<< HEAD
             android:name=".ActivityFindingResults"
             android:label="@string/app_name">
 
@@ -73,6 +74,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+=======
+        android:name=".ActivityFindingResults"
+        android:label="@string/app_name" />
+
+        <activity
+        android:name=".ActivityRecentSearch"
+        android:label="@string/app_name" />
+>>>>>>> 4b4c22068808ef9eed5aae030726af97f505fbc8
 
     </application>
 
