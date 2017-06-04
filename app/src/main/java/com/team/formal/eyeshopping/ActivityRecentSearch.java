@@ -3,7 +3,8 @@ package com.team.formal.eyeshopping;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,11 +16,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import static com.team.formal.eyeshopping.MainActivity.DBInstance;
 import static com.team.formal.eyeshopping.MainActivity.DBName;
-import static com.team.formal.eyeshopping.R.drawable.marmont_bag;
 
 /**
  * Created by NaJM on 2017. 6. 4..
@@ -39,19 +43,19 @@ public class ActivityRecentSearch extends Activity {
         DBInstance = new DBHelper(this, DBName, null, 1);
         Cursor c = DBInstance.getTuples("searched_product");
         while(c.moveToNext()){
-            Log.i("combination keykord",c.getString(0));
+            Log.i("combination keyword",c.getString(0));
             Log.i("selected_image_url",c.getString(1));
         }
+        Bitmap btImage = getBitmapFromURL(c.getString(0));
 
-
-        Drawable im = getDrawable(marmont_bag);
+        //Drawable im = getDrawable(marmont_bag);
         String str = "Marmont";
 
         gridView = (GridView)findViewById(R.id.recent_grid_view);
         ArrayList<Results_GridItem> items = new ArrayList<>();
 
         for(int i=0; i<20; i++) {
-            items.add(new Results_GridItem(im,str));
+            items.add(new Results_GridItem(btImage,str));
         }
         gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
         gridView.setAdapter(gridViewAdapter);
@@ -100,10 +104,10 @@ public class ActivityRecentSearch extends Activity {
         그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
      */
     private class Results_GridItem {
-        private Drawable im;
+        private Bitmap btImage;
         private String str;
-        public Results_GridItem(Drawable im, String str) {
-            this.im=im;
+        public Results_GridItem(Bitmap btImage, String str) {
+            this.btImage=btImage;
             this.str=str;
         }
     }
@@ -123,10 +127,30 @@ public class ActivityRecentSearch extends Activity {
 
             vGroup = (ViewGroup) findViewById(R.id.grid_recent_item_list_view);
             thumbView = (ImageView) findViewById(R.id.recent_product_thumbnail);
-            thumbView.setImageDrawable(aItem.im);
+            thumbView.setImageBitmap(aItem.btImage);
             strView = (TextView) findViewById(R.id.recent_str);
             strView.setText(String.valueOf(aItem.str));
 
+        }
+    }
+
+    public Bitmap getBitmapFromURL(String src) {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(src);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            BitmapFactory.Options op = new BitmapFactory.Options();
+            op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap myBitmap = BitmapFactory.decodeStream(input, null, op);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (connection != null) connection.disconnect();
         }
     }
 
