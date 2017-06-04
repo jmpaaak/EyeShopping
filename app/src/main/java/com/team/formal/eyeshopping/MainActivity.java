@@ -20,7 +20,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -52,7 +51,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
@@ -204,12 +202,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         Camera Button Click시 호출
      */
     public void onCameraButtonClick(View view) {
-        //startCamera();
-
-        Intent intent = new Intent(getApplicationContext(), ActivityRecentSearch.class);
-        startActivityForResult(intent, 237);
-
-
+        startCamera();
     }
 
     /*
