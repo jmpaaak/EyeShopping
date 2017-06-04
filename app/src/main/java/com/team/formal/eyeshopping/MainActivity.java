@@ -72,7 +72,12 @@ public class MainActivity extends AppCompatActivity {
         Camera Button Click시 호출
      */
     public void onCameraButtonClick(View view) {
-        startCamera();
+        //startCamera();
+
+        Intent intent = new Intent(getApplicationContext(), ActivityRecentSearch.class);
+        startActivityForResult(intent, 237);
+
+
     }
 
     /*

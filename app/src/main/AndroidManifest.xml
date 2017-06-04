@@ -45,9 +45,13 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
-            android:name=".ActivityFindingResults"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        android:name=".ActivityFindingResults"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name=".ActivityRecentSearch"
+            android:label="@string/app_name" />
 
     </application>
 

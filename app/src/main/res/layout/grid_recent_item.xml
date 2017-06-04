@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/grid_item_frame_layout2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/grid_item_border"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/recent_product_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="18dp"
+        android:adjustViewBounds="true"
+        app:srcCompat="@drawable/grid_item_border" />
+
+    <TextView
+        android:id="@+id/recent_str"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center"
+        android:textSize="18dp"
+        android:layout_alignTop="@+id/recent_product_thumbnail"
+        android:text="TextView"/>
+
+    <com.team.formal.eyeshopping.SquareListView
+        android:id="@+id/grid_recent_item_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        />
+
+</FrameLayout>
