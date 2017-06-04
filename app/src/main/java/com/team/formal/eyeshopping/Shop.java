@@ -1,8 +1,5 @@
 package com.team.formal.eyeshopping;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,13 +14,13 @@ public class Shop implements Serializable {
     private String title;
     private String link;
     private String image;
-    private int lprice;
+    private String lprice;
     private int hprice;
     private String mallName;
     private int productId;
     private int productType;
     public Shop(Date lastBuildDate, int total, int start, int display, Object item, String title, String link,
-                String image, int lprice, int hprice, String mallName, int productId, int productType) {
+                String image, String lprice, int hprice, String mallName, int productId, int productType) {
         super();
         this.lastBuildDate = lastBuildDate;
         this.total = total;
@@ -90,10 +87,10 @@ public class Shop implements Serializable {
     public void setImage(String image) {
         this.image = image;
     }
-    public int getLprice() {
+    public String getLprice() {
         return lprice;
     }
-    public void setLprice(int lprice) {
+    public void setLprice(String lprice) {
         this.lprice = lprice;
     }
     public int getHprice() {

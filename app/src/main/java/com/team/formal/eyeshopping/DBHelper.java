@@ -6,10 +6,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+<<<<<<< HEAD
 /**
  * Created by jongmin on 2017-06-04.
  */
 
+=======
+>>>>>>> 4b4c22068808ef9eed5aae030726af97f505fbc8
 public class DBHelper extends SQLiteOpenHelper {
     private Context context;
 

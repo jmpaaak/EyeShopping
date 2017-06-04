@@ -27,15 +27,18 @@
             android:layout_alignParentTop="true"
             android:layout_marginEnd="12dp"
             android:layout_marginTop="13dp"
-            android:text="XXXXXXXXXX" />
+            android:text="XXXXXXXXXX"
+            android:textSize="15dp" />
 
         <TextView
             android:id="@+id/price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/Thumbnail"
-            android:layout_alignParentEnd="true"
-            android:text="9999999999" />
+            android:layout_alignEnd="@+id/productName"
+            android:layout_below="@+id/productName"
+            android:layout_marginTop="17dp"
+            android:text="9999999999"
+            android:textSize="15dp" />
 
     </RelativeLayout>
 

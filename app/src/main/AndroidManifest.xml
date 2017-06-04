@@ -43,8 +43,12 @@
             android:label="@string/app_name" />
 
         <activity
-            android:name=".ActivityFindingResults"
-            android:label="@string/app_name" />
+        android:name=".ActivityFindingResults"
+        android:label="@string/app_name" />
+
+        <activity
+        android:name=".ActivityRecentSearch"
+        android:label="@string/app_name" />
 
     </application>
 
