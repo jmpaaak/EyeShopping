@@ -17,6 +17,7 @@
 package com.team.formal.eyeshopping;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -29,10 +30,15 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
@@ -47,7 +53,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
+
     public static final String FILE_NAME = "temp.jpg";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
@@ -58,14 +65,116 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
+    // 갤러리 카메라에서 받은 이미지를 다음 액티비티로 넘겨주기 위한 URI
     public String our_uri;
 
-    @Override
+    int mResources[] = {
+            R.drawable.view_example_1,
+            R.drawable.view_example_2,
+            R.drawable.view_example_3,
+            R.drawable.view_example_4
+    };
+
+    // View Pager 객체 전역 변수들
+    int dotsCount;
+    LinearLayout pager_indicator;
+    ViewPager intro_images;
+    ViewPagerAdapter mAdapter;
+    ImageView dots[];
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        // View Pager 초기 설정
+        intro_images = (ViewPager) findViewById(R.id.pager);
+        pager_indicator = (LinearLayout) findViewById(R.id.viewPagerCountDots);
+        mAdapter = new ViewPagerAdapter(getApplicationContext(), mResources);
+        intro_images.setAdapter(mAdapter);
+        intro_images.setCurrentItem(0);
+        intro_images.setOnPageChangeListener(this);
+        setUiPageViewController();
+    }
+
+    /*
+        View Pager 설정
+     */
+    private void setUiPageViewController() {
+        dotsCount = mAdapter.getCount();
+        dots = new ImageView[dotsCount];
+
+        for (int i = 0; i < dotsCount; i++) {
+            dots[i] = new ImageView(this);
+            dots[i].setImageDrawable(getResources().getDrawable(R.drawable.main_pager_non_selecteditem_dot));
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(4, 0, 4, 0);
+            pager_indicator.addView(dots[i], params);
+        }
+
+        dots[0].setImageDrawable(getResources().getDrawable(R.drawable.main_pager_selecteditem_dot));
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        for (int i = 0; i < dotsCount; i++) {
+            dots[i].setImageDrawable(getResources().getDrawable(R.drawable.main_pager_non_selecteditem_dot));
+        }
+
+        dots[position].setImageDrawable(getResources().getDrawable(R.drawable.main_pager_selecteditem_dot));
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    /*
+        View Pager Adapter
+     */
+    public class ViewPagerAdapter extends PagerAdapter {
+        private Context mContext;
+        private int[] mResources;
+
+        public ViewPagerAdapter(Context mContext, int[] mResources) {
+            this.mContext = mContext;
+            this.mResources = mResources;
+        }
+
+        @Override
+        public int getCount() {
+            return mResources.length;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == ((LinearLayout) object);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            View itemView = LayoutInflater.from(mContext).inflate(R.layout.main_pager_item, container, false);
+
+            ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_item_image_view);
+            imageView.setImageResource(mResources[position]);
+
+            container.addView(itemView);
+
+            return itemView;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((LinearLayout) object);
+        }
     }
 
     /*
