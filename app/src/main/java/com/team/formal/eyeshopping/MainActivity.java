@@ -64,13 +64,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
+    public static final int RECENT_SEARCH_REQEST = 5;
+    public static final int RECOMMEND_PRODUCT_REQUEST = 6;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
     static final String DBName = "EyeShopping.db";
 
     // 갤러리 카메라에서 받은 이미지를 다음 액티비티로 넘겨주기 위한 URI
-
     public String our_uri;
 
     int mResources[] = {
@@ -209,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
      */
     public void onGalleryButtonClick(View view) {
         startGalleryChooser();
-        setContentView(R.layout.content_main);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //퍼미션 상태 확인
@@ -256,7 +256,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.CAMERA)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", getCameraFile());
+            Uri photoUri = FileProvider.getUriForFile(getApplicationContext(),
+                    getApplicationContext().getPackageName() + ".provider",
+                    getCameraFile());
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivityForResult(intent, CAMERA_IMAGE_REQUEST);
@@ -266,6 +268,36 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public File getCameraFile() {
         File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return new File(dir, FILE_NAME);
+    }
+
+    /*
+        최근 검색어 버튼 클릭시 호출
+     */
+    public void onRecentlySearchedListButtonClick(View view) {
+        Intent intent = new Intent(getApplicationContext(), ActivityRecentSearch.class);
+        startActivityForResult(intent, RECENT_SEARCH_REQEST);
+    }
+
+    /*
+        추천 상품 버튼 클릭시 호출
+     */
+    public void onRecommendedProductListButtonClick(View view) {
+        Intent intent = new Intent(getApplicationContext(), ActivityRecommendProducts.class);
+        startActivityForResult(intent, RECOMMEND_PRODUCT_REQUEST);
+    }
+
+    /*
+        인기 상품 버튼 클릭시 호출
+     */
+    public void onPopularSearchedListButtonClick(View view) {
+
+    }
+
+    /*
+        급상승 버튼 클릭시 호출
+     */
+    public void onGreatlyIncreasedProductListButtonClick(View view) {
+
     }
 
     /*
