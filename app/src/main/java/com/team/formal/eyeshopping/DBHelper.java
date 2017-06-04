@@ -2,14 +2,9 @@ package com.team.formal.eyeshopping;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DataSetObserver;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * Created by jongmin on 2017-06-04.
@@ -36,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "combination_keyword TEXT, " +
                 "search_date LONG, " +
                 "like BOOLEAN, " +
+                "selected_image_url TEXT, " +
                 "FOREIGN KEY(combination_keyword) REFERENCES matching_combination_local(combination_keyword));");
 
         // keyword_name
@@ -58,9 +54,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /***** INSERT INTO TABLE *****/
 
-    public void insertSearchedProduct(String combinationKeyword, long searchDate, int like) { // like 0=false, 1=true
+    public void insertSearchedProduct(String combinationKeyword, long searchDate, int like, String selectedImageUrl) { // like 0=false, 1=true
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO searched_product VALUES(null, '" + combinationKeyword + "', " + searchDate + ", " + like + ");");
+        db.execSQL("INSERT INTO searched_product VALUES(null, '" + combinationKeyword + "', " + searchDate + ", " + like + ", '" + selectedImageUrl + "');");
         Log.i(combinationKeyword, " - insertSearchedProduct complete!");
     }
 
