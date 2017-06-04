@@ -1,12 +1,13 @@
 package com.team.formal.eyeshopping;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ import static com.team.formal.eyeshopping.MainActivity.DBName;
  * Created by NaJM on 2017. 6. 4..
  */
 
-public class ActivityRecentSearch extends Activity {
+public class ActivityRecentSearch extends AppCompatActivity {
 
     // Grid View 전역 변수
     GridView gridView;
@@ -39,28 +40,65 @@ public class ActivityRecentSearch extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recent_search);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         DBInstance = new DBHelper(this, DBName, null, 1);
-        Cursor c = DBInstance.getTuples("searched_product");
-        while(c.moveToNext()){
-            Log.i("combination keyword",c.getString(0));
-            Log.i("selected_image_url",c.getString(1));
-        }
-        Bitmap btImage = getBitmapFromURL(c.getString(0));
+        DBInstance.insertSearchedProduct("asd",123,1,"http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+        final Cursor c = DBInstance.getTuples("searched_product");
+        c.moveToNext();
+//        while(c.moveToNext()){
+//            Log.i("0번쨰",c.getString(0));
+//        }
 
-        //Drawable im = getDrawable(marmont_bag);
-        String str = "Marmont";
+        new AsyncTask<Object, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Object... params) {
+                Bitmap bitmap;
 
-        gridView = (GridView)findViewById(R.id.recent_grid_view);
-        ArrayList<Results_GridItem> items = new ArrayList<>();
+                String src = c.getString(4);
+                HttpURLConnection connection = null;
+                try {
+                    URL url = new URL(src);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    BitmapFactory.Options op = new BitmapFactory.Options();
+                    op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    bitmap = BitmapFactory.decodeStream(input, null, op);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                } finally {
+                    if (connection != null) connection.disconnect();
+                }
 
-        for(int i=0; i<20; i++) {
-            items.add(new Results_GridItem(btImage,str));
-        }
-        gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
-        gridView.setAdapter(gridViewAdapter);
+                return bitmap;
+            }
+
+            protected void onPostExecute(Bitmap bitmap)
+            {
+                //Drawable im = getDrawable(marmont_bag);
+                String str = "Marmont";
+
+                gridView = (GridView)findViewById(R.id.recent_grid_view);
+                ArrayList<Results_GridItem> items = new ArrayList<>();
+
+                for(int i=0; i<20; i++) {
+                    items.add(new Results_GridItem(bitmap,str));
+                }
+                gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
+                gridView.setAdapter(gridViewAdapter);
+            }
+        }.execute();
+
+
 
     }
+
 
     /*
         그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
