@@ -20,6 +20,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -51,10 +52,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
-
 
     public static DBHelper DBInstance;
 
@@ -69,7 +70,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
     static final String DBName = "EyeShopping.db";
+
     // 갤러리 카메라에서 받은 이미지를 다음 액티비티로 넘겨주기 위한 URI
+
     public String our_uri;
 
     int mResources[] = {
