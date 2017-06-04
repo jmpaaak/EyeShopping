@@ -2,8 +2,10 @@ package com.team.formal.eyeshopping;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static com.team.formal.eyeshopping.MainActivity.DBInstance;
+import static com.team.formal.eyeshopping.MainActivity.DBName;
 import static com.team.formal.eyeshopping.R.drawable.marmont_bag;
 
 /**
@@ -31,6 +35,14 @@ public class ActivityRecentSearch extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recent_search);
+
+        DBInstance = new DBHelper(this, DBName, null, 1);
+        Cursor c = DBInstance.getTuples("searched_product");
+        while(c.moveToNext()){
+            Log.i("combination keykord",c.getString(0));
+            Log.i("selected_image_url",c.getString(1));
+        }
+
 
         Drawable im = getDrawable(marmont_bag);
         String str = "Marmont";
