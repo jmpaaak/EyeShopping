@@ -210,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
      */
     public void onGalleryButtonClick(View view) {
         startGalleryChooser();
-        setContentView(R.layout.content_main);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //퍼미션 상태 확인
