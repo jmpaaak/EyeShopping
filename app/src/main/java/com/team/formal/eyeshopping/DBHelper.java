@@ -2,24 +2,9 @@ package com.team.formal.eyeshopping;
 
 import android.content.Context;
 import android.database.Cursor;
-<<<<<<< HEAD
-=======
-import android.database.DataSetObserver;
-import android.database.SQLException;
->>>>>>> 4c3cda7dab6d58b77f1613e4f615ed99e20d11c2
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-<<<<<<< HEAD
-=======
-import java.util.ArrayList;
-import java.util.Calendar;
-
->>>>>>> 4c3cda7dab6d58b77f1613e4f615ed99e20d11c2
-/**
- * Created by jongmin on 2017-06-04.
- */
 
 public class DBHelper extends SQLiteOpenHelper {
     private Context context;
