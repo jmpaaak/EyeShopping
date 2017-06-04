@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public static final int CAMERA_IMAGE_REQUEST = 3;
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
     public static final int RECENT_SEARCH_REQEST = 5;
+    public static final int RECOMMEND_PRODUCT_REQUEST = 6;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
@@ -282,7 +283,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         추천 상품 버튼 클릭시 호출
      */
     public void onRecommendedProductListButtonClick(View view) {
-
+        Intent intent = new Intent(getApplicationContext(), ActivityRecommendProducts.class);
+        startActivityForResult(intent, RECOMMEND_PRODUCT_REQUEST);
     }
 
     /*

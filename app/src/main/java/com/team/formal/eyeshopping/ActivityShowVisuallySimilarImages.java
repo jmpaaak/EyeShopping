@@ -370,7 +370,7 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
             super(context);
 
             LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            inflater.inflate(R.layout.grid_view_item, this, true);
+            inflater.inflate(R.layout.visually_similar_grid_view_item, this, true);
 
             image = (ImageView)findViewById(R.id.grid_item_image_view);
             image.setImageBitmap(aItem.getImage());
