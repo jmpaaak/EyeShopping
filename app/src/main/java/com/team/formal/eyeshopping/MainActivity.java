@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         // if you want to rest call this.deleteDatabase("EyeShopping.db")
         this.deleteDatabase(DBName); // initialize DB tables
         DBInstance = new DBHelper(this, DBName, null, 1);
+
 //        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
 //        DBInstance.insertSearchedProduct("test2 cKeyword", (new Date()).getTime(), 0);
 
@@ -201,9 +202,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     /*
         Camera Button Click시 호출
      */
-    public void onCameraButtonClick(View view) {
-        startCamera();
-    }
+    public void onCameraButtonClick(View view) { startCamera(); }
 
     /*
         Gallery Button Click시 호출
