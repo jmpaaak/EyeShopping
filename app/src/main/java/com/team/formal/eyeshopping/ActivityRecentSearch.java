@@ -46,59 +46,55 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         DBInstance = new DBHelper(this, DBName, null, 1);
-        DBInstance.insertSearchedProduct("asd",123,1,"http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+
+        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+
+
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
-//        while(c.moveToNext()){
-//            Log.i("0번쨰",c.getString(0));
-//        }
+        final int count = c.getCount();
 
-        new AsyncTask<Object, Void, Bitmap>() {
+        new AsyncTask<Object, Void, ArrayList<ActivityRecentSearch.Results_GridItem>>() {
             @Override
-            protected Bitmap doInBackground(Object... params) {
-                Bitmap bitmap;
-
-                String src = c.getString(4);
+            protected ArrayList<ActivityRecentSearch.Results_GridItem> doInBackground(Object... params) {
+                ArrayList<ActivityRecentSearch.Results_GridItem> gridItems = new ArrayList<>();
                 HttpURLConnection connection = null;
-                try {
-                    URL url = new URL(src);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    BitmapFactory.Options op = new BitmapFactory.Options();
-                    op.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                    bitmap = BitmapFactory.decodeStream(input, null, op);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                } finally {
-                    if (connection != null) connection.disconnect();
+                for(int i=0; i<count; i++) {
+                    String keyword;
+                    Bitmap bitmap;
+                    try {
+                        URL url = new URL(c.getString(4));
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.setDoInput(true);
+                        connection.connect();
+                        InputStream input = connection.getInputStream();
+                        BitmapFactory.Options op = new BitmapFactory.Options();
+                        op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                        bitmap = BitmapFactory.decodeStream(input, null, op);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    } finally {
+                        if (connection != null) connection.disconnect();
+                    }
+                    keyword = c.getString(1);
+                    gridItems.add(new Results_GridItem(bitmap,keyword));
+                    if( c.isLast()) { break; }
+                    else { c.moveToNext(); }
                 }
 
-                return bitmap;
+                return gridItems;
             }
 
-            protected void onPostExecute(Bitmap bitmap)
+            protected void onPostExecute(ArrayList<ActivityRecentSearch.Results_GridItem> gridItems)
             {
-                //Drawable im = getDrawable(marmont_bag);
-                String str = "Marmont";
-
                 gridView = (GridView)findViewById(R.id.recent_grid_view);
-                ArrayList<Results_GridItem> items = new ArrayList<>();
-
-                for(int i=0; i<20; i++) {
-                    items.add(new Results_GridItem(bitmap,str));
-                }
-                gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
+                gridViewAdapter = new GridViewAdapter(getApplicationContext(), gridItems);
                 gridView.setAdapter(gridViewAdapter);
             }
         }.execute();
-
-
-
     }
-
 
     /*
         그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
@@ -142,11 +138,11 @@ public class ActivityRecentSearch extends AppCompatActivity {
         그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
      */
     private class Results_GridItem {
-        private Bitmap btImage;
-        private String str;
-        public Results_GridItem(Bitmap btImage, String str) {
-            this.btImage=btImage;
-            this.str=str;
+        Bitmap bitmap;
+        String keyword;
+        public Results_GridItem(Bitmap bitmap, String keyword) {
+            this.bitmap=bitmap;
+            this.keyword=keyword;
         }
     }
 
@@ -165,30 +161,10 @@ public class ActivityRecentSearch extends AppCompatActivity {
 
             vGroup = (ViewGroup) findViewById(R.id.grid_recent_item_list_view);
             thumbView = (ImageView) findViewById(R.id.recent_product_thumbnail);
-            thumbView.setImageBitmap(aItem.btImage);
+            thumbView.setImageBitmap(aItem.bitmap);
             strView = (TextView) findViewById(R.id.recent_str);
-            strView.setText(String.valueOf(aItem.str));
+            strView.setText(String.valueOf(aItem.keyword));
 
-        }
-    }
-
-    public Bitmap getBitmapFromURL(String src) {
-        HttpURLConnection connection = null;
-        try {
-            URL url = new URL(src);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            BitmapFactory.Options op = new BitmapFactory.Options();
-            op.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap myBitmap = BitmapFactory.decodeStream(input, null, op);
-            return myBitmap;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (connection != null) connection.disconnect();
         }
     }
 
