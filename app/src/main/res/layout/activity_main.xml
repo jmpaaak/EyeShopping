@@ -63,7 +63,8 @@
                 android:textColor="#FF000000"
                 android:textSize="25dp"
                 android:gravity="center"
-                android:background="@color/main_white"/>
+                android:background="@color/main_white"
+                android:onClick="onRecentlySearchedListButtonClick"/>
 
             <Button
                 android:layout_width="0dp"
@@ -75,7 +76,8 @@
                 android:textColor="#FF000000"
                 android:textSize="25dp"
                 android:gravity="center"
-                android:background="@color/main_white"/>
+                android:background="@color/main_white"
+                android:onClick="onRecommendedProductListButtonClick"/>
 
         </LinearLayout>
 
@@ -96,7 +98,8 @@
                 android:textColor="#FF000000"
                 android:textSize="25dp"
                 android:gravity="center"
-                android:background="@color/main_white"/>
+                android:background="@color/main_white"
+                android:onClick="onPopularSearchedListButtonClick"/>
 
             <Button
                 android:layout_width="0dp"
@@ -108,7 +111,8 @@
                 android:textColor="#FF000000"
                 android:textSize="25dp"
                 android:gravity="center"
-                android:background="@color/main_white"/>
+                android:background="@color/main_white"
+                android:onClick="onGreatlyIncreasedProductListButtonClick"/>
 
         </LinearLayout>
 

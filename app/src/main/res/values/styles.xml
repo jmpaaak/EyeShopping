@@ -3,8 +3,8 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/main_white</item>
+        <item name="colorPrimaryDark">@color/main_bottom</item>
         <item name="colorAccent">@color/colorAccent</item>
         <!-- No Title Bar-->
         <item name="windowActionBar">false</item>
@@ -14,6 +14,14 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- ToolBar -->
+    <style name="ToolBarStyle" parent="Theme.AppCompat">
+        <item name="android:textColorPrimary">#FF000000</item>
+        <item name="android:textColorSecondary">#FF000000</item>
+        <item name="actionMenuTextColor">#FF000000</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
