@@ -45,9 +45,6 @@ public class ActivityShowVisuallySimilarImagesSelect extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         Button cancleButton = (Button)findViewById(R.id.selection_cancle);
         Button selectButton = (Button)findViewById(R.id.selection_select);
 

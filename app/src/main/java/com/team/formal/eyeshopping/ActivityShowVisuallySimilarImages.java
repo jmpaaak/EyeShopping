@@ -79,7 +79,7 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true); //TODO add event to mainActivity
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Intent intent = getIntent();
         Uri uri = Uri.parse(intent.getStringExtra("uri"));
