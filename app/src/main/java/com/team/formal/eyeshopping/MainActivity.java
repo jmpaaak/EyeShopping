@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
+    public static final int RECENT_SEARCH_REQEST = 5;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
@@ -274,7 +275,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         최근 검색어 버튼 클릭시 호출
      */
     public void onRecentlySearchedListButtonClick(View view) {
-
+        Intent intent = new Intent(getApplicationContext(), ActivityRecentSearch.class);
+        startActivityForResult(intent, RECENT_SEARCH_REQEST);
     }
 
     /*
