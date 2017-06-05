@@ -1,6 +1,9 @@
 # EyeShopping
 ##### Android Vision Application (using OpenCV &amp; NAVER Search API Shopping &amp; Google Vision API)
 
+#### 0.  개발 현황 문서
+- https://docs.google.com/document/d/1IF6eLW5ZNtnwmZtMTDJ9yjxUs-sxSXTcpCODDcXYhn8/edit?usp=sharing
+
 #### A. 개발환경 구축
 - git-flow error : https://community.atlassian.com/t5/Git-questions/How-do-I-resolve-the-not-a-gitflow-enabled-repo-error-when/qaq-p/211028
 - OpenCV import
