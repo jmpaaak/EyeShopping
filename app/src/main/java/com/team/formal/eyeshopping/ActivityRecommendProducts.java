@@ -28,7 +28,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class ActivityRecommendProducts extends AppCompatActivity {
 
@@ -45,6 +47,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        // Listview Setting
         ListView listview = (ListView)findViewById(R.id.recommend_product_list_view);
 
         ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
@@ -60,10 +63,19 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         listItems.add(new RecommendProduct_ListItem("9", "나이키"));
         listItems.add(new RecommendProduct_ListItem("10", "가죽백"));
 
-
         RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
 
         listview.setAdapter(listViewAdapter);
+
+        // 기준 날짜 셋팅
+        TextView recommend_date = (TextView)findViewById(R.id.recommend_date);
+
+        Calendar c = Calendar.getInstance();
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss 기준");
+        String formattedDate = df.format(c.getTime());
+
+        recommend_date.setText(formattedDate);
 
     }
 
@@ -107,7 +119,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
     }
 
     /*
-        리스트뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
+        리스트뷰 아이템, 리스트 뷰 항목 하나 하나에 들어갈 정보를 담고 있다
      */
     private class RecommendProduct_ListItem {
         private String number;
@@ -126,7 +138,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
     }
 
     /*
-        그리드뷰 뷰, xml과 연결된 레이아웃 클래스
+        리스트뷰 뷰, xml과 연결된 레이아웃 클래스
      */
     private class RecommendProduct_ListView extends LinearLayout {
 
