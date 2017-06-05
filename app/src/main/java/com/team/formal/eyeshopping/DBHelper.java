@@ -8,6 +8,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,11 +19,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DBHelper extends SQLiteOpenHelper {
     private Context context;
     private static final String TAG = DBHelper.class.getSimpleName();
     private static final String serverURL = "http://54.251.159.248/eyeshopping/";
+    private static final String TAG_JSON="webnautes";
+
+    private ArrayList<HashMap> mAttrsList = new ArrayList<>();
 
     // DBHelper 생성자로 관리할 DB 이름과 버전 정보를 받음
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -119,6 +128,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /***** SERVER METHODS *****/
 
     public void insertIntoServerTable(final String tableName, final String[] postData) throws IOException {
+        ArrayList<HashMap> retList = new ArrayList<>();
         new AsyncTask<String, Void, String>() {
             ProgressDialog progressDialog;
 
@@ -127,7 +137,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 super.onPreExecute();
 
                 progressDialog = ProgressDialog.show(context,
-                        "서버에 전송 중입니다! 잠시만 기다려주세요.", null, true, true);
+                        "데이터를 서버에 전송 중입니다..", null, true, true);
             }
 
             @Override
@@ -220,4 +230,124 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         }.execute(); // end of AsyncTask
     } // end of insertIntoServerTable
+
+    public void getServerTable(final String tableName, final AsyncResponse asyncResponse) throws IOException {
+        new AsyncTask<String, Void, String>() {
+            ProgressDialog progressDialog;
+
+            @Override
+            protected void onPreExecute () {
+                super.onPreExecute();
+
+                progressDialog = ProgressDialog.show(context,
+                        "서버 접속 중 입니다..", null, true, true);
+            }
+
+            @Override
+            protected void onPostExecute (String result) {
+                super.onPostExecute(result);
+
+                progressDialog.dismiss();
+                Log.d(TAG, "response  - " + result);
+
+                if (result != null) {
+                    setAttrsList(tableName, result);
+                    asyncResponse.processFinish(mAttrsList);
+                }
+            }
+
+            @Override
+            protected String doInBackground (String[] params) {
+
+                try {
+                    // set .php file
+                    URL url = new URL(serverURL + "get_" + tableName + ".php");
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setConnectTimeout(5000);
+                    httpURLConnection.connect();
+
+                    int responseStatusCode = httpURLConnection.getResponseCode();
+                    Log.d(TAG, "response code - " + responseStatusCode);
+
+                    InputStream inputStream;
+                    if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                        inputStream = httpURLConnection.getInputStream();
+                    }
+                    else {
+                        inputStream = httpURLConnection.getErrorStream();
+                    }
+
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while((line = bufferedReader.readLine()) != null){
+                        sb.append(line);
+                    }
+
+                    bufferedReader.close();
+                    return sb.toString().trim();
+
+                } catch (Exception e) {
+                    Log.d(TAG, "getData: Error ", e);
+                    return null;
+                }
+
+            }
+        }.execute(); // end of AsyncTask
+    } // end of insertIntoServerTable
+
+    private void setAttrsList(String tableName, String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            // init List
+            mAttrsList = new ArrayList<>();
+
+            for(int i=0; i < jsonArray.length(); i++){
+                HashMap<String,String> hashMap = new HashMap<>();
+                JSONObject item = jsonArray.getJSONObject(i);
+                String combination_keyword;
+                String matching_image_url;
+                String keyword_name;
+                String count;
+
+                switch (tableName) {
+                    case "matching_combination":
+                        combination_keyword = item.getString("combination_keyword");
+                        matching_image_url = item.getString("matching_image_url");
+
+                        hashMap.put("combination_keyword", combination_keyword);
+                        hashMap.put("matching_image_url", matching_image_url);
+                        break;
+//                    case "keyword_in_combination": //TODO
+//                        keyword_name = postData[0];
+//                        combination_keyword = postData[1];
+//
+//                        // set POST params
+//                        postParameters = "keyword_name=" + keyword_name
+//                                + "&combination_keyword=" + combination_keyword;
+//                        break;
+//                    case "keyword_count":
+//                        keyword_name = postData[0];
+//                        count = postData[1];
+//
+//                        // set POST params
+//                        postParameters = "keyword_name=" + keyword_name
+//                                + "&count=" + count;
+//                        break;
+                }
+                mAttrsList.add(hashMap);
+            } // end of for
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, " - setAttrsList : ", e);
+        }
+    }
+
 }

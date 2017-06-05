@@ -51,6 +51,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     ViewPager intro_images;
     ViewPagerAdapter mAdapter;
     ImageView dots[];
-
+    ArrayList<HashMap> testList;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -106,6 +108,23 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //            boolean like = c.getInt(3) > 0;
 //            Log.i("like", ""+like);
 //        }
+
+        try {
+            DBInstance.getServerTable("matching_combination", new AsyncResponse() {
+                @Override
+                public void processFinish(Object output) {
+                    // output이 받은 데이터이니 여기서 할거 하십쇼!
+                    testList = (ArrayList<HashMap>) output;
+
+                    for(int i=0; i < testList.size(); i++) {
+                        Log.i("combination_keyword "+i, (String) testList.get(i).get("combination_keyword"));
+                        Log.i("matching_image_url "+i, (String) testList.get(i).get("matching_image_url"));
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         setContentView(R.layout.activity_main);
 
