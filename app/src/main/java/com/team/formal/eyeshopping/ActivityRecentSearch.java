@@ -24,13 +24,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import static com.team.formal.eyeshopping.MainActivity.DBInstance;
-import static com.team.formal.eyeshopping.MainActivity.DBName;
 
 /**
  * Created by NaJM on 2017. 6. 4..
  */
 
 public class ActivityRecentSearch extends AppCompatActivity {
+    private static final int SELECT_REQUEST = 2000;
 
     // Grid View 전역 변수
     GridView gridView;
@@ -45,11 +45,9 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        DBInstance = new DBHelper(this, DBName, null, 1);
-
+        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
         DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
         DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
-
 
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
@@ -83,7 +81,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
                     if( c.isLast()) { break; }
                     else { c.moveToNext(); }
                 }
-
+                c.close();
                 return gridItems;
             }
 
@@ -167,5 +165,4 @@ public class ActivityRecentSearch extends AppCompatActivity {
 
         }
     }
-
 }
