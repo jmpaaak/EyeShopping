@@ -95,7 +95,6 @@
         </activity>
 
         <activity
-<<<<<<< HEAD
             android:name=".ActivityRecommendProductsSelect"
             android:label="">
 
@@ -103,13 +102,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
             />
-=======
+        </activity>
+
+        <activity
             android:name=".ActivityPopularProducts"
             android:label="">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
->>>>>>> 90667719b0a589ab4e0792bd65ad180f0811a61e
         </activity>
 
         <provider
