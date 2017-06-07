@@ -5,10 +5,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.text.DecimalFormat;
 
 /**
  * Created by NaJM on 2017. 6. 5..
@@ -30,12 +34,19 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         Intent intent = getIntent();
 
         //searchDate -> DB에 넣을것
+        //ActivityFindingsResults에서 넘겨받음
         String getTime = intent.getStringExtra("date");
-        Log.i("AAAAA",getTime);
+        //Log.i("AAAAA",getTime);
 
         //TEST
         ImageView imageView = (ImageView) findViewById(R.id.view_image);
         imageView.setImageResource(R.drawable.marmont_bag);
+        TextView textView = (TextView) findViewById(R.id.Product_name);
+        TextView textView1 = (TextView) findViewById(R.id.Product_price);
+        textView.setText("Marmont Handbag");
+        DecimalFormat df = new DecimalFormat("#,###");
+        String num = df.format(123456);
+        textView1.setText("최저가 : " +num+"원");
 
 
 //        // Url과 Uri를 부모 액티비티에서 받는다.
@@ -56,7 +67,24 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-        
+        CheckBox checkbox = (CheckBox) findViewById(R.id.checkbox);
+        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    //db 저장
+                    //앞에서 id 넘겨주고 여기다가 update
+                    //DBInstance.updateSearchedProductLike(ID,1);
+                }
+                else{
+                    //db 저장
+                    //앞에서 id 넘겨주고 여기다가 update
+                    //DBInstance.updateSearchedProductLike(ID,0);
+
+                }
+            }
+        });
+
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
