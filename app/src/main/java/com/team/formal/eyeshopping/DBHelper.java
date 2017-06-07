@@ -6,21 +6,30 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class DBHelper extends SQLiteOpenHelper {
     private Context context;
@@ -325,22 +334,27 @@ public class DBHelper extends SQLiteOpenHelper {
                         hashMap.put("combination_keyword", combination_keyword);
                         hashMap.put("matching_image_url", matching_image_url);
                         break;
-//                    case "keyword_in_combination": //TODO
-//                        keyword_name = postData[0];
-//                        combination_keyword = postData[1];
-//
-//                        // set POST params
-//                        postParameters = "keyword_name=" + keyword_name
-//                                + "&combination_keyword=" + combination_keyword;
-//                        break;
-//                    case "keyword_count":
-//                        keyword_name = postData[0];
-//                        count = postData[1];
-//
-//                        // set POST params
-//                        postParameters = "keyword_name=" + keyword_name
-//                                + "&count=" + count;
-//                        break;
+                    case "keyword_in_combination":
+                        keyword_name = item.getString("keyword_name");
+                        combination_keyword = item.getString("combination_keyword");
+
+                        hashMap.put("keyword_name", keyword_name);
+                        hashMap.put("combination_keyword", combination_keyword);
+                        break;
+                    case "keyword_count":
+                        keyword_name = item.getString("keyword_name");
+                        count = item.getString("count");
+
+                        hashMap.put("keyword_name", keyword_name);
+                        hashMap.put("count", count);
+                        break;
+                    case "recommended_urls": // JOIN
+                        combination_keyword = item.getString("combination_keyword");
+                        matching_image_url = item.getString("matching_image_url");
+
+                        hashMap.put("combination_keyword", combination_keyword);
+                        hashMap.put("matching_image_url", matching_image_url);
+                        break;
                 }
                 mAttrsList.add(hashMap);
             } // end of for
@@ -349,5 +363,97 @@ public class DBHelper extends SQLiteOpenHelper {
             Log.d(TAG, " - setAttrsList : ", e);
         }
     }
+
+    public void getRecommendedUrls(final ArrayList<String> keywordNameList, final AsyncResponse asyncResponse) throws IOException
+    {
+        final String join_table_name = "recommended_urls";
+
+        new AsyncTask<String, Void, String>() {
+            ProgressDialog progressDialog;
+
+            @Override
+            protected void onPreExecute () {
+                super.onPreExecute();
+
+                progressDialog = ProgressDialog.show(context,
+                        "서버 접속 중 입니다..", null, true, true);
+            }
+
+            @Override
+            protected void onPostExecute (String result) {
+                super.onPostExecute(result);
+
+                progressDialog.dismiss();
+                Log.d(TAG, "response  - " + result);
+
+                if (result != null) {
+                    setAttrsList(join_table_name, result);
+                    asyncResponse.processFinish(mAttrsList);
+                }
+            }
+
+            @Override
+            protected String doInBackground (String[] params) {
+
+                try {
+                    // set .php file
+                    URL url = new URL(serverURL + "get_" + join_table_name + ".php");
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+                    httpURLConnection.setReadTimeout(50000);
+                    httpURLConnection.setConnectTimeout(50000);
+                    httpURLConnection.setRequestMethod("POST");
+                    httpURLConnection.setDoInput(true);
+                    httpURLConnection.setDoOutput(true);
+
+                    ArrayList<NameValuePair> postData = new ArrayList<>();
+
+                    for(String keyword : keywordNameList) {
+                        postData.add(new BasicNameValuePair("keywordNames[]", keyword));
+                    }
+                    
+                    OutputStream os = httpURLConnection.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(os, "UTF-8"));
+                    writer.write(String.valueOf(postData));
+                    writer.flush();
+                    writer.close();
+                    os.close();
+
+                    httpURLConnection.connect();
+
+                    int responseStatusCode = httpURLConnection.getResponseCode();
+                    Log.d(TAG, "response code - " + responseStatusCode);
+
+                    InputStream inputStream;
+                    if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                        inputStream = httpURLConnection.getInputStream();
+                    }
+                    else {
+                        inputStream = httpURLConnection.getErrorStream();
+                    }
+
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while((line = bufferedReader.readLine()) != null){
+                        sb.append(line);
+                    }
+
+                    bufferedReader.close();
+                    return sb.toString().trim();
+
+                } catch (Exception e) {
+                    Log.d(TAG, "getData: Error ", e);
+                    return null;
+                }
+
+            }
+        }.execute(); // end of AsyncTask
+    } // end of insertIntoServerTable
+
 
 }
