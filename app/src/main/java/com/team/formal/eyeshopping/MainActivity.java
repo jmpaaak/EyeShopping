@@ -58,7 +58,6 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
     public static DBHelper DBInstance;
-
     public static final String FILE_NAME = "temp.jpg";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GALLERY_PERMISSIONS_REQUEST = 0;
@@ -78,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public String our_uri;
 
     int mResources[] = {
+            R.drawable.splash,
             R.drawable.view_example_1,
-            R.drawable.view_example_2,
             R.drawable.view_example_3,
             R.drawable.view_example_4
     };

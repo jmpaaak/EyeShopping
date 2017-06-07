@@ -24,6 +24,11 @@
         <item name="android:textAlignment">center</item>
     </style>
 
+    <!-- 스플래시 스크린 액티비티용 테마 -->
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:background">@drawable/splash</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

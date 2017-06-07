@@ -55,19 +55,18 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
 
-        listItems.add(new RecommendProduct_ListItem("1", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("2", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("3", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("4", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("5", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("6", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("7", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("8", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("9", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
-        listItems.add(new RecommendProduct_ListItem("10", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("1", "나이키", ""));
+        listItems.add(new RecommendProduct_ListItem("2", "가죽백", ""));
+        listItems.add(new RecommendProduct_ListItem("3", "나이키", ""));
+        listItems.add(new RecommendProduct_ListItem("4", "가죽백", ""));
+        listItems.add(new RecommendProduct_ListItem("5", "나이키", ""));
+        listItems.add(new RecommendProduct_ListItem("6", "가죽백", ""));
+        listItems.add(new RecommendProduct_ListItem("7", "나이키", ""));
+        listItems.add(new RecommendProduct_ListItem("8", "가죽백", ""));
+        listItems.add(new RecommendProduct_ListItem("9", "나이키", ""));
+        listItems.add(new RecommendProduct_ListItem("10", "가죽백", ""));
 
         RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
-
 
         //RecommendProduct_ListViewAdapter listViewAdapter = getRecommendedProductList();
 
@@ -114,6 +113,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         db.close();
 
+
         /*
         try
         {
@@ -124,6 +124,57 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         */
 
         return listViewAdapter;
+    }
+
+    public void makeDummyData() {
+        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
+                                                      20170527, 1,
+                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
+        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
+                                                      20170605, 1,
+                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
+        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
+                                                      20170402, 1,
+                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
+
+        MainActivity.DBInstance.insertMatchingCombinationLocal("nike shoes running air",
+                            "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
+        MainActivity.DBInstance.insertMatchingCombinationLocal("Starbucks tumbler 400ml stainless",
+                "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
+        MainActivity.DBInstance.insertMatchingCombinationLocal("woman wallet MCM long black",
+                "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
+
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("nike", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("shoes", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("running", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("air", "nike shoes running air");
+
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("Starbucks", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("tumbler", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("400ml", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("stainless", "Starbucks tumbler 400ml stainless");
+
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("woman", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("wallet", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("MCM", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("long", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("black", "woman wallet MCM long black");
+
+        MainActivity.DBInstance.insertKeywordCountLocal("nike", 5);
+        MainActivity.DBInstance.insertKeywordCountLocal("shoes", 40);
+        MainActivity.DBInstance.insertKeywordCountLocal("running", 2);
+        MainActivity.DBInstance.insertKeywordCountLocal("air", 2);
+
+        MainActivity.DBInstance.insertKeywordCountLocal("Starbucks", 5);
+        MainActivity.DBInstance.insertKeywordCountLocal("tumbler", 20);
+        MainActivity.DBInstance.insertKeywordCountLocal("400ml", 1);
+        MainActivity.DBInstance.insertKeywordCountLocal("stainless", 30);
+
+        MainActivity.DBInstance.insertKeywordCountLocal("woman", 100);
+        MainActivity.DBInstance.insertKeywordCountLocal("wallet", 70);
+        MainActivity.DBInstance.insertKeywordCountLocal("MCM", 10);
+        MainActivity.DBInstance.insertKeywordCountLocal("long", 15);
+        MainActivity.DBInstance.insertKeywordCountLocal("black", 200);
     }
 
     /*
