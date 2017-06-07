@@ -1,5 +1,11 @@
 package com.team.formal.eyeshopping;
 
+/**
+ * Created by Administrator on 2017-05-23.
+ */
+
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,13 +20,15 @@ public class Shop implements Serializable {
     private String title;
     private String link;
     private String image;
-    private String lprice;
+    private int lprice;
     private int hprice;
     private String mallName;
     private int productId;
     private int productType;
+    private Bitmap bmp;
+
     public Shop(Date lastBuildDate, int total, int start, int display, Object item, String title, String link,
-                String image, String lprice, int hprice, String mallName, int productId, int productType) {
+                String image, int lprice, int hprice, String mallName, int productId, int productType) {
         super();
         this.lastBuildDate = lastBuildDate;
         this.total = total;
@@ -84,13 +92,19 @@ public class Shop implements Serializable {
     public String getImage() {
         return image;
     }
+    public void setThumbBmp(Bitmap image) {
+        this.bmp = image;
+    }
+    public Bitmap getThumbBmp() {
+        return bmp;
+    }
     public void setImage(String image) {
         this.image = image;
     }
-    public String getLprice() {
+    public int getLprice() {
         return lprice;
     }
-    public void setLprice(String lprice) {
+    public void setLprice(int lprice) {
         this.lprice = lprice;
     }
     public int getHprice() {
@@ -124,6 +138,4 @@ public class Shop implements Serializable {
                 + ", hprice=" + hprice + ", mallName=" + mallName + ", productId=" + productId + ", productType="
                 + productType + "]";
     }
-
-
 }

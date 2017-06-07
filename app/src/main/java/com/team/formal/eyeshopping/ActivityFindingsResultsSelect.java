@@ -1,10 +1,12 @@
 package com.team.formal.eyeshopping;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -35,18 +37,19 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
 
         //searchDate -> DB에 넣을것
         //ActivityFindingsResults에서 넘겨받음
-        String getTime = intent.getStringExtra("date");
+        Bitmap thumb = (Bitmap) intent.getParcelableExtra("product_thumbnail");
+        String productName = (String) intent.getSerializableExtra("product_name");
+        Log.i("pName", productName);
+        String price = (String) intent.getSerializableExtra("product_price");
         //Log.i("AAAAA",getTime);
 
         //TEST
         ImageView imageView = (ImageView) findViewById(R.id.view_image);
-        imageView.setImageResource(R.drawable.marmont_bag);
+        imageView.setImageBitmap(thumb);
         TextView textView = (TextView) findViewById(R.id.Product_name);
         TextView textView1 = (TextView) findViewById(R.id.Product_price);
-        textView.setText("Marmont Handbag");
-        DecimalFormat df = new DecimalFormat("#,###");
-        String num = df.format(123456);
-        textView1.setText("최저가 : " +num+"원");
+        textView.setText(productName);
+        textView1.setText(price);
 
 
 //        // Url과 Uri를 부모 액티비티에서 받는다.
