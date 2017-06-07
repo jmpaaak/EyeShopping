@@ -65,8 +65,7 @@
             android:label="">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ActivityShowVisuallySimilarImagesSelect" />
-            />
+                android:value=".MainActivity"/>
         </activity>
         <activity
             android:name=".ActivityFindingsResultsSelect"
@@ -91,6 +90,16 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
+            />
+        </activity>
+
+        <activity
+            android:name=".ActivityRecommendProductsSelect"
+            android:label="">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
             />
         </activity>
 

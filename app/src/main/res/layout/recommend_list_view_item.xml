@@ -4,7 +4,8 @@
     android:layout_height="47dp"
     android:orientation="horizontal"
     android:padding="5dp"
-    android:layout_marginBottom="1dp">
+    android:layout_marginBottom="1dp"
+    android:id="@+id/recommend_layout">
 
     <TextView
         android:layout_width="20dp"

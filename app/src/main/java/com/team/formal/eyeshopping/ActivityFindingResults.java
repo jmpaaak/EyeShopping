@@ -288,7 +288,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
-
+                    //searchDate를 ActivityFindingsResultsSelect로 넘겨줌
                     long now = System.currentTimeMillis();
                     Date date= new Date(now);
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");

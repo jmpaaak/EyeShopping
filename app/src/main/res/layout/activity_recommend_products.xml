@@ -54,7 +54,7 @@
             android:layout_gravity="center"
             android:gravity="center_vertical"
             android:textAlignment="viewEnd"
-            android:paddingRight="40dp"
+            android:paddingRight="35dp"
             android:textSize="18dp"
             android:text="2017.06.05 기준"/>
 
