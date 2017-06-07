@@ -1,13 +1,34 @@
 package com.team.formal.eyeshopping;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DBHelper extends SQLiteOpenHelper {
     private Context context;
+    private static final String TAG = DBHelper.class.getSimpleName();
+    private static final String serverURL = "http://54.251.159.248/eyeshopping/";
+    private static final String TAG_JSON="webnautes";
+
+    private ArrayList<HashMap> mAttrsList = new ArrayList<>();
 
     // DBHelper 생성자로 관리할 DB 이름과 버전 정보를 받음
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -70,8 +91,17 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void insertKeywordInCombinationLocal(String keywordName, String combinationKeyword) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO keyword_in_combination_local VALUES(null, '" + keywordName + "', '" + combinationKeyword + "');");
-        Log.i(keywordName, " - insertKeywordInCombinationLocal complete!");
+
+        Cursor cursor = db.rawQuery("SELECT * FROM keyword_count_local WHERE keyword_name='" + keywordName, null);
+        if(cursor.getCount() == 0) {
+            db.execSQL("INSERT INTO keyword_in_combination_local VALUES(null, '" + keywordName + "', '" + combinationKeyword + "');");
+            Log.i(keywordName, " - insertKeywordInCombinationLocal complete!");
+        } else {
+            int newCount = cursor.getInt(1) + 1;
+            db.execSQL("UPDATE keyword_count_local SET count=" + newCount + ", " +
+                    " WHERE keyword_name='" + keywordName + "';");
+            Log.i(keywordName, " - updateKeywordCountLocalCount complete!");
+        }
     }
 
 
@@ -82,15 +112,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("UPDATE searched_product SET like=" + like + ", " +
                 " WHERE _id=" + id + ";");
         Log.i(id+"", " - updateSearchedProductLike complete!");
-    }
-
-    public void addKeywordCountLocalCount(String keywordName) {
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM keyword_count_local WHERE keyword_name='" + keywordName, null);
-        int newCount = cursor.getInt(1) + 1;
-        db.execSQL("UPDATE keyword_count_local SET count=" + newCount + ", " +
-                " WHERE keyword_name='" + keywordName + "';");
-        Log.i(keywordName, " - updateKeywordCountLocalCount complete!");
     }
 
 
@@ -104,80 +125,229 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    //    public void delete(int id) {
-//        SQLiteDatabase db = getWritableDatabase();
-//
-//        // 입력한 id와 일치하는 행 삭제
-//        db.execSQL("DELETE FROM PLANS WHERE _id=" + id + ";");
-//
-//        db.close();
-//    }
+    /***** SERVER METHODS *****/
 
-//    public void deleteWithRepeatGroupId(Plan firstPlanDeleted) {
-//        SQLiteDatabase db = getWritableDatabase();
+    public void insertIntoServerTable(final String tableName, final String[] postData) throws IOException {
+        ArrayList<HashMap> retList = new ArrayList<>();
+        new AsyncTask<String, Void, String>() {
+            ProgressDialog progressDialog;
+
+            @Override
+            protected void onPreExecute () {
+                super.onPreExecute();
+
+                progressDialog = ProgressDialog.show(context,
+                        "데이터를 서버에 전송 중입니다..", null, true, true);
+            }
+
+            @Override
+            protected void onPostExecute (String result){
+                super.onPostExecute(result);
+
+                progressDialog.dismiss();
+                Log.d(TAG, "POST response  - " + result);
+            }
+
+            @Override
+            protected String doInBackground (String[] params){
+
+                // set post params
+                String postParameters = null;
+                String combination_keyword;
+                String matching_image_url;
+                String keyword_name;
+                String count;
+                switch (tableName) {
+                    case "matching_combination":
+                        combination_keyword = postData[0];
+                        matching_image_url = postData[1];
+
+                        // set POST params
+                        postParameters = "combination_keyword=" + combination_keyword
+                                         + "&matching_image_url=" + matching_image_url;
+                        break;
+                    case "keyword_in_combination":
+                        keyword_name = postData[0];
+                        combination_keyword = postData[1];
+
+                        // set POST params
+                        postParameters = "keyword_name=" + keyword_name
+                                        + "&combination_keyword=" + combination_keyword;
+                        break;
+                    case "keyword_count":
+                        keyword_name = postData[0];
+                        count = postData[1];
+
+                        // set POST params
+                        postParameters = "keyword_name=" + keyword_name
+                                         + "&count=" + count;
+                        break;
+                }
+
+                try {
+                    // set .php file
+                    URL url = new URL(serverURL + "insert_" + tableName + ".php");
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setConnectTimeout(5000);
+                    httpURLConnection.setRequestMethod("POST");
+                    //httpURLConnection.setRequestProperty("content-type", "application/json");
+                    httpURLConnection.setDoInput(true);
+                    httpURLConnection.connect();
+
+                    OutputStream outputStream = httpURLConnection.getOutputStream();
+                    outputStream.write(postParameters.getBytes("UTF-8"));
+                    outputStream.flush();
+                    outputStream.close();
+
+                    int responseStatusCode = httpURLConnection.getResponseCode();
+                    Log.d(TAG, "POST response code - " + responseStatusCode);
+
+                    InputStream inputStream;
+                    if (responseStatusCode == HttpURLConnection.HTTP_OK) {
+                        inputStream = httpURLConnection.getInputStream();
+                    } else {
+                        inputStream = httpURLConnection.getErrorStream();
+                    }
+
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                    StringBuilder sb = new StringBuilder();
+                    String line = null;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    bufferedReader.close();
+                    return sb.toString();
+                } catch (Exception e) {
+                    Log.d(TAG, "InsertData: Error ", e);
+                    return new String("Error: " + e.getMessage());
+                }
+
+            }
+        }.execute(); // end of AsyncTask
+    } // end of insertIntoServerTable
+
+    public void getServerTable(final String tableName, final AsyncResponse asyncResponse) throws IOException {
+        new AsyncTask<String, Void, String>() {
+            ProgressDialog progressDialog;
+
+            @Override
+            protected void onPreExecute () {
+                super.onPreExecute();
+
+                progressDialog = ProgressDialog.show(context,
+                        "서버 접속 중 입니다..", null, true, true);
+            }
+
+            @Override
+            protected void onPostExecute (String result) {
+                super.onPostExecute(result);
+
+                progressDialog.dismiss();
+                Log.d(TAG, "response  - " + result);
+
+                if (result != null) {
+                    setAttrsList(tableName, result);
+                    asyncResponse.processFinish(mAttrsList);
+                }
+            }
+
+            @Override
+            protected String doInBackground (String[] params) {
+
+                try {
+                    // set .php file
+                    URL url = new URL(serverURL + "get_" + tableName + ".php");
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setConnectTimeout(5000);
+                    httpURLConnection.connect();
+
+                    int responseStatusCode = httpURLConnection.getResponseCode();
+                    Log.d(TAG, "response code - " + responseStatusCode);
+
+                    InputStream inputStream;
+                    if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                        inputStream = httpURLConnection.getInputStream();
+                    }
+                    else {
+                        inputStream = httpURLConnection.getErrorStream();
+                    }
+
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while((line = bufferedReader.readLine()) != null){
+                        sb.append(line);
+                    }
+
+                    bufferedReader.close();
+                    return sb.toString().trim();
+
+                } catch (Exception e) {
+                    Log.d(TAG, "getData: Error ", e);
+                    return null;
+                }
+
+            }
+        }.execute(); // end of AsyncTask
+    } // end of insertIntoServerTable
+
+    private void setAttrsList(String tableName, String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            // init List
+            mAttrsList = new ArrayList<>();
+
+            for(int i=0; i < jsonArray.length(); i++){
+                HashMap<String,String> hashMap = new HashMap<>();
+                JSONObject item = jsonArray.getJSONObject(i);
+                String combination_keyword;
+                String matching_image_url;
+                String keyword_name;
+                String count;
+
+                switch (tableName) {
+                    case "matching_combination":
+                        combination_keyword = item.getString("combination_keyword");
+                        matching_image_url = item.getString("matching_image_url");
+
+                        hashMap.put("combination_keyword", combination_keyword);
+                        hashMap.put("matching_image_url", matching_image_url);
+                        break;
+//                    case "keyword_in_combination": //TODO
+//                        keyword_name = postData[0];
+//                        combination_keyword = postData[1];
 //
-//        Calendar temp = Calendar.getInstance();
-//        temp.setTimeInMillis(firstPlanDeleted.dateInMillis);
+//                        // set POST params
+//                        postParameters = "keyword_name=" + keyword_name
+//                                + "&combination_keyword=" + combination_keyword;
+//                        break;
+//                    case "keyword_count":
+//                        keyword_name = postData[0];
+//                        count = postData[1];
 //
-//        // 입력한 repeatGroupId와 일치하고 선택 목표와 함께 이후 목표들의 행 삭제
-//        db.execSQL("DELETE FROM PLANS WHERE repeatGroupId='" + firstPlanDeleted.repeatGroupId + "' AND dateInMillis >=" +
-//                + firstPlanDeleted.dateInMillis + ";");
-//
-//        db.close();
-//    }
-//
-//
-//    public ArrayList<Plan> getResultWithRepeatGroupId(Plan planSelected) {
-//        // 읽기가 가능하게 DB 열기
-//        SQLiteDatabase db = getReadableDatabase();
-//        ArrayList<Plan> arrayList = new ArrayList<Plan>();
-//
-//        // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용
-//        Cursor cursor = db.rawQuery("SELECT * FROM PLANS WHERE repeatGroupId='" + planSelected.repeatGroupId
-//                + "' AND dateInMillis >=" +
-//                + planSelected.dateInMillis + " ORDER BY dateInMillis ASC;", null);
-//        while (cursor.moveToNext()) {
-//
-//            Plan plan = new Plan();
-//            plan.id = cursor.getInt(0);
-//            plan.planName = cursor.getString(1);
-//            plan.dateInMillis = cursor.getLong(2);
-//            plan.startAngle = cursor.getFloat(3);
-//            plan.endAngle = cursor.getFloat(4);
-//            plan.color = cursor.getInt(5);
-//            plan.percentageOfAchieve = cursor.getInt(6);
-//            plan.repeatTerm = cursor.getInt(7);
-//            plan.repeatGroupId = cursor.getString(8);
-//
-//            arrayList.add(plan);
-//        }
-//
-//        return arrayList;
-//    }
-//
-//    public ArrayList<Plan> getResultAll() {
-//        // 읽기가 가능하게 DB 열기
-//        SQLiteDatabase db = getReadableDatabase();
-//        ArrayList<Plan> arrayList = new ArrayList<>();
-//
-//        // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용
-//        Cursor cursor = db.rawQuery("SELECT * FROM PLANS ORDER BY dateInMillis ASC, startAngle ASC;", null);
-//        while (cursor.moveToNext()) {
-//
-//            Plan plan = new Plan();
-//            plan.id = cursor.getInt(0);
-//            plan.planName = cursor.getString(1);
-//            plan.dateInMillis = cursor.getLong(2);
-//            plan.startAngle = cursor.getFloat(3);
-//            plan.endAngle = cursor.getFloat(4);
-//            plan.color = cursor.getInt(5);
-//            plan.percentageOfAchieve = cursor.getInt(6);
-//            plan.repeatTerm = cursor.getInt(7);
-//            plan.repeatGroupId = cursor.getString(8);
-//
-//            arrayList.add(plan);
-//        }
-//
-//        return arrayList;
-//    }
+//                        // set POST params
+//                        postParameters = "keyword_name=" + keyword_name
+//                                + "&count=" + count;
+//                        break;
+                }
+                mAttrsList.add(hashMap);
+            } // end of for
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, " - setAttrsList : ", e);
+        }
+    }
+
 }
