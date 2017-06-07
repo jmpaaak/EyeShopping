@@ -3,19 +3,29 @@
     package="com.team.formal.eyeshopping">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus"  android:required="false"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <supports-screens android:resizeable="true"
-        android:smallScreens="true"
-        android:normalScreens="true"
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front.autofocus"
+        android:required="false" />
+
+    <supports-screens
+        android:anyDensity="true"
         android:largeScreens="true"
-        android:anyDensity="true" />
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" />
 
     <application
         android:allowBackup="true"
@@ -24,67 +34,68 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:screenOrientation="portrait"
-            android:name="com.team.formal.eyeshopping.MainActivity"
+            android:name=".MainActivity"
             android:label=""
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ActivityShowVisuallySimilarImages"
             android:label="">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
             />
         </activity>
-
         <activity
             android:name=".ActivityShowVisuallySimilarImagesSelect"
             android:label="">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ActivityShowVisuallySimilarImages"/>
+                android:value=".ActivityShowVisuallySimilarImages" />
             />
         </activity>
-
         <activity
             android:name=".ActivityFindingResults"
-            android:label="@string/app_name">
-
+            android:label="">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ActivityShowVisuallySimilarImagesSelect"/>
+                android:value=".ActivityShowVisuallySimilarImagesSelect" />
             />
         </activity>
-
+        <activity
+            android:name=".ActivityFindingsResultsSelect"
+            android:label="">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ActivityFindingResults" />
+            />
+        </activity>
         <activity
             android:name=".ActivityRecentSearch"
             android:label="">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
             />
         </activity>
 
         <activity
             android:name=".ActivityRecommendProducts"
             android:label="">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
             />
         </activity>
 
         <activity
+<<<<<<< HEAD
             android:name=".ActivityRecommendProductsSelect"
             android:label="">
 
@@ -92,6 +103,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
             />
+=======
+            android:name=".ActivityPopularProducts"
+            android:label="">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+>>>>>>> 90667719b0a589ab4e0792bd65ad180f0811a61e
         </activity>
 
         <provider
@@ -103,8 +121,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-
     </application>
 
 </manifest>

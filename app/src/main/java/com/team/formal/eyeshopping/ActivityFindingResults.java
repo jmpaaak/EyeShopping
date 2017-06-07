@@ -16,13 +16,15 @@
 
 package com.team.formal.eyeshopping;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,9 +48,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class ActivityFindingResults extends Activity {
+public class ActivityFindingResults extends AppCompatActivity {
 
     private static final String TAG = ActivityFindingResults.class.getSimpleName();
     private ViewGroup mRelativeLayout;
@@ -73,6 +77,11 @@ public class ActivityFindingResults extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finding_results);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         gridView = (GridView) findViewById(R.id.list_view);
 
@@ -195,6 +204,9 @@ public class ActivityFindingResults extends Activity {
         }
     }
 
+
+
+
     /*
         그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
      */
@@ -251,7 +263,7 @@ public class ActivityFindingResults extends Activity {
     /*
         그리드뷰 뷰, xml과 연결된 레이아웃 클래스
      */
-    static class Results_GridView extends LinearLayout {
+    class Results_GridView extends LinearLayout {
         private ViewGroup vGroup;
         private ImageView thumbView;
         private TextView productNameView;
@@ -263,7 +275,7 @@ public class ActivityFindingResults extends Activity {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             inflater.inflate(R.layout.grid_list_item, this, true);
 
-            vGroup = (ViewGroup) findViewById(R.id.grid_item_list_view);
+            vGroup = (ViewGroup) findViewById(R.id.grid_item_frame_layout2);
             thumbView = (ImageView) findViewById(R.id.product_thumbnail);
             productNameView = (TextView) findViewById(R.id.product_name);
             priceView = (TextView) findViewById(R.id.product_price);
@@ -272,19 +284,19 @@ public class ActivityFindingResults extends Activity {
             productNameView.setText(aItem.productName);
             priceView.setText(String.valueOf(aItem.price));
 
-//            image.setOnClickListener(new OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Bitmap bitmap = aItem.getImage();
-//                    String url = aItem.getUrl();
-//                    String uri = aItem.getUri();
-//
-//                    Intent intent = new Intent(getApplicationContext(), ActivityFindingResults.class);
-//                    intent.putExtra("url", url);
-//                    intent.putExtra("uri", uri);
-//                    startActivityForResult(intent, 77777);
-//                }
-//            });
+            vGroup.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
+
+                    long now = System.currentTimeMillis();
+                    Date date= new Date(now);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    String getTime = sdf.format(date);
+                    intent.putExtra("date", getTime);
+                    startActivityForResult(intent, 17777);
+                }
+            });
         }
     }
 

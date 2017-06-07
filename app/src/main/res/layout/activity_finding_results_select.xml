@@ -22,7 +22,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="상품"
+                android:text="상품 선택"
                 android:textColor="#FF000000"
                 android:layout_gravity="center"
                 android:textSize="20dp"
@@ -31,17 +31,38 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <GridView
-        android:id="@+id/list_view"
+    <ImageView
+        android:id="@+id/view_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent"
-        android:horizontalSpacing="5dp"
-        android:numColumns="1"
-        android:padding="10dp"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="5dp"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp"></GridView>
+        android:layout_height="0dp"
+        android:layout_weight="8">
+    </ImageView>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/selection_cancel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:text="Cancel"
+            android:layout_gravity="center"
+            />
+
+        <Button
+            android:id="@+id/selection_shopping"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:text="Shopping"
+            android:layout_gravity="center"
+            />
+
+    </LinearLayout>
 </LinearLayout>

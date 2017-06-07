@@ -227,7 +227,6 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
                                 URL url = new URL(urls.get(i));
                                 String uri;
                                 Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-
                                 File tempDir= getApplicationContext().getFilesDir();
                                 tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
                                 tempDir.mkdir();

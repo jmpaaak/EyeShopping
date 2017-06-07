@@ -1,11 +1,13 @@
 package com.team.formal.eyeshopping;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +17,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import static com.team.formal.eyeshopping.MainActivity.DBInstance;
-import static com.team.formal.eyeshopping.MainActivity.DBName;
-import static com.team.formal.eyeshopping.R.drawable.marmont_bag;
 
 /**
  * Created by NaJM on 2017. 6. 4..
  */
 
-public class ActivityRecentSearch extends Activity {
+public class ActivityRecentSearch extends AppCompatActivity {
+    private static final int SELECT_REQUEST = 2000;
 
     // Grid View 전역 변수
     GridView gridView;
@@ -35,27 +40,58 @@ public class ActivityRecentSearch extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recent_search);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        DBInstance = new DBHelper(this, DBName, null, 1);
-        Cursor c = DBInstance.getTuples("searched_product");
-        while(c.moveToNext()){
-            Log.i("combination keykord",c.getString(0));
-            Log.i("selected_image_url",c.getString(1));
-        }
+        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
+        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
 
+        final Cursor c = DBInstance.getTuples("searched_product");
+        c.moveToNext();
+        final int count = c.getCount();
 
-        Drawable im = getDrawable(marmont_bag);
-        String str = "Marmont";
+        new AsyncTask<Object, Void, ArrayList<ActivityRecentSearch.Results_GridItem>>() {
+            @Override
+            protected ArrayList<ActivityRecentSearch.Results_GridItem> doInBackground(Object... params) {
+                ArrayList<ActivityRecentSearch.Results_GridItem> gridItems = new ArrayList<>();
+                HttpURLConnection connection = null;
+                for(int i=0; i<count; i++) {
+                    String keyword;
+                    Bitmap bitmap;
+                    try {
+                        URL url = new URL(c.getString(4));
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.setDoInput(true);
+                        connection.connect();
+                        InputStream input = connection.getInputStream();
+                        BitmapFactory.Options op = new BitmapFactory.Options();
+                        op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                        bitmap = BitmapFactory.decodeStream(input, null, op);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    } finally {
+                        if (connection != null) connection.disconnect();
+                    }
+                    keyword = c.getString(1);
+                    gridItems.add(new Results_GridItem(bitmap,keyword));
+                    if( c.isLast()) { break; }
+                    else { c.moveToNext(); }
+                }
+                c.close();
+                return gridItems;
+            }
 
-        gridView = (GridView)findViewById(R.id.recent_grid_view);
-        ArrayList<Results_GridItem> items = new ArrayList<>();
-
-        for(int i=0; i<20; i++) {
-            items.add(new Results_GridItem(im,str));
-        }
-        gridViewAdapter = new GridViewAdapter(getApplicationContext(), items);
-        gridView.setAdapter(gridViewAdapter);
-
+            protected void onPostExecute(ArrayList<ActivityRecentSearch.Results_GridItem> gridItems)
+            {
+                gridView = (GridView)findViewById(R.id.recent_grid_view);
+                gridViewAdapter = new GridViewAdapter(getApplicationContext(), gridItems);
+                gridView.setAdapter(gridViewAdapter);
+            }
+        }.execute();
     }
 
     /*
@@ -100,11 +136,11 @@ public class ActivityRecentSearch extends Activity {
         그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
      */
     private class Results_GridItem {
-        private Drawable im;
-        private String str;
-        public Results_GridItem(Drawable im, String str) {
-            this.im=im;
-            this.str=str;
+        Bitmap bitmap;
+        String keyword;
+        public Results_GridItem(Bitmap bitmap, String keyword) {
+            this.bitmap=bitmap;
+            this.keyword=keyword;
         }
     }
 
@@ -123,11 +159,10 @@ public class ActivityRecentSearch extends Activity {
 
             vGroup = (ViewGroup) findViewById(R.id.grid_recent_item_list_view);
             thumbView = (ImageView) findViewById(R.id.recent_product_thumbnail);
-            thumbView.setImageDrawable(aItem.im);
+            thumbView.setImageBitmap(aItem.bitmap);
             strView = (TextView) findViewById(R.id.recent_str);
-            strView.setText(String.valueOf(aItem.str));
+            strView.setText(String.valueOf(aItem.keyword));
 
         }
     }
-
 }
