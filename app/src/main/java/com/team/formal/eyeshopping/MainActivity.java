@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public static final int SHOW_VISUALLY_SIMILAR_IMAGES_REQUEST = 4;
     public static final int RECENT_SEARCH_REQEST = 5;
     public static final int RECOMMEND_PRODUCT_REQUEST = 6;
+    public static final int POPULAR_PRODUCT_REQUEST = 7;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
@@ -109,22 +110,22 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //            Log.i("like", ""+like);
 //        }
 
-        try {
-            DBInstance.getServerTable("matching_combination", new AsyncResponse() {
-                @Override
-                public void processFinish(Object output) {
-                    // output이 받은 데이터이니 여기서 할거 하십쇼!
-                    testList = (ArrayList<HashMap>) output;
-
-                    for(int i=0; i < testList.size(); i++) {
-                        Log.i("combination_keyword "+i, (String) testList.get(i).get("combination_keyword"));
-                        Log.i("matching_image_url "+i, (String) testList.get(i).get("matching_image_url"));
-                    }
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            DBInstance.getServerTable("matching_combination", new AsyncResponse() {
+//                @Override
+//                public void processFinish(Object output) {
+//                    // output이 받은 데이터이니 여기서 할거 하십쇼!
+//                    testList = (ArrayList<HashMap>) output;
+//
+//                    for(int i=0; i < testList.size(); i++) {
+//                        Log.i("combination_keyword "+i, (String) testList.get(i).get("combination_keyword"));
+//                        Log.i("matching_image_url "+i, (String) testList.get(i).get("matching_image_url"));
+//                    }
+//                }
+//            });
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         setContentView(R.layout.activity_main);
 
@@ -309,7 +310,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         인기 상품 버튼 클릭시 호출
      */
     public void onPopularSearchedListButtonClick(View view) {
-
+        Intent intent = new Intent(getApplicationContext(), ActivityPopularProducts.class);
+        startActivityForResult(intent, POPULAR_PRODUCT_REQUEST);
     }
 
     /*
