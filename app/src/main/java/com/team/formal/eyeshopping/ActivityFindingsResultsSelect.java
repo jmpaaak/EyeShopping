@@ -56,7 +56,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-//
+        
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

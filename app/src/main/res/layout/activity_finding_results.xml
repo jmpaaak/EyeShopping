@@ -7,11 +7,35 @@
     android:orientation="vertical"
     tools:context="com.team.formal.eyeshopping.ActivityFindingResults">
 
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:theme="@style/ToolBarStyle"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="상품"
+                android:textColor="#FF000000"
+                android:layout_gravity="center"
+                android:textSize="20dp"
+                android:id="@+id/toolbar_title" />
+
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
     <GridView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#11555555"
+        android:background="@color/transparent"
         android:horizontalSpacing="5dp"
         android:numColumns="1"
         android:padding="10dp"

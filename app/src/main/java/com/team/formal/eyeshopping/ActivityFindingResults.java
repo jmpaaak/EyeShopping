@@ -16,7 +16,6 @@
 
 package com.team.formal.eyeshopping;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,6 +23,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ActivityFindingResults extends Activity {
+public class ActivityFindingResults extends AppCompatActivity {
 
     private static final String TAG = ActivityFindingResults.class.getSimpleName();
     private ViewGroup mRelativeLayout;
@@ -76,6 +77,11 @@ public class ActivityFindingResults extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finding_results);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         gridView = (GridView) findViewById(R.id.list_view);
 
@@ -198,6 +204,9 @@ public class ActivityFindingResults extends Activity {
         }
     }
 
+
+
+
     /*
         그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
      */
@@ -285,7 +294,7 @@ public class ActivityFindingResults extends Activity {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     String getTime = sdf.format(date);
                     intent.putExtra("date", getTime);
-                    startActivityForResult(intent, 77777);
+                    startActivityForResult(intent, 17777);
                 }
             });
         }
