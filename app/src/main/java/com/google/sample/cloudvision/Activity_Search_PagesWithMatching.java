@@ -20,6 +20,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.vision.v1.Vision;
+
 import com.google.api.services.vision.v1.VisionRequest;
 import com.google.api.services.vision.v1.VisionRequestInitializer;
 import com.google.api.services.vision.v1.model.AnnotateImageRequest;
@@ -51,6 +52,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -109,16 +111,10 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
-            final ProgressDialog asyncDialog = new ProgressDialog(Activity_Search_PagesWithMatching.this);
 
             @Override
             protected void onPreExecute() {
-                asyncDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                asyncDialog.setMax(20);
-                asyncDialog.setMessage("Search_pagesWithMatching...");
 
-                // show dialog
-                //asyncDialog.show();
                 super.onPreExecute();
             }
 
@@ -204,137 +200,86 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
                 super.onPostExecute(urls);
                 //  매개변수는 urls .
 
+                for(int i=0; i<urls.size(); i++){
+                    Log.d("pages", urls.get(i));
+                }
                 ArrayList<String[]> test1 = urlParsing(urls);
-                HashMap<Integer, ArrayList<String>> hash = new HashMap<Integer, ArrayList<String>>();
-                ArrayList<SearchNumStringSet> resultArr = new ArrayList<SearchNumStringSet>();
+                ArrayList<String[]> parsedUrl = urlParsing(urls);
+                Map<String, Integer> map = new HashMap<String, Integer>();
 
-                for (int i = 0; i < test1.size(); i++) {
-                    String[] strArr = test1.get(i);
-                    String firstStr = strArr[0];
+                // 1. url���� �ǵ� /�� ©���� �װ͵��� _-
+                for (int i = 0; i < parsedUrl.size(); i++) {
+                    for (int j = 0; j < parsedUrl.get(i).length; j++) {
+                        System.out.println(parsedUrl.get(i)[j]);
+                        Integer count = map.get(parsedUrl.get(i)[j]);
+                        map.put(parsedUrl.get(i)[j], (count == null) ? 1 : count + 1);
+                    }
+                    System.out.println("");
+                }
 
-                    boolean searchResult = false;
+                // �ߺ� �Ȱ� ������, ã���ְ� �ߺ��� keyword�� ���� ���¿��� �������� �̾��༭
+                // Ű���带 �����Ѵ�.
+                // �׸��� �װ͵��� naver Shop api�� �˻���
+                ArrayList<String> rankCount = new ArrayList<>();
+                ArrayList<ArrayList<String>> resultArr = new ArrayList<ArrayList<String>>();
 
-                    String checkFirstResult = null;
+                for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                    if (entry.getValue() >= 3) {
+                        System.out.println("keyword : " + entry.getKey() + " Count : " + entry.getValue());
+                        rankCount.add(entry.getKey());
+                    }
+                }
+
+                for (String arr[] : parsedUrl) {
+                    int count = 0;
+                    boolean check[] = new boolean[arr.length];
+                    ArrayList<String> strArr = new ArrayList<>();
+
+                    for (int i = 0; i < arr.length; i++) {
+                        for (String rank : rankCount) {
+                            if (arr[i].equals(rank)) {
+                                check[i] = true;
+                                strArr.add(arr[i]);
+                                count++;
+                            }
+                        }
+                        Log.d("strArr",strArr.toString());
+                    }
+
+                    int rand;
+                    int randSize = randomRange(1, arr.length - count);
+                    for (int i = 0; i < randSize; i++) {
+                        while (check[(rand = randomRange(0, arr.length - 1))]) {
+                            break;
+                        }
+                        strArr.add(arr[rand]);
+                        check[rand] = true;
+                    }
+                    resultArr.add(strArr);
+                    Log.d("raa",resultArr.toString());
+                }
+                List<Shop> parsingResult =null;
+                for(int i=0; i<resultArr.size(); i++){
+                    System.out.println(resultArr.get(i).toString().replaceAll(", ", "%20"));
+                    Log.d("uri",resultArr.get(i).toString().replaceAll(", ", "%20"));
+                    String shopResult= null;
                     try {
-
-                        checkFirstResult = naverShopApi(firstStr);
-                        Log.d("cfr__",checkFirstResult);
+                        shopResult = naverShopApi(resultArr.get(i).toString().replaceAll(", ", "%20"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        parsingResult = parsingShopResultXml(shopResult);
+                        for (Shop shop : parsingResult){
+                            Log.d("asd", shop.getImage());
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
-                 /*   if (checkFirstResult.contains("<display>0</display>")) {
-
-                        searchResult = false;
-
-                    }*/
-
-                    // 첫번째 검색어 검색 (firstArr)
-
-                    if (searchResult) {
-                        int rand, strLength = strArr.length;
-                        boolean check[] = new boolean[strLength + 1];
-                        int oddsSize = strLength / 2;
-                        int evenSize = strLength / 2;
-
-                        if (strLength % 2 == 1)
-                            oddsSize++;
-
-                        String odds[] = new String[oddsSize];
-                        String even[] = new String[evenSize];
-
-                        int oddsCount = 0, evenCount = 0;
-
-                        for (int j = 0; j < strLength; j++) {
-                            while (check[(rand = randomRange(0, strLength - 1))]) {
-                            }
-
-                            if (j % 2 == 1 || j == (strLength - 1)) {
-                                odds[oddsCount++] = strArr[rand];
-                            } else {
-                                even[evenCount++] = strArr[rand];
-                            }
-
-                            check[rand] = true;
-                        }
-
-                        String oddsStr = "", evenStr = "";
-                        System.out.println("O : ");
-                        for (String o : odds) {
-                            System.out.println(o);
-                            // 마지막엔,ㄴ %20이 들어가면 안되므로
-                            if (!o.equals(odds[odds.length - 1]))
-                                oddsStr = oddsStr + o + "%20";
-                            else
-                                oddsStr += o;
-                        }
-
-                        String checkResult = null;
-                        try {
-                            checkResult = naverShopApi(oddsStr);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        List<Shop> sh = new ArrayList<Shop>();
-                        try {
-                            sh = parsingShopResultXml(checkResult);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        inputData(hash, sh.size(), oddsStr);
-
-                        System.out.println();
-
-                        System.out.println("E : ");
-                        for (String e : even) {
-
-                            System.out.println(e);
-                            if (!e.equals(even[even.length - 1]))
-                                evenStr = evenStr + e + "%20";
-                            else
-                                evenStr += e;
-                        }
-                        try {
-                            checkResult = naverShopApi(evenStr);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            sh = parsingShopResultXml(checkResult);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        inputData(hash, sh.size(), evenStr);
-                        // sh.size가 검색 결과 숫자..
-                        System.out.println();
-
-                    }
-                }
-                // key 값만 다 모아오는 것.
-                Iterator itr = hash.keySet().iterator();
-                int keyArr[] = new int[hash.size()];
-                int sizeCount = 0;
-
-                while (itr.hasNext()) {
-                    int key = (int) itr.next();
-                    keyArr[sizeCount++] = key;
-                }
-
-                // 키 값만 정렬
-                Arrays.sort(keyArr);
-
-                for (int i = 0; i < hash.size(); i++) {
-                    int key = keyArr[i];
-                    ArrayList<String> strArr = hash.get(key);
-
-                    for (String str : strArr) {
-                        resultArr.add(new SearchNumStringSet(key, str));
-                        System.out.println(key + " / " + str);
-                    }
-
-                }
-                for(int i=0; i<resultArr.size();i++){
-                    Log.d("keyword",resultArr.get(i).searchStr);
                 }
 
             }
@@ -413,8 +358,6 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
                     in = new BufferedInputStream(urlConnection.getInputStream());
                 } catch (IOException e) {
                     e.printStackTrace();
-                } finally {
-                    urlConnection.disconnect();
                 }
 
                 String data = "";
@@ -447,7 +390,10 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
         }.execute().get();
 
         return res;
+    }
 
+    public static int randomRange(int n1, int n2) {
+        return (int) (Math.random() * (n2 - n1 + 1)) + n1;
     }
 
     // xml 형태의 결과를 파싱하는 작업
@@ -512,58 +458,5 @@ public class Activity_Search_PagesWithMatching extends AppCompatActivity {
         }
         return list;
     }
-
-    // 각 url의 length에 따라 랜덤.
-    public static int randomRange(int n1, int n2) {
-        return (int) (Math.random() * (n2 - n1 + 1)) + n1;
-    }
-
-    // 클래스를 만들어  키워드와 그에 해당하는 결과값 갯수 생성자 구축.
-    class SearchNumStringSet {
-        private int searchNum;
-        private String searchStr;
-
-        public SearchNumStringSet(int searchNum, String searchStr) {
-            this.searchNum = searchNum;
-            this.searchStr = searchStr;
-        }
-
-        public int getSearchNum() {
-            return searchNum;
-        }
-
-        public void setSearchNum(int searchNum) {
-            this.searchNum = searchNum;
-        }
-
-        public String getSearchStr() {
-            return searchStr;
-        }
-
-        public void setSearchStr(String searchStr) {
-            this.searchStr = searchStr;
-        }
-    }
-
-    public static void inputData(HashMap<Integer, ArrayList<String>> hash, int num, String str) {
-
-        // 검색결과가 없으면 넣지 않는다
-        if (num == 0)
-            return;
-
-        ArrayList<String> arrStr = hash.get(num);
-        // 검색 결과 숫자가 이미 해쉬에 있을 경우
-
-        if (arrStr != null) {
-            arrStr.add(str);
-            hash.put(num, arrStr);
-        } else {
-            // 검색결과 숫자가 키 값에 들어 있지 않은 경우
-            ArrayList<String> arr = new ArrayList<String>();
-            arr.add(str);
-            hash.put(num, arr);
-        }
-    }
-
 
 }
