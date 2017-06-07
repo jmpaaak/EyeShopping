@@ -17,6 +17,9 @@
 package com.team.formal.eyeshopping;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -52,18 +55,21 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
 
-        listItems.add(new RecommendProduct_ListItem("1", "나이키"));
-        listItems.add(new RecommendProduct_ListItem("2", "가죽백"));
-        listItems.add(new RecommendProduct_ListItem("3", "나이키"));
-        listItems.add(new RecommendProduct_ListItem("4", "가죽백"));
-        listItems.add(new RecommendProduct_ListItem("5", "나이키"));
-        listItems.add(new RecommendProduct_ListItem("6", "가죽백"));
-        listItems.add(new RecommendProduct_ListItem("7", "나이키"));
-        listItems.add(new RecommendProduct_ListItem("8", "가죽백"));
-        listItems.add(new RecommendProduct_ListItem("9", "나이키"));
-        listItems.add(new RecommendProduct_ListItem("10", "가죽백"));
+        listItems.add(new RecommendProduct_ListItem("1", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("2", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("3", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("4", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("5", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("6", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("7", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("8", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("9", "나이키", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
+        listItems.add(new RecommendProduct_ListItem("10", "가죽백", "https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwialeO906rUAhXBipQKHX5OCC8QjRwIBw&url=http%3A%2F%2Fblog.daum.net%2F4863384%2F7&psig=AFQjCNGoSrjx_lZwqdRWlspzIAFMgi8VPQ&ust=1496887728830754"));
 
         RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
+
+
+        //RecommendProduct_ListViewAdapter listViewAdapter = getRecommendedProductList();
 
         listview.setAdapter(listViewAdapter);
 
@@ -72,13 +78,53 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         Calendar c = Calendar.getInstance();
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss 기준");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss 기준");
         String formattedDate = df.format(c.getTime());
 
         recommend_date.setText(formattedDate);
-
     }
 
+    public RecommendProduct_ListViewAdapter getRecommendedProductList() {
+        SQLiteDatabase db = MainActivity.DBInstance.getReadableDatabase();
+
+        RecommendProduct_ListViewAdapter listViewAdapter = null;
+        ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
+
+        ArrayList<String> liked_keywords = new ArrayList<>();
+
+        String SQL = "select DISTINCT " + "K.keyword_name" + " from " +
+                     "serched_product AS S, keyword_in_combination AS K, " +
+                     "keyword_count_local AS C  " +
+                     "where " + "S.like = TRUE " +
+                     "AND S.combination_keyword = K.combination_keyword" +
+                     "AND K.keyword_name = C.keyword_name " +
+                     "order by C.count DESC";
+
+        Cursor liked_keywords_cursor = db.rawQuery(SQL, null);
+
+        if(liked_keywords_cursor != null &&
+                liked_keywords_cursor.getCount() != 0)
+        {
+            liked_keywords_cursor.moveToNext();
+
+            do {
+                liked_keywords.add(getString(0));
+            }while(liked_keywords_cursor.moveToNext());
+        }
+
+        db.close();
+
+        /*
+        try
+        {
+
+        }catch(IOException ie) {
+
+        }
+        */
+
+        return listViewAdapter;
+    }
 
     /*
         리스트 어댑터, 리스트 뷰를 inflate하여 객체화 한다
@@ -124,17 +170,21 @@ public class ActivityRecommendProducts extends AppCompatActivity {
     private class RecommendProduct_ListItem {
         private String number;
         private String keyword;
+        private String url;
 
-        public RecommendProduct_ListItem(String number, String keyword) {
+        public RecommendProduct_ListItem(String number, String keyword, String url) {
             this.number = number;
             this.keyword = keyword;
+            this.url = url;
         }
 
         public String getNumber() { return this.number; }
         public String getKeyword() { return this.keyword; }
+        public String getUrl() { return this.url; }
 
         public void setNumber(String number) { this.number = number; }
         public void setKeyword(String keyword) { this.keyword= keyword; }
+        public void setUrl(String url) { this.url = url; }
     }
 
     /*
@@ -144,6 +194,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         private TextView number_text;
         private TextView keyword_text;
+        private LinearLayout listitem_layout;
 
         public RecommendProduct_ListView(Context context, final RecommendProduct_ListItem aItem) {
             super(context);
@@ -156,6 +207,18 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
             keyword_text = (TextView)findViewById(R.id.recommend_product_keyword_text);
             keyword_text.setText(aItem.getKeyword());
+
+            listitem_layout = (LinearLayout)findViewById(R.id.recommend_layout);
+
+            listitem_layout.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), ActivityRecommendProductsSelect.class);
+                    intent.putExtra("url", aItem.getUrl());
+                    intent.putExtra("keyword", aItem.getKeyword() );
+                    startActivityForResult(intent, SELECT_REQUEST);
+                }
+            });
         }
     }
 }
