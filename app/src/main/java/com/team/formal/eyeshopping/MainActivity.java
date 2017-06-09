@@ -110,7 +110,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //        }
 
 //        try {
-//            DBInstance.getServerTable("matching_combination", new AsyncResponse() {
+//            ArrayList<String> keynames = new ArrayList<>();
+//            keynames.add("nike");
+//            keynames.add("adidas");
+//            keynames.add("reebok");
+//            DBInstance.getRecommendedUrls(keynames, new AsyncResponse() {
 //                @Override
 //                public void processFinish(Object output) {
 //                    // output이 받은 데이터이니 여기서 할거 하십쇼!

@@ -31,6 +31,16 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
+    <TextView
+        android:id="@+id/loadingText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal|center"
+        android:text="검색 결과를 가져오고 있습니다..."
+        android:textAlignment="center"
+        android:textSize="18dp"
+        android:textStyle="bold" />
+
     <GridView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
@@ -41,6 +51,7 @@
         android:padding="10dp"
         android:stretchMode="columnWidth"
         android:verticalSpacing="5dp"
+        android:visibility="gone"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp"></GridView>
 

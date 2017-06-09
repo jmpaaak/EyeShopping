@@ -20,8 +20,8 @@ JNIEXPORT jint JNICALL
 Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNIEnv *env, jobject instance,
                                                                jlong addrSelectedImage,
                                                                jlong addrSearchedImage) {
-    Mat selMat = *(Mat*) addrSelectedImage;
-    Mat schMat = *(Mat*) addrSearchedImage;
+    Mat selMat = *(Mat *) addrSelectedImage;
+    Mat schMat = *(Mat *) addrSearchedImage;
 
     vector<KeyPoint> kptVecSel, kptVecSch;
     Mat descMatSel, descMatSch;
@@ -39,11 +39,11 @@ Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNI
 
     vector<KeyPoint> matchedSel, matchedSch;
     vector<DMatch> matches;
-    for(size_t i = 0; i < nn_matches.size(); i++) { // TODO RANSAC 사용가능?
+    for (size_t i = 0; i < nn_matches.size(); i++) { // TODO RANSAC 사용가능?
         DMatch first = nn_matches[i][0];
         float dist1 = nn_matches[i][0].distance;
         float dist2 = nn_matches[i][1].distance;
-        if(dist1 < nn_match_ratio * dist2) { // ratio가 dist1/dist2 보다 작을 때: 2-NN match
+        if (dist1 < nn_match_ratio * dist2) { // ratio가 dist1/dist2 보다 작을 때: 2-NN match
             int new_i = (int) matchedSel.size();
             matchedSel.push_back(kptVecSel[first.queryIdx]);
             matchedSch.push_back(kptVecSch[first.trainIdx]);
@@ -53,35 +53,42 @@ Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNI
 
     /**** Estimating Homography matrix ****/
     vector<Point2f> selPts, prdPts;
-    for( int i = 0; i < matches.size(); i++ ) {
-        selPts.push_back( matchedSel[matches[i].queryIdx].pt );
-        prdPts.push_back( matchedSch[matches[i].trainIdx].pt );
+    if (matchedSel.size() != 0 && matchedSch.size() != 0) {
+        for (int i = 0; i < matches.size(); i++) {
+            selPts.push_back(matchedSel[matches[i].queryIdx].pt);
+            prdPts.push_back(matchedSch[matches[i].trainIdx].pt);
+        }
     }
 
-    Mat hMat = findHomography( selPts, prdPts, CV_RANSAC, 1 );
+    if(selPts.size() != 0 && prdPts.size() != 0) {
+        Mat hMat = findHomography(selPts, prdPts, CV_RANSAC, 1);
 
-    Mat res;
-    if(!hMat.empty()) { // Detecting !!!!
-        // drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
+        Mat res;
+        if (!hMat.empty()) { // Detecting !!!!
+            // drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
 
-        LOGI("A-KAZE Matching Results\n");
-        LOGI("*******************************\n");
-        LOGI("# Keypoints UserSel:              \t%d\n", (int)kptVecSel.size());
-        LOGI("# Keypoints NaverPR:              \t%d\n", (int)kptVecSch.size());
-        LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
-        return 1;
-    } else {
-        LOGI("NOT Detected !\n");
-        LOGI("NOT Detected !\n");
-        LOGI("NOT Detected !\n");
+            LOGI("A-KAZE Matching Results\n");
+            LOGI("*******************************\n");
+            LOGI("# Keypoints UserSel:              \t%d\n", (int) kptVecSel.size());
+            LOGI("# Keypoints NaverPR:              \t%d\n", (int) kptVecSch.size());
+            LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
+            return 1;
+        } else {
+            LOGI("NOT Detected !\n");
+            LOGI("NOT Detected !\n");
+            LOGI("NOT Detected !\n");
 
-        LOGI("A-KAZE Matching Results\n");
-        LOGI("*******************************\n");
-        LOGI("# Keypoints UserSel:              \t%d\n", (int)kptVecSel.size());
-        LOGI("# Keypoints NaverPR:              \t%d\n", (int)kptVecSch.size());
-        LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
-        return 0;
+            LOGI("A-KAZE Matching Results\n");
+            LOGI("*******************************\n");
+            LOGI("# Keypoints UserSel:              \t%d\n", (int) kptVecSel.size());
+            LOGI("# Keypoints NaverPR:              \t%d\n", (int) kptVecSch.size());
+            LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
+            return 0;
+        }
     }
+
+
+    return 0;
 
     // outputMat = res;
 }

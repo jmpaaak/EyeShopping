@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+    useLibrary 'org.apache.http.legacy' // for name-value-pair
 
     android {
         packagingOptions {
@@ -45,6 +46,10 @@ dependencies {
     compile 'com.google.apis:google-api-services-vision:v1-rev354-1.22.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+
+    compile 'com.google.http-client:google-http-client-android:+'   // for name-value-pair
+    compile 'com.google.api-client:google-api-client-android:+'     // for name-value-pair
+    compile 'com.google.api-client:google-api-client-gson:+'        // for name-value-pair
 }
 
 

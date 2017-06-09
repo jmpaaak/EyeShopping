@@ -26,7 +26,6 @@
         android:normalScreens="true"
         android:resizeable="true"
         android:smallScreens="true" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -73,8 +72,8 @@
             android:label="">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ActivityShowVisuallySimilarImagesSelect" />
-            />
+                android:value=".MainActivity"
+                android:hardwareAccelerated="false"/>
         </activity>
         <activity
             android:name=".ActivityFindingsResultsSelect"
