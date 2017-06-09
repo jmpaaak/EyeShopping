@@ -402,8 +402,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
                     httpURLConnection.setReadTimeout(50000);
                     httpURLConnection.setConnectTimeout(50000);
+                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                     httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setDoInput(true);
                     httpURLConnection.setDoOutput(true);
 
                     ArrayList<NameValuePair> postData = new ArrayList<>();
@@ -411,7 +411,15 @@ public class DBHelper extends SQLiteOpenHelper {
                     for(String keyword : keywordNameList) {
                         postData.add(new BasicNameValuePair("keywordNames[]", keyword));
                     }
-                    
+
+//                    connection.setRequestMethod("POST");
+//
+//                    request = new OutputStreamWriter(connection.getOutputStream());
+//                    request.write(parameters);
+//                    request.flush();
+//                    request.close();
+
+
                     OutputStream os = httpURLConnection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(
                             new OutputStreamWriter(os, "UTF-8"));
