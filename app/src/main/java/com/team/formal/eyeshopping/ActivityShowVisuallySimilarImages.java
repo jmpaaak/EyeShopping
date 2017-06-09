@@ -199,8 +199,6 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
                             vision.images().annotate(batchAnnotateImagesRequest);
                     // Due to a bug: requests to Vision API containing large images fail when GZipped.
                     annotateRequest.setDisableGZipContent(true);
-                    Log.d(TAG, "created Cloud Vision request object, sending request");
-
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
 
                     return convertResponseToString(response);
@@ -226,9 +224,8 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
                             try {
                                 URL url = new URL(urls.get(i));
                                 String uri;
-                                Log.d("uri", url.toString());
                                 Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                                File tempDir= getApplicationContext().getFilesDir();
+                                File tempDir= getApplicationContext().getCacheDir();
                                 tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
                                 tempDir.mkdir();
                                 File tempFile = File.createTempFile("selected_image", ".jpg", tempDir);
@@ -242,6 +239,7 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
                                 fos.flush();
                                 fos.close();
                                 uri = Uri.fromFile(tempFile).toString();
+                                Log.d(TAG, uri.toString());
 
                                 items.add(new VisuallySimilar_GridItem(bitmap ,urls.get(i),uri));
 
