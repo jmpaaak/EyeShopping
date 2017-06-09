@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -90,6 +91,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ActivityFindingResults extends AppCompatActivity {
 
@@ -109,7 +113,7 @@ public class ActivityFindingResults extends AppCompatActivity {
 
 
     ArrayList<Results_GridItem> findingItems = new ArrayList<>();
-
+    ProgressDialog detectDialog;
 
     static {
         System.loadLibrary("native-lib");
@@ -170,10 +174,9 @@ public class ActivityFindingResults extends AppCompatActivity {
         t.setVisibility(View.VISIBLE);
         GridView g = (GridView) findViewById(R.id.list_view);
         g.setVisibility(View.GONE);
-
     }
 
-    // 디텍팅 수행 Handler
+    // 디텍팅 수행 Handler NOT USED
     Handler detectHandler = new Handler() {
         public void handleMessage(Message msg) {
 
@@ -183,43 +186,21 @@ public class ActivityFindingResults extends AppCompatActivity {
             g.setVisibility(View.VISIBLE);
 
             Bundle bun = msg.getData();
-            ArrayList<Shop> dummyShops = (ArrayList<Shop>) bun.getSerializable("productInfo");
+            ArrayList<Results_GridItem> views = (ArrayList<Results_GridItem>) bun.getSerializable("productInfo");
 
-            for(Shop dummyShop : dummyShops) {
-                mNaverPrImg = dummyShop.getThumbBmp();
-                Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
-                Mat naverPrImgTarget = new Mat(mNaverPrImg.getWidth(), mNaverPrImg.getHeight(), CvType.CV_8UC4);
+            if(views.size() == 0) {
+                TextView tLoad = (TextView) findViewById(R.id.loadingText);
+                tLoad.setText("현재 검색 결과가 없습니다.");
+                tLoad.setVisibility(View.VISIBLE);
+                gridView.setVisibility(View.GONE);
+            } else {
+                gridViewAdapter = new GridViewAdapter(getApplicationContext(), views);
+                gridView.setAdapter(gridViewAdapter);
+            }
 
-                Utils.bitmapToMat(mNaverPrImg, naverPrImgTarget);
+            detectDialog.dismiss();
+        } // end of for
 
-                Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_BGR2RGB);
-
-                Imgproc.cvtColor(naverPrImgTarget, naverPrImgTarget, Imgproc.COLOR_RGBA2RGB);
-
-                int ret = AkazeFeatureMatching(userSelImgTarget.getNativeObjAddr(),
-                        naverPrImgTarget.getNativeObjAddr());
-
-                if (ret == 1) { // find one!
-                    DecimalFormat df = new DecimalFormat("#,###");
-                    assert dummyShop != null;
-                    String num = df.format(dummyShop.getLprice());
-                    findingItems.add(new Results_GridItem(dummyShop.getTitle(),
-                            mNaverPrImg,
-                            "최저가 " + num + "원"));
-
-                    gridViewAdapter = new GridViewAdapter(getApplicationContext(), findingItems);
-                    gridView.setAdapter(gridViewAdapter);
-
-                } else {
-                    // goto next thumbnail img or next comb. keyword
-                }
-                // Bitmap bmp = Bitmap.createBitmap(addrOutput.cols(), addrOutput.rows(), Bitmap.Config.ARGB_8888);
-                // Utils.matToBitmap(addrOutput, bmp);
-
-                // mMainImage.setImageBitmap(bmp);
-            } // end of for
-
-        }
     };
 
     @Override
@@ -378,8 +359,9 @@ public class ActivityFindingResults extends AppCompatActivity {
 
             @Override
             protected void onPreExecute() {
-
                 super.onPreExecute();
+                detectDialog = ProgressDialog.show(ActivityFindingResults.this,
+                        "결과를 불러오고 있습니다...", null, true, true);
             }
 
             @Override
@@ -464,7 +446,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                 super.onPostExecute(urls);
                 //  매개변수는 urls .
 
-                for(int i=0; i<urls.size(); i++){
+                for (int i = 0; i < urls.size(); i++) {
                     Log.d("pages", urls.get(i));
                 }
                 ArrayList<String[]> parsedUrl = urlParsing(urls);
@@ -506,7 +488,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                                 count++;
                             }
                         }
-                        Log.d("strArr",strArr.toString());
+                        Log.d("strArr", strArr.toString());
                     }
 
                     int rand;
@@ -519,50 +501,127 @@ public class ActivityFindingResults extends AppCompatActivity {
                         check[rand] = true;
                     }
                     resultArr.add(strArr);
-                    Log.d("raa",resultArr.toString());
+                    Log.d("raa", resultArr.toString());
                 }
 
-                for(int i=0; i<resultArr.size(); i++)
-                {
-                    System.out.println(resultArr.get(i).toString().replaceAll(", ", "%20"));
-                    Log.d("uri",resultArr.get(i).toString().replaceAll(", ", "%20"));
-                    String shopResult= null;
-                    try {
-                        shopResult = naverShopApi(resultArr.get(i).toString().replaceAll(", ", "%20"));
-                    } catch (IOException | ExecutionException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        final List<Shop> parsingResult = parsingShopResultXml(shopResult);
+                final ArrayList<ArrayList<String>> resultArrThread = resultArr;
+                new Thread() {
+                    @Override
+                    public void run() {
+                        super.run();
 
-                        new Thread() {
-                            // 재만이가 넘겨준 Shop List로 각각 디텍팅 수행
-                            public void run() {
+                        List<Shop> results = new ArrayList<>();
 
-                                assert parsingResult != null;
-                                Bundle bun = new Bundle();
-                                ArrayList<Shop> results = new ArrayList<>();
+                        for (int i = 0; i < resultArrThread.size(); i++) {
+
+                            System.out.println(resultArrThread.get(i).toString().replaceAll(", ", "%20"));
+                            Log.d("uri", resultArrThread.get(i).toString().replaceAll(", ", "%20"));
+                            final String xmlRaw = resultArrThread.get(i).toString().replaceAll(", ", "%20");
+
+                            // 1
+                            URL url = null;
+                            try {
+                                url = new URL("https://openapi.naver.com/v1/search/shop.xml?query=" + xmlRaw + "&display=50");
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
+
+                            HttpURLConnection urlConnection = null;
+                            try {
+                                urlConnection = (HttpURLConnection) url.openConnection();
+                                urlConnection.setRequestProperty("X-Naver-Client-ID", clientID);
+                                urlConnection.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+                                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 ( compatible ) ");
+                                urlConnection.setRequestProperty("Accept", "*/*");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            InputStream in = null;
+                            try {
+                                in = new BufferedInputStream(urlConnection.getInputStream());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            String data = "";
+                            String msg = null;
+
+                            BufferedReader br = null;
+                            try {
+                                br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+
+                            try {
+                                while ((msg = br.readLine()) != null) {
+                                    data += msg;
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            Log.i("msg of br: ", data);
+
+
+                            // 2
+                            String shopResult = data;
+                            try {
+                                List<Shop> parsingResult = parsingShopResultXml(shopResult);
 
                                 for (final Shop shop : parsingResult) {
-                                    shop.setThumbBmp(getBitmapFromURL(shop.getImage())); // 입력 이미지 Url
-                                    results.add(shop);
+                                    Bitmap thumbImg = getBitmapFromURL(shop.getImage());
+                                    if(thumbImg != null) {
+                                        shop.setThumbBmp(thumbImg); // 입력 이미지 Url
+                                        results.add(shop);
+                                    }
                                 }
 
-                                Message msg = detectHandler.obtainMessage();
-                                msg.setData(bun);
-                                bun.putSerializable("productInfo", results);
-                                detectHandler.sendMessage(msg);
+                                if(results.size() > 10)
+                                    results = results.subList(0, 10);
 
+
+                                for (Shop dummyShop : results) {
+
+                                    mNaverPrImg = dummyShop.getThumbBmp();
+                                    Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
+                                    Mat naverPrImgTarget = new Mat(mNaverPrImg.getWidth(), mNaverPrImg.getHeight(), CvType.CV_8UC4);
+
+                                    Utils.bitmapToMat(mNaverPrImg, naverPrImgTarget);
+
+                                    Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_BGR2RGB);
+
+                                    Imgproc.cvtColor(naverPrImgTarget, naverPrImgTarget, Imgproc.COLOR_RGBA2RGB);
+
+
+                                    int ret = AkazeFeatureMatching(userSelImg.getNativeObjAddr(),
+                                            naverPrImgTarget.getNativeObjAddr());
+
+                                    if (ret == 1) { // find one!
+                                        DecimalFormat df = new DecimalFormat("#,###");
+                                        String num = df.format(dummyShop.getLprice());
+                                        findingItems.add(new Results_GridItem(dummyShop.getTitle(),
+                                                mNaverPrImg,
+                                                "최저가 " + num + "원"));
+                                    }
+                                }
+
+                                Message m = new Message();
+                                Bundle b = new Bundle();
+                                b.putSerializable("productInfo", findingItems);
+                                m.setData(b);
+                                detectHandler.sendMessage(m);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        }.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    gridViewAdapter = new GridViewAdapter(getApplicationContext(), findingItems);
-                        gridView.setAdapter(gridViewAdapter);
-                }
 
-            }
+                        } // end of for
+                    } // end of run
+                }.start();
+
+            } // end of PostExcute
         }.execute();
     }
 
@@ -605,71 +664,6 @@ public class ActivityFindingResults extends AppCompatActivity {
         }
 
         return keywordList;
-    }
-
-    // 네이버 쇼핑 api 검색
-    public String naverShopApi(final String string) throws IOException, ExecutionException, InterruptedException {
-
-        String res =  new AsyncTask<Object, Void, String>() {
-
-            @Override
-            protected String doInBackground(Object[] params) {
-
-                URL url = null;
-                try {
-                    url = new URL("https://openapi.naver.com/v1/search/shop.xml?query=" + string + "&display=50");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
-                HttpURLConnection urlConnection = null;
-                try {
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestProperty("X-Naver-Client-ID", clientID);
-                    urlConnection.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-                    urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
-                    urlConnection.setRequestProperty("Accept","*/*");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                InputStream in = null;
-                try {
-                    in = new BufferedInputStream(urlConnection.getInputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                String data = "";
-                String msg = null;
-
-                BufferedReader br = null;
-                try {
-                    br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    while ((msg = br.readLine()) != null) {
-                        data += msg;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Log.i("msg of br: ", data);
-
-                return data;
-
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-            }
-        }.execute().get();
-
-        return res;
     }
 
     public static int randomRange(int n1, int n2) {
