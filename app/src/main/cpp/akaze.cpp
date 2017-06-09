@@ -6,7 +6,7 @@
 #include <jni.h>
 #include <android/log.h>
 
-const float nn_match_ratio = 0.95f;   // Nearest neighbor matching ratio
+const float nn_match_ratio = 0.9f;   // Nearest neighbor matching ratio
 
 #define  LOG_TAG    "NDK_TEST"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -18,10 +18,13 @@ using namespace std;
 extern "C" {
 JNIEXPORT jint JNICALL
 Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNIEnv *env, jobject instance,
-                                                               jlong addrSelectedImage,
-                                                               jlong addrSearchedImage) {
-    Mat selMat = *(Mat *) addrSelectedImage;
-    Mat schMat = *(Mat *) addrSearchedImage;
+                                                                   jlong addrSelectedImage,
+                                                                   jlong addrSearchedImage,
+                                                                   jlong addrOutput) {
+    Mat selMat = *(Mat*) addrSelectedImage;
+    Mat schMat = *(Mat*) addrSearchedImage;
+    Mat& outputMat = *(Mat*) addrOutput;
+
 
     vector<KeyPoint> kptVecSel, kptVecSch;
     Mat descMatSel, descMatSch;
@@ -31,7 +34,7 @@ Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNI
     akaze->detectAndCompute(selMat, noArray(), kptVecSel, descMatSel);
     akaze->detectAndCompute(schMat, noArray(), kptVecSch, descMatSch);
 
-    BFMatcher matcher(NORM_HAMMING); // TODO FLANN matcher 사용가능?
+    BFMatcher matcher(NORM_HAMMING); // TODO FLANN matcher - Using KD Tree
 
     /**** Feature Matching ****/
     vector<vector<DMatch>> nn_matches; // 2차원 DMatch 변수 선언
@@ -39,7 +42,7 @@ Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNI
 
     vector<KeyPoint> matchedSel, matchedSch;
     vector<DMatch> matches;
-    for (size_t i = 0; i < nn_matches.size(); i++) { // TODO RANSAC 사용가능?
+    for(size_t i = 0; i < nn_matches.size(); i++) {
         DMatch first = nn_matches[i][0];
         float dist1 = nn_matches[i][0].distance;
         float dist2 = nn_matches[i][1].distance;
@@ -51,45 +54,44 @@ Java_com_team_formal_eyeshopping_ActivityFindingResults_AkazeFeatureMatching(JNI
         }
     }
 
+
     /**** Estimating Homography matrix ****/
-    vector<Point2f> selPts, prdPts;
-    if (matchedSel.size() != 0 && matchedSch.size() != 0) {
+    if(matches.size() != 0) {
+        vector<Point2f> selPts, prdPts;
+        vector<KeyPoint> resSel, resSch;
         for (int i = 0; i < matches.size(); i++) {
             selPts.push_back(matchedSel[matches[i].queryIdx].pt);
             prdPts.push_back(matchedSch[matches[i].trainIdx].pt);
+            resSel.push_back(matchedSel[matches[i].queryIdx]);
+            resSch.push_back(matchedSch[matches[i].trainIdx]);
+        }
+
+        if (!selPts.empty() && !prdPts.empty()) {
+            Mat hMat = findHomography(selPts, prdPts, CV_RANSAC, 0);
+            Mat res;
+
+            if (!hMat.empty()) {
+                //drawMatches(selMat, resSel, schMat, resSch, matches, res);
+
+                LOGI(" A-KAZE Matching Results\n");
+                LOGI("*******************************\n");
+                LOGI("# Keypoints UserSel:              \t%d\n", (int) kptVecSel.size());
+                LOGI("# Keypoints NaverPR:              \t%d\n", (int) kptVecSch.size());
+                LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
+                //outputMat = res;
+                return 1;
+            } else {
+                LOGI("\n\nFind Homography FAILED with RANSAC! \n\n");
+                //drawMatches(selMat, resSel, schMat, resSch, matches, res);
+
+                return -1;
+            }
         }
     }
-
-    if(selPts.size() != 0 && prdPts.size() != 0) {
-        Mat hMat = findHomography(selPts, prdPts, CV_RANSAC, 1);
-
-        Mat res;
-        if (!hMat.empty()) { // Detecting !!!!
-            // drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
-
-            LOGI("A-KAZE Matching Results\n");
-            LOGI("*******************************\n");
-            LOGI("# Keypoints UserSel:              \t%d\n", (int) kptVecSel.size());
-            LOGI("# Keypoints NaverPR:              \t%d\n", (int) kptVecSch.size());
-            LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
-            return 1;
-        } else {
-            LOGI("NOT Detected !\n");
-            LOGI("NOT Detected !\n");
-            LOGI("NOT Detected !\n");
-
-            LOGI("A-KAZE Matching Results\n");
-            LOGI("*******************************\n");
-            LOGI("# Keypoints UserSel:              \t%d\n", (int) kptVecSel.size());
-            LOGI("# Keypoints NaverPR:              \t%d\n", (int) kptVecSch.size());
-            LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
-            return 0;
-        }
+    else
+    {
+        LOGI("\n\nNO matched pairs! \n\n");
+        return -1;
     }
-
-
-    return 0;
-
-    // outputMat = res;
 }
 }
