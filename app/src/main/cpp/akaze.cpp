@@ -41,7 +41,7 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
 
     vector<KeyPoint> matchedSel, matchedSch;
     vector<DMatch> matches;
-    for(size_t i = 0; i < nn_matches.size(); i++) { // TODO RANSAC 사용가능?
+    for(size_t i = 0; i < nn_matches.size(); i++) {
         DMatch first = nn_matches[i][0];
         float dist1 = nn_matches[i][0].distance;
         float dist2 = nn_matches[i][1].distance;
@@ -60,23 +60,27 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
         prdPts.push_back( matchedSch[matches[i].trainIdx].pt );
     }
 
-    Mat hMat = findHomography( selPts, prdPts, CV_RANSAC, 1 );
+    if(!selPts.empty() && !prdPts.empty()) {
+        Mat hMat = findHomography(selPts, prdPts, CV_RANSAC, 0);
+        Mat res;
 
-    Mat res;
-    if(!hMat.empty()) { // Detecting !!!!
-        drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
-    } else {
-        LOGI("NOT Detected !\n");
-        LOGI("NOT Detected !\n");
-        LOGI("NOT Detected !\n");
+        if(!hMat.empty()) {
+            drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
+
+            LOGI(" A-KAZE Matching Results\n");
+            LOGI("*******************************\n");
+            LOGI("# Keypoints UserSel:              \t%d\n", (int) kptVecSel.size());
+            LOGI("# Keypoints NaverPR:              \t%d\n", (int) kptVecSch.size());
+            LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
+            outputMat = res;
+        }
+        else {
+            LOGI("\n\nFind Homoghraphy FAILED with RANSAC! \n\n");
+        }
     }
-
-    LOGI("A-KAZE Matching Results\n");
-    LOGI("*******************************\n");
-    LOGI("# Keypoints UserSel:              \t%d\n", (int)kptVecSel.size());
-    LOGI("# Keypoints NaverPR:              \t%d\n", (int)kptVecSch.size());
-    LOGI("# Matches:                        \t%d\n\n", (int) matches.size());
-
-    outputMat = res;
+    else
+    {
+        LOGI("\n\nNO matched pairs! \n\n");
+    }
 }
 }

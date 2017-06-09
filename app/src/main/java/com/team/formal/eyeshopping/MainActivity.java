@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_RGB2BGR);
         Imgproc.cvtColor(naverPrImg, naverPrImgTarget, Imgproc.COLOR_RGB2BGR);
 
+//        Mat addrOutput = new Mat(280, 280, CvType.CV_8UC4);
         Mat addrOutput = new Mat(280, 280, CvType.CV_8UC4);
 
         AkazeFeatureMatching(userSelImgTarget.getNativeObjAddr(), naverPrImgTarget.getNativeObjAddr(), addrOutput.getNativeObjAddr());
@@ -188,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Utils.matToBitmap(addrOutput, bmp);
 
         mMainImage.setImageBitmap(bmp);
+
+        mImageDetails.setText("A-kaze feature matching ()");
 
         Log.i("complete","complete");
     }
