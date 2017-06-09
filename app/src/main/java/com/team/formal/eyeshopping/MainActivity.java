@@ -168,8 +168,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Mat userSelImg = null;
         Mat naverPrImg = null;
         try {
-            userSelImg = Utils.loadResource(this, R.drawable.user_image, CvType.CV_8UC4);
-            naverPrImg = Utils.loadResource(this, R.drawable.marmont_bag, CvType.CV_8UC4);
+            userSelImg = Utils.loadResource(this, R.drawable.images, CvType.CV_8UC4);
+            naverPrImg = Utils.loadResource(this, R.drawable.marmont_bag_large, CvType.CV_8UC4);
         } catch (IOException e) {
             e.printStackTrace();
         }

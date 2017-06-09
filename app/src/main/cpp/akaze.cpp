@@ -6,7 +6,7 @@
 #include <jni.h>
 #include <android/log.h>
 
-const float nn_match_ratio = 0.95f;   // Nearest neighbor matching ratio
+const float nn_match_ratio = 0.9f;   // Nearest neighbor matching ratio
 
 #define  LOG_TAG    "NDK_TEST"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -25,6 +25,7 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
     Mat schMat = *(Mat*) addrSearchedImage;
     Mat& outputMat = *(Mat*) addrOutput;
 
+
     vector<KeyPoint> kptVecSel, kptVecSch;
     Mat descMatSel, descMatSch;
 
@@ -33,7 +34,7 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
     akaze->detectAndCompute(selMat, noArray(), kptVecSel, descMatSel);
     akaze->detectAndCompute(schMat, noArray(), kptVecSch, descMatSch);
 
-    BFMatcher matcher(NORM_HAMMING); // TODO FLANN matcher 사용가능?
+    BFMatcher matcher(NORM_HAMMING); // TODO FLANN matcher - Using KD Tree
 
     /**** Feature Matching ****/
     vector<vector<DMatch>> nn_matches; // 2차원 DMatch 변수 선언
@@ -45,19 +46,23 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
         DMatch first = nn_matches[i][0];
         float dist1 = nn_matches[i][0].distance;
         float dist2 = nn_matches[i][1].distance;
-        if(dist1 < nn_match_ratio * dist2) { // ratio가 dist1/dist2 보다 작을 때: 2-NN match
-            int new_i = (int) matchedSel.size();
-            matchedSel.push_back(kptVecSel[first.queryIdx]);
-            matchedSch.push_back(kptVecSch[first.trainIdx]);
-            matches.push_back(DMatch(new_i, new_i, 0));
+            if (dist1 < nn_match_ratio * dist2) { // ratio가 dist1/dist2 보다 작을 때: 2-NN match
+                int new_i = (int) matchedSel.size();
+                matchedSel.push_back(kptVecSel[first.queryIdx]);
+                matchedSch.push_back(kptVecSch[first.trainIdx]);
+                matches.push_back(DMatch(new_i, new_i, 0));
         }
     }
 
+
     /**** Estimating Homography matrix ****/
     vector<Point2f> selPts, prdPts;
+    vector<KeyPoint> resSel, resSch;
     for( int i = 0; i < matches.size(); i++ ) {
         selPts.push_back( matchedSel[matches[i].queryIdx].pt );
         prdPts.push_back( matchedSch[matches[i].trainIdx].pt );
+        resSel.push_back( matchedSel[matches[i].queryIdx]);
+        resSch.push_back( matchedSch[matches[i].trainIdx]);
     }
 
     if(!selPts.empty() && !prdPts.empty()) {
@@ -65,7 +70,7 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
         Mat res;
 
         if(!hMat.empty()) {
-            drawMatches(selMat, matchedSel, schMat, matchedSch, matches, res);
+            drawMatches(selMat, resSel, schMat, resSch, matches, res);
 
             LOGI(" A-KAZE Matching Results\n");
             LOGI("*******************************\n");
@@ -76,6 +81,7 @@ Java_com_team_formal_eyeshopping_MainActivity_AkazeFeatureMatching(JNIEnv *env, 
         }
         else {
             LOGI("\n\nFind Homoghraphy FAILED with RANSAC! \n\n");
+            drawMatches(selMat, resSel, schMat, resSch, matches, res);
         }
     }
     else
