@@ -187,7 +187,7 @@ public class ActivityShowVisuallySimilarImages extends AppCompatActivity {
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature webDetection = new Feature();
                             webDetection.setType("WEB_DETECTION");
-                            webDetection.setMaxResults(3);
+                            webDetection.setMaxResults(8);
                             add(webDetection);
                         }});
 
