@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -82,13 +83,15 @@ public class ActivityRecommendProductsSelect extends AppCompatActivity {
                     URL url = new URL(s_url);
                     bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
 
-                    File tempDir = getApplicationContext().getFilesDir();
+                    File tempDir = getApplicationContext().getCacheDir();
                     tempDir = new File(tempDir.getAbsolutePath() + "/.temp/");
                     tempDir.mkdir();
                     File tempFile = File.createTempFile("selected_image", ".jpg", tempDir);
                     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
                     byte[] bitmapData = bytes.toByteArray();
+
+                    Log.i(TAG, "bitmap created");
 
                     //write the bytes in file
                     FileOutputStream fos = new FileOutputStream(tempFile);
@@ -105,8 +108,9 @@ public class ActivityRecommendProductsSelect extends AppCompatActivity {
                 return (Void) vo;
             }
 
-            protected void onPostExecute() {
+            protected void onPostExecute(Void vo) {
                 imageView.setImageBitmap(bitmap);
+                Log.d(TAG, "bitmap set");
 
                 cancleButton.setOnClickListener(new View.OnClickListener() {
                     @Override

@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.http.NameValuePair;
@@ -25,11 +24,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 public class DBHelper extends SQLiteOpenHelper {
     private Context context;
@@ -101,15 +96,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public void insertKeywordInCombinationLocal(String keywordName, String combinationKeyword) {
         SQLiteDatabase db = getWritableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM keyword_count_local WHERE keyword_name='" + keywordName, null);
-        if(cursor.getCount() == 0) {
+        //Cursor cursor = db.rawQuery("SELECT * FROM keyword_count_local WHERE keyword_name= "+ keywordName, null);
+        if(true) {
             db.execSQL("INSERT INTO keyword_in_combination_local VALUES(null, '" + keywordName + "', '" + combinationKeyword + "');");
             Log.i(keywordName, " - insertKeywordInCombinationLocal complete!");
         } else {
+            /*
             int newCount = cursor.getInt(1) + 1;
             db.execSQL("UPDATE keyword_count_local SET count=" + newCount + ", " +
                     " WHERE keyword_name='" + keywordName + "';");
             Log.i(keywordName, " - updateKeywordCountLocalCount complete!");
+            */
         }
     }
 

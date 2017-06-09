@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
 
+        /*
         listItems.add(new RecommendProduct_ListItem("1", "나이키", ""));
         listItems.add(new RecommendProduct_ListItem("2", "가죽백", ""));
         listItems.add(new RecommendProduct_ListItem("3", "나이키", ""));
@@ -65,10 +67,14 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         listItems.add(new RecommendProduct_ListItem("8", "가죽백", ""));
         listItems.add(new RecommendProduct_ListItem("9", "나이키", ""));
         listItems.add(new RecommendProduct_ListItem("10", "가죽백", ""));
+        */
 
-        RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
+        makeDummyData();
+        getRecommendedProductList();
 
-        //RecommendProduct_ListViewAdapter listViewAdapter = getRecommendedProductList();
+        //RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
+
+        RecommendProduct_ListViewAdapter listViewAdapter = getRecommendedProductList();
 
         listview.setAdapter(listViewAdapter);
 
@@ -91,15 +97,18 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         ArrayList<String> liked_keywords = new ArrayList<>();
 
-        String SQL = "select DISTINCT " + "K.keyword_name" + " from " +
-                     "serched_product AS S, keyword_in_combination AS K, " +
-                     "keyword_count_local AS C  " +
-                     "where " + "S.like = TRUE " +
-                     "AND S.combination_keyword = K.combination_keyword" +
+        String SQL = "select DISTINCT " + "K.combination_keyword, M.matching_image_url " +
+                     "from " +
+                     "searched_product AS S, keyword_in_combination_local AS K, " +
+                     "keyword_count_local AS C, matching_combination_local AS M " +
+                     "where " + "S.like = 1 " +
+                     "AND S.combination_keyword = K.combination_keyword " +
+                     "AND K.combination_keyword = M.combination_keyword " +
                      "AND K.keyword_name = C.keyword_name " +
                      "order by C.count DESC";
 
         Cursor liked_keywords_cursor = db.rawQuery(SQL, null);
+        int number = 1;
 
         if(liked_keywords_cursor != null &&
                 liked_keywords_cursor.getCount() != 0)
@@ -107,12 +116,18 @@ public class ActivityRecommendProducts extends AppCompatActivity {
             liked_keywords_cursor.moveToNext();
 
             do {
-                liked_keywords.add(getString(0));
+                Log.d(TAG, liked_keywords_cursor.getString(0));
+                Log.d(TAG, liked_keywords_cursor.getString(1));
+
+                listItems.add(new RecommendProduct_ListItem(Integer.toString(number),
+                        liked_keywords_cursor.getString(0), liked_keywords_cursor.getString(1)));
+                number++;
             }while(liked_keywords_cursor.moveToNext());
         }
 
         db.close();
 
+        listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
 
         /*
         try
