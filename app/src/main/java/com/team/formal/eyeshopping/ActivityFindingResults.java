@@ -22,12 +22,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -64,36 +62,26 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
-import org.w3c.dom.Text;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class ActivityFindingResults extends AppCompatActivity {
 
@@ -549,14 +537,18 @@ public class ActivityFindingResults extends AppCompatActivity {
 
                             BufferedReader br = null;
                             try {
-                                br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                                if(in != null) {
+                                    br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                                }
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
 
                             try {
-                                while ((msg = br.readLine()) != null) {
-                                    data += msg;
+                                if(br != null) {
+                                    while ((msg = br.readLine()) != null) {
+                                        data += msg;
+                                    }
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
