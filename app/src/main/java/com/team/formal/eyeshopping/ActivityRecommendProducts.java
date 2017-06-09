@@ -125,6 +125,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
             }while(liked_keywords_cursor.moveToNext());
         }
 
+        liked_keywords_cursor.close();
         db.close();
 
         listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
