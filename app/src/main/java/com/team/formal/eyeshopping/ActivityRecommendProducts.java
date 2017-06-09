@@ -116,9 +116,6 @@ public class ActivityRecommendProducts extends AppCompatActivity {
             liked_keywords_cursor.moveToNext();
 
             do {
-                Log.d(TAG, liked_keywords_cursor.getString(0));
-                Log.d(TAG, liked_keywords_cursor.getString(1));
-
                 listItems.add(new RecommendProduct_ListItem(Integer.toString(number),
                         liked_keywords_cursor.getString(0), liked_keywords_cursor.getString(1)));
                 number++;

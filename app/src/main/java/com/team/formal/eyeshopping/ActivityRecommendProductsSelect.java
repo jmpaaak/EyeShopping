@@ -110,7 +110,6 @@ public class ActivityRecommendProductsSelect extends AppCompatActivity {
 
             protected void onPostExecute(Void vo) {
                 imageView.setImageBitmap(bitmap);
-                Log.d(TAG, "bitmap set");
 
                 cancleButton.setOnClickListener(new View.OnClickListener() {
                     @Override
