@@ -511,6 +511,8 @@ public class ActivityFindingResults extends AppCompatActivity {
                         super.run();
 
                         List<Shop> results = new ArrayList<>();
+                        if(results.size() > 5)
+                            results = results.subList(0, 5);
 
                         for (int i = 0; i < resultArrThread.size(); i++) {
 
@@ -569,6 +571,8 @@ public class ActivityFindingResults extends AppCompatActivity {
                             String shopResult = data;
                             try {
                                 List<Shop> parsingResult = parsingShopResultXml(shopResult);
+                                if(parsingResult.size() > 5)
+                                    parsingResult = parsingResult.subList(0, 5);
 
                                 for (final Shop shop : parsingResult) {
                                     Bitmap thumbImg = getBitmapFromURL(shop.getImage());
@@ -578,7 +582,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                                     }
                                 }
 
-                                if(results.size() > 10)
+                                if(results.size() > 10) // must be
                                     results = results.subList(0, 10);
 
 

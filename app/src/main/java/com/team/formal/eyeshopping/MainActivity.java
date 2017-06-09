@@ -109,27 +109,27 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //            Log.i("like", ""+like);
 //        }
 
-        try {
-            ArrayList<String> keyNames = new ArrayList<>();
-            keyNames.add("nike");
-            keyNames.add("adidas");
-            keyNames.add("reebok");
-            DBInstance.getRecommendedUrls(keyNames, new AsyncResponse() {
-                @Override
-                public void processFinish(Object output) {
-                    // output이 받은 데이터이니 여기서 할거 하십쇼!
-                    testList = (ArrayList<HashMap>) output;
-
-                    for(int i=0; i < testList.size(); i++) {
-                        Log.i("testList "+i, "complete!");
-                        Log.i("combination_keyword "+i, (String) testList.get(i).get("combination_keyword"));
-                        Log.i("matching_image_url "+i, (String) testList.get(i).get("matching_image_url"));
-                    }
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ArrayList<String> keyNames = new ArrayList<>();
+//            keyNames.add("nike");
+//            keyNames.add("adidas");
+//            keyNames.add("reebok");
+//            DBInstance.getRecommendedUrls(keyNames, new AsyncResponse() {
+//                @Override
+//                public void processFinish(Object output) {
+//                    // output이 받은 데이터이니 여기서 할거 하십쇼!
+//                    testList = (ArrayList<HashMap>) output;
+//
+//                    for(int i=0; i < testList.size(); i++) {
+//                        Log.i("testList "+i, "complete!");
+//                        Log.i("combination_keyword "+i, (String) testList.get(i).get("combination_keyword"));
+//                        Log.i("matching_image_url "+i, (String) testList.get(i).get("matching_image_url"));
+//                    }
+//                }
+//            });
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         setContentView(R.layout.activity_main);
 
