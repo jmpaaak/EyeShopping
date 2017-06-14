@@ -76,6 +76,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -247,16 +249,23 @@ public class ActivityFindingResults extends AppCompatActivity {
     /*
         그리드뷰 아이템 그리드 뷰에 들어갈 정보를 담고 있다
      */
-    class Results_GridItem {
+    class Results_GridItem{
         private Bitmap thumb;
         private String productName;
         private String price;
+        private int int_price;
 
-        public Results_GridItem(String productName, Bitmap thumb, String price) {
+        public Results_GridItem(String productName, Bitmap thumb, String price, int int_price) {
             this.thumb = thumb;
             this.productName = productName;
             this.price = price;
+            this.int_price = int_price;
         }
+
+        public int getPrice() { return this.int_price; }
+        public String getPriceText() { return this.price; }
+        public Bitmap getThumb() { return this.thumb; }
+        public String getProductName() { return this.productName; }
     }
 
     /*
@@ -279,9 +288,9 @@ public class ActivityFindingResults extends AppCompatActivity {
             productNameView = (TextView) findViewById(R.id.product_name);
             priceView = (TextView) findViewById(R.id.product_price);
 
-            thumbView.setImageBitmap(aItem.thumb);
-            productNameView.setText(aItem.productName);
-            priceView.setText(String.valueOf(aItem.price));
+            thumbView.setImageBitmap(aItem.getThumb());
+            productNameView.setText(aItem.getProductName());
+            priceView.setText(aItem.getPriceText());
 
             vGroup.setOnClickListener(new OnClickListener() {
                 @Override
@@ -294,12 +303,9 @@ public class ActivityFindingResults extends AppCompatActivity {
                     productNameView = (TextView) vg.findViewById(R.id.product_name);
                     priceView = (TextView) vg.findViewById(R.id.product_price);
 
-                    thumbView.buildDrawingCache();
-                    Bitmap image = thumbView.getDrawingCache();
-
-                    intent.putExtra("product_thumbnail",  image);
-                    intent.putExtra("product_name", productNameView.getText());
-                    intent.putExtra("product_price", priceView.getText());
+                    intent.putExtra("product_thumbnail",  aItem.getThumb());
+                    intent.putExtra("product_name", aItem.getProductName());
+                    intent.putExtra("product_price", aItem.getPriceText());
                     startActivityForResult(intent, 17777);
                 }
             });
@@ -558,19 +564,20 @@ public class ActivityFindingResults extends AppCompatActivity {
                                     if (ret == 1) { // find one!
                                         DecimalFormat df = new DecimalFormat("#,###");
                                         String num = df.format(dummyShop.getLprice());
-                                        findingItems.add(new Results_GridItem(dummyShop.getTitle(),
-                                                mNaverPrImg,
-                                                "최저가 " + num + "원"));
+                                        int exist_flag = 0;
+                                        for(int ii=0;ii<findingItems.size();ii++) {
+                                            if(findingItems.get(ii).getProductName() == dummyShop.getTitle()) {
+                                                exist_flag = 1;
+                                                break;
+                                            }
+                                        }
+                                        if(exist_flag == 0) {
+                                            findingItems.add(new Results_GridItem(dummyShop.getTitle(),
+                                                    mNaverPrImg,
+                                                    "최저가 " + num + "원", dummyShop.getLprice()));
+                                        }
                                     }
                                 }
-
-                                /*
-                                Message m = new Message();
-                                Bundle b = new Bundle();
-                                b.putSerializable("productInfo", findingItems);
-                                m.setData(b);
-                                detectHandler.sendMessage(m);
-                                */
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -594,6 +601,27 @@ public class ActivityFindingResults extends AppCompatActivity {
                             tLoad.setVisibility(View.VISIBLE);
                             gridView.setVisibility(View.GONE);
                         } else {
+                            Log.d(TAG, "finding Size!!!!" + Integer.toString(findingItems.size()));
+                            Collections.sort(findingItems, new Comparator<Results_GridItem>() {
+                                @Override
+                                public int compare(Results_GridItem o1, Results_GridItem o2) {
+                                    if(o1.getPrice() > o2.getPrice())
+                                    {
+                                        return 1;
+                                    }
+                                    else if(o1.getPrice() < o2.getPrice())
+                                    {
+                                        return -1;
+                                    }
+                                    else {
+                                        return 0;
+                                    }
+                                }
+                            });
+                            for(int i=0;i<findingItems.size();i++) {
+                                Log.d(TAG, "List !! " + Integer.toString(findingItems.get(i).getPrice()));
+                            }
+                            Log.d(TAG, "finding Size!!!!" + Integer.toString(findingItems.size()));
                             gridViewAdapter = new GridViewAdapter(getApplicationContext(), findingItems);
                             gridView.setAdapter(gridViewAdapter);
                         }
@@ -605,7 +633,6 @@ public class ActivityFindingResults extends AppCompatActivity {
             } // end of PostExcute
         }.execute();
     }
-
 
     private ArrayList<String> convertResponseToString(BatchAnnotateImagesResponse response) {
 
@@ -622,7 +649,6 @@ public class ActivityFindingResults extends AppCompatActivity {
         }
         return urls;
     }
-
 
     public ArrayList<String[]> urlParsing(ArrayList<String> urls) {
         ArrayList<Integer> lastIndex = new ArrayList<Integer>();
