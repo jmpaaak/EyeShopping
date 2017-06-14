@@ -24,8 +24,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -99,9 +97,7 @@ public class ActivityFindingResults extends AppCompatActivity {
     GridView gridView;
     GridViewAdapter gridViewAdapter;
 
-
     ArrayList<Results_GridItem> findingItems = new ArrayList<>();
-    ProgressDialog detectDialog;
 
     static {
         System.loadLibrary("native-lib");
@@ -164,33 +160,6 @@ public class ActivityFindingResults extends AppCompatActivity {
         g.setVisibility(View.GONE);
     }
 
-    // 디텍팅 수행 Handler NOT USED
-    Handler detectHandler = new Handler() {
-        public void handleMessage(Message msg) {
-
-            TextView t = (TextView) findViewById(R.id.loadingText);
-            t.setVisibility(View.GONE);
-            GridView g = (GridView) findViewById(R.id.list_view);
-            g.setVisibility(View.VISIBLE);
-
-            Bundle bun = msg.getData();
-            ArrayList<Results_GridItem> views = (ArrayList<Results_GridItem>) bun.getSerializable("productInfo");
-
-            if(views.size() == 0) {
-                TextView tLoad = (TextView) findViewById(R.id.loadingText);
-                tLoad.setText("현재 검색 결과가 없습니다.");
-                tLoad.setVisibility(View.VISIBLE);
-                gridView.setVisibility(View.GONE);
-            } else {
-                gridViewAdapter = new GridViewAdapter(getApplicationContext(), views);
-                gridView.setAdapter(gridViewAdapter);
-            }
-
-            detectDialog.dismiss();
-        } // end of for
-
-    };
-
     @Override
     public void onResume() {
         super.onResume();
@@ -236,9 +205,6 @@ public class ActivityFindingResults extends AppCompatActivity {
             if (connection != null) connection.disconnect();
         }
     }
-
-
-
 
     /*
         그리드뷰 어댑터, 그리드 뷰를 inflate하여 객체화 한다
@@ -344,12 +310,14 @@ public class ActivityFindingResults extends AppCompatActivity {
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, ArrayList<String>>() {
+            final ProgressDialog asyncDialog = new ProgressDialog(ActivityFindingResults.this);
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                detectDialog = ProgressDialog.show(ActivityFindingResults.this,
-                        "결과를 불러오고 있습니다...", null, true, true);
+                asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                asyncDialog.setMessage("Loading Products ...");
+                asyncDialog.show();
             }
 
             @Override
@@ -493,17 +461,15 @@ public class ActivityFindingResults extends AppCompatActivity {
                 }
 
                 final ArrayList<ArrayList<String>> resultArrThread = resultArr;
-                new Thread() {
+                new AsyncTask<Object, Void, List<Shop>>() {
                     @Override
-                    public void run() {
-                        super.run();
-
+                    protected List<Shop> doInBackground(Object... params) {
                         List<Shop> results = new ArrayList<>();
+
                         if(results.size() > 5)
                             results = results.subList(0, 5);
 
                         for (int i = 0; i < resultArrThread.size(); i++) {
-
                             System.out.println(resultArrThread.get(i).toString().replaceAll(", ", "%20"));
                             Log.d("uri", resultArrThread.get(i).toString().replaceAll(", ", "%20"));
                             final String xmlRaw = resultArrThread.get(i).toString().replaceAll(", ", "%20");
@@ -558,7 +524,6 @@ public class ActivityFindingResults extends AppCompatActivity {
 
                             Log.i("msg of br: ", data);
 
-
                             // 2
                             String shopResult = data;
                             try {
@@ -577,17 +542,13 @@ public class ActivityFindingResults extends AppCompatActivity {
                                 if(results.size() > 10) // must be
                                     results = results.subList(0, 10);
 
-
                                 for (Shop dummyShop : results) {
-
                                     mNaverPrImg = dummyShop.getThumbBmp();
                                     Mat userSelImgTarget = new Mat(userSelImg.width(), userSelImg.height(), CvType.CV_8UC4);
                                     Mat naverPrImgTarget = new Mat(mNaverPrImg.getWidth(), mNaverPrImg.getHeight(), CvType.CV_8UC4);
 
                                     Utils.bitmapToMat(mNaverPrImg, naverPrImgTarget);
-
                                     Imgproc.cvtColor(userSelImg, userSelImgTarget, Imgproc.COLOR_BGR2RGB);
-
                                     Imgproc.cvtColor(naverPrImgTarget, naverPrImgTarget, Imgproc.COLOR_RGBA2RGB);
 
 
@@ -603,19 +564,43 @@ public class ActivityFindingResults extends AppCompatActivity {
                                     }
                                 }
 
+                                /*
                                 Message m = new Message();
                                 Bundle b = new Bundle();
                                 b.putSerializable("productInfo", findingItems);
                                 m.setData(b);
                                 detectHandler.sendMessage(m);
-
+                                */
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
                         } // end of for
-                    } // end of run
-                }.start();
+
+                        return results;
+                    } // end of doinbackground
+
+                    @Override
+                    protected void onPostExecute(List<Shop> shops) {
+                        super.onPostExecute(shops);
+
+                        TextView t = (TextView) findViewById(R.id.loadingText);
+                        t.setVisibility(View.GONE);
+                        GridView g = (GridView) findViewById(R.id.list_view);
+                        g.setVisibility(View.VISIBLE);
+
+                        if(findingItems.size() == 0) {
+                            TextView tLoad = (TextView) findViewById(R.id.loadingText);
+                            tLoad.setText("현재 검색 결과가 없습니다.");
+                            tLoad.setVisibility(View.VISIBLE);
+                            gridView.setVisibility(View.GONE);
+                        } else {
+                            gridViewAdapter = new GridViewAdapter(getApplicationContext(), findingItems);
+                            gridView.setAdapter(gridViewAdapter);
+                        }
+
+                        asyncDialog.dismiss();
+                    }
+                }.execute();
 
             } // end of PostExcute
         }.execute();
@@ -639,7 +624,6 @@ public class ActivityFindingResults extends AppCompatActivity {
     }
 
 
-
     public ArrayList<String[]> urlParsing(ArrayList<String> urls) {
         ArrayList<Integer> lastIndex = new ArrayList<Integer>();
         ArrayList<String> tokenList = new ArrayList<String>();
@@ -661,6 +645,7 @@ public class ActivityFindingResults extends AppCompatActivity {
 
         return keywordList;
     }
+
 
     public static int randomRange(int n1, int n2) {
         return (int) (Math.random() * (n2 - n1 + 1)) + n1;
