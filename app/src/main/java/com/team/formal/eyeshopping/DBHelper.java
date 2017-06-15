@@ -53,6 +53,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "search_date LONG, " +
                 "like BOOLEAN, " +
                 "selected_image_url TEXT, " +
+                "price INTEGER" +
                 "FOREIGN KEY(combination_keyword) REFERENCES matching_combination_local(combination_keyword));");
 
         // keyword_name
@@ -75,9 +76,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /***** INSERT INTO TABLE *****/
 
-    public void insertSearchedProduct(String combinationKeyword, long searchDate, int like, String selectedImageUrl) { // like 0=false, 1=true
+    public void insertSearchedProduct(String combinationKeyword, long searchDate, int like, String selectedImageUrl, int price) { // like 0=false, 1=true
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO searched_product VALUES(null, '" + combinationKeyword + "', " + searchDate + ", " + like + ", '" + selectedImageUrl + "');");
+        db.execSQL("INSERT INTO searched_product VALUES(null, '" + combinationKeyword + "', " + searchDate + ", " + like + ", '" + selectedImageUrl + "', "+ price + ");");
         Log.i(combinationKeyword, " - insertSearchedProduct complete!");
     }
 
@@ -371,9 +372,8 @@ public class DBHelper extends SQLiteOpenHelper {
             @Override
             protected void onPreExecute () {
                 super.onPreExecute();
-
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setMessage("Data loading..");
+                progressDialog.setMessage("Data loading ...");
                 progressDialog.show();
             }
 
@@ -397,7 +397,6 @@ public class DBHelper extends SQLiteOpenHelper {
                     // set .php file
                     URL url = new URL(serverURL + "get_" + join_table_name + ".php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-
 
                     httpURLConnection.setReadTimeout(5000);
                     httpURLConnection.setConnectTimeout(5000);

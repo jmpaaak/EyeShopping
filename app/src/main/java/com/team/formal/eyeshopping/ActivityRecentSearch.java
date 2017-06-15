@@ -45,9 +45,9 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
-        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
-        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+//        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
+//        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+//        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
 
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
