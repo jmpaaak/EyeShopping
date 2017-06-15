@@ -32,7 +32,6 @@ import static com.team.formal.eyeshopping.MainActivity.DBInstance;
  */
 
 public class ActivityRecentSearch extends AppCompatActivity {
-    private static final int SELECT_REQUEST = 2000;
 
     // Grid View 전역 변수
     GridView gridView;
@@ -47,11 +46,10 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 111, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",1111111,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 222, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",2222222,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 333, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",3333333,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 444, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",4444444,"http://www.naver.com");
 
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
@@ -173,9 +171,8 @@ public class ActivityRecentSearch extends AppCompatActivity {
      */
     private class Results_GridView extends LinearLayout {
         private ViewGroup vGroup;
-        private ImageView thumbView; //이미지
-        private TextView strView; //이름
-        private TextView priceView;
+        private ImageView productImage;
+        private TextView productName;
 
         public Results_GridView(Context context, final ActivityRecentSearch.Results_GridItem aItem) {
             super(context);
@@ -183,27 +180,25 @@ public class ActivityRecentSearch extends AppCompatActivity {
             inflater.inflate(R.layout.grid_recent_item, this, true);
 
             vGroup = (ViewGroup) findViewById(R.id.grid_recent_item_list_view);
-            thumbView = (ImageView) findViewById(R.id.recent_product_thumbnail);
-            thumbView.setImageBitmap(aItem.bitmap);
-            strView = (TextView) findViewById(R.id.recent_str);
-            strView.setText(String.valueOf(aItem.keyword));
+            productImage = (ImageView) findViewById(R.id.recent_product_thumbnail);
+            productImage.setImageBitmap(aItem.bitmap);
+            productName = (TextView) findViewById(R.id.recent_str);
+            productName.setText(String.valueOf(aItem.keyword));
 
             vGroup.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
 
-                    //이미지 가격 이름 url 보내
                     ViewGroup vg = (ViewGroup) v;
-                    thumbView = (ImageView) vg.findViewById(R.id.product_thumbnail);
-                    strView = (TextView) vg.findViewById(R.id.product_name);
-                    priceView = (TextView) vg.findViewById(R.id.product_price);
+                    productImage = (ImageView) vg.findViewById(R.id.product_thumbnail);
+                    productName = (TextView) vg.findViewById(R.id.product_name);
 
-                    intent.putExtra("product_thumbnail", aItem.getThumb()); // 상품 이미지
-                    intent.putExtra("product_name", aItem.getProductName()); // 상품 이름
-                    intent.putExtra("product_price", aItem.getPriceText()); // 상품 가격
-                    intent.putExtra("product_url", aItem.getUrl()); // 이미지 url
-                    intent.putExtra("mall_url", aItem.getMall_url()); // 쇼핑 url
+                    intent.putExtra("product_thumbnail", aItem.getThumb());   // 상품 이미지
+                    intent.putExtra("product_name", aItem.getProductName());  // 상품 이름
+                    intent.putExtra("product_price", aItem.getPriceText());   // 상품 가격
+                    intent.putExtra("product_url", aItem.getUrl());           // 이미지 url
+                    intent.putExtra("mall_url", aItem.getMall_url());         // 쇼핑 url
                     startActivityForResult(intent, 17777);
                 }
             });
