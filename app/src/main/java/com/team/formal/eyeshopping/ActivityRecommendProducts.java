@@ -54,7 +54,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        makeLocalDummyData();
+        //makeLocalDummyData();
         //makeServerDummyData();
 
         // Listview Setting
@@ -406,14 +406,14 @@ public class ActivityRecommendProducts extends AppCompatActivity {
                         matching_params[i]);
             }
 
-            for (int i = 0; i < 40; i++) {
-                MainActivity.DBInstance.insertIntoServerTable(keyword_in_combination_table_name,
-                        keyword_combination_params[i]);
-            }
-
             for (int i = 0; i < 27; i++) {
                 MainActivity.DBInstance.insertIntoServerTable(keyword_count_table_name,
                         keyword_count_params[i]);
+            }
+
+            for (int i = 0; i < 40; i++) {
+                MainActivity.DBInstance.insertIntoServerTable(keyword_in_combination_table_name,
+                        keyword_combination_params[i]);
             }
 
         }
