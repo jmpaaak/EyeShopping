@@ -141,7 +141,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
                                                                             listItems);
                     listView.setAdapter(listViewAdapter);
                 }
-            });
+            }, true);
         }
         catch(IOException ie)
         {

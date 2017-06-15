@@ -17,16 +17,12 @@
 package com.team.formal.eyeshopping;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,15 +46,13 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.WebDetection;
 import com.google.api.services.vision.v1.model.WebImage;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
@@ -84,9 +78,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public String our_uri;
 
     // View Pager 객체 전역 변수들
-    final ArrayList<String> keywords = new ArrayList<>();
-    final ArrayList<String> urls = new ArrayList<>();
-    final ArrayList<String> uris = new ArrayList<>();
+    ArrayList<String> keywords;
+    ArrayList<String> urls;
+    ArrayList<String> uris;
     Bitmap mResources[] = new Bitmap[4];
     int dotsCount;
     LinearLayout pager_indicator;
@@ -97,9 +91,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // if you want to rest call this.deleteDatabase("EyeShopping.db")
-        this.deleteDatabase(DBName); // initialize DB tables
-        DBInstance = new DBHelper(this, DBName, null, 1);
 
 //        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
 //        DBInstance.insertSearchedProduct("test2 cKeyword", (new Date()).getTime(), 0);
@@ -136,211 +129,64 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //        }
 
         setContentView(R.layout.activity_main);
-        makeLocalDummyData();
-        setRecommendedProductList();
-    }
 
-    public void setRecommendedProductList() {
-        SQLiteDatabase db = DBInstance.getReadableDatabase();
+        Intent intent = getIntent();
+        keywords =
+                (ArrayList<String>)intent.getSerializableExtra("keywords");
+        urls =
+                (ArrayList<String>)intent.getSerializableExtra("urls");
+        uris =
+                (ArrayList<String>)intent.getSerializableExtra("uris");
 
-        ArrayList<String> liked_keywords = new ArrayList<>();
-
-        String SQL = "select DISTINCT " + "C.keyword_name " +
-                "from " +
-                "searched_product AS S, keyword_in_combination_local AS K, " +
-                "keyword_count_local AS C, matching_combination_local AS M " +
-                "where " + "S.like = 1 " +
-                "AND S.combination_keyword = K.combination_keyword " +
-                "AND K.combination_keyword = M.combination_keyword " +
-                "AND K.keyword_name = C.keyword_name " +
-                "order by C.count DESC";
-
-        Cursor liked_keywords_cursor = db.rawQuery(SQL, null);
-
-        if (liked_keywords_cursor != null &&
-                liked_keywords_cursor.getCount() != 0) {
-            liked_keywords_cursor.moveToNext();
-
-            do {
-                liked_keywords.add(liked_keywords_cursor.getString(0));
-            } while (liked_keywords_cursor.moveToNext());
-        }
-
-        liked_keywords_cursor.close();
-        db.close();
-
-        if (liked_keywords.size() != 0) {
+        for(int i=0;i<uris.size();i++)
+        {
+            // get Bitmap image from uri
             try {
-                DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
-                    @Override
-                    public void processFinish(Object output) {
-                        ArrayList<HashMap> outputList = (ArrayList<HashMap>) output;
-
-                        String combi_keyword;
-                        String matching_url;
-
-                        for (int i = 0; i < outputList.size(); i++) {
-                            combi_keyword = (String) outputList.get(i).get("combination_keyword");
-                            matching_url = (String) outputList.get(i).get("matching_image_url");
-
-                            boolean is_there_flag = false;
-                            for (int j = 0; j < keywords.size(); j++) {
-                                if (combi_keyword.equals(keywords.get(j))) {
-                                    is_there_flag = true;
-                                }
-                            }
-
-                            if (!is_there_flag) {
-                                keywords.add(combi_keyword);
-                                urls.add(matching_url);
-                                if (urls.size() >= 3) break;
-                            }
-                        }
-
-                        new AsyncTask<Object, Void, ArrayList<Bitmap>>() {
-                            final ProgressDialog asyncDialog =
-                                    new ProgressDialog(MainActivity.this);
-
-                            @Override
-                            protected void onPreExecute() {
-                                super.onPreExecute();
-
-                                asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                asyncDialog.setMessage("Loading Recommend Products..");
-
-                                // show dialog
-                                asyncDialog.show();
-                            }
-
-                            @Override
-                            protected ArrayList<Bitmap> doInBackground(Object... params) {
-                                for (int i = 0; i < urls.size(); i++) {
-                                    try {
-                                        URL url = new URL(urls.get(i));
-                                        String uri;
-                                        Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                                        File tempDir= getApplicationContext().getCacheDir();
-                                        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
-                                        tempDir.mkdir();
-                                        File tempFile = File.createTempFile("selected_image", ".jpg", tempDir);
-                                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-                                        byte[] bitmapData = bytes.toByteArray();
-
-                                        //write the bytes in file
-                                        FileOutputStream fos = new FileOutputStream(tempFile);
-                                        fos.write(bitmapData);
-                                        fos.flush();
-                                        fos.close();
-                                        uri = Uri.fromFile(tempFile).toString();
-                                        uris.add(uri);
-                                        recommend_bitmaps.add(bitmap);
-                                        Log.d(TAG, "mResources: " + Integer.toString(recommend_bitmaps.size()));
-                                    } catch (IOException e) {
-                                        System.out.println(e);
-                                    }
-                                }
-
-                                return recommend_bitmaps;
-                            }
-
-                            @Override
-                            protected void onPostExecute(ArrayList<Bitmap> bitmaps) {
-                                Bitmap logo = BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                        R.drawable.splash);
-                                mResources[0] = logo;
-                                for(int i=0;i<recommend_bitmaps.size();i++)
-                                {
-                                    mResources[i+1] = recommend_bitmaps.get(i);
-                                }
-
-                                Bitmap default_bitmaps[] = new Bitmap[3];
-                                default_bitmaps[0] = BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                        R.drawable.view_example_1);
-                                default_bitmaps[1] = BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                        R.drawable.view_example_3);
-                                default_bitmaps[2] = BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                        R.drawable.view_example_4);
-
-                                int default_index=0;
-                                for(int i=recommend_bitmaps.size()+1;i<mResources.length;i++)
-                                {
-                                    mResources[i] = default_bitmaps[default_index];
-                                    default_index++;
-                                }
-
-                                // View Pager 초기 설정
-                                intro_images = (ViewPager) findViewById(R.id.pager);
-                                pager_indicator = (LinearLayout) findViewById(R.id.viewPagerCountDots);
-                                mAdapter = new ViewPagerAdapter(getApplicationContext(), mResources);
-                                intro_images.setAdapter(mAdapter);
-                                intro_images.setCurrentItem(0);
-                                intro_images.setOnPageChangeListener(MainActivity.this);
-                                setUiPageViewController();
-
-                                asyncDialog.dismiss();
-                            }
-                        }.execute();
-                    }
-                });
-            } catch (IOException ie) {
-
+                // 비트맵을 내부 저장소에서 Uri를 활용해 얻는다
+                Bitmap bitmap =
+                        MediaStore.Images.Media.getBitmap(getContentResolver(),
+                                Uri.parse(uris.get(i)));
+                recommend_bitmaps.add(bitmap);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
-    }
 
-    public void makeLocalDummyData() {
-        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
-                20170527, 1,
-                "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg",
-                35000, "http://www.naver.com");
-        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
-                20170605, 1,
-                "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg",
-                56000, "http://www.naver.com");
-        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
-                20170402, 1,
-                "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg",
-                235000, "http://www.naver.com");
+        Bitmap logo = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.splash);
+        mResources[0] = logo;
+        for(int i=0;i<recommend_bitmaps.size();i++)
+        {
+            mResources[i+1] = recommend_bitmaps.get(i);
+        }
 
-        MainActivity.DBInstance.insertMatchingCombinationLocal("nike shoes running air",
-                "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
-        MainActivity.DBInstance.insertMatchingCombinationLocal("Starbucks tumbler 400ml stainless",
-                "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
-        MainActivity.DBInstance.insertMatchingCombinationLocal("woman wallet MCM long black",
-                "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
+        Bitmap default_bitmaps[] = new Bitmap[3];
+        default_bitmaps[0] = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.view_example_1);
+        default_bitmaps[1] = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.view_example_3);
+        default_bitmaps[2] = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.view_example_4);
 
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("nike", "nike shoes running air");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("shoes", "nike shoes running air");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("running", "nike shoes running air");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("air", "nike shoes running air");
+        int default_index=0;
+        for(int i=recommend_bitmaps.size()+1;i<mResources.length;i++)
+        {
+            mResources[i] = default_bitmaps[default_index];
+            default_index++;
+        }
 
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("Starbucks", "Starbucks tumbler 400ml stainless");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("tumbler", "Starbucks tumbler 400ml stainless");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("400ml", "Starbucks tumbler 400ml stainless");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("stainless", "Starbucks tumbler 400ml stainless");
-
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("woman", "woman wallet MCM long black");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("wallet", "woman wallet MCM long black");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("MCM", "woman wallet MCM long black");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("long", "woman wallet MCM long black");
-        MainActivity.DBInstance.insertKeywordInCombinationLocal("black", "woman wallet MCM long black");
-
-        MainActivity.DBInstance.insertKeywordCountLocal("nike", 5);
-        MainActivity.DBInstance.insertKeywordCountLocal("shoes", 40);
-        MainActivity.DBInstance.insertKeywordCountLocal("running", 2);
-        MainActivity.DBInstance.insertKeywordCountLocal("air", 2);
-
-        MainActivity.DBInstance.insertKeywordCountLocal("Starbucks", 5);
-        MainActivity.DBInstance.insertKeywordCountLocal("tumbler", 20);
-        MainActivity.DBInstance.insertKeywordCountLocal("400ml", 1);
-        MainActivity.DBInstance.insertKeywordCountLocal("stainless", 30);
-
-        MainActivity.DBInstance.insertKeywordCountLocal("woman", 100);
-        MainActivity.DBInstance.insertKeywordCountLocal("wallet", 70);
-        MainActivity.DBInstance.insertKeywordCountLocal("MCM", 10);
-        MainActivity.DBInstance.insertKeywordCountLocal("long", 15);
-        MainActivity.DBInstance.insertKeywordCountLocal("black", 200);
+        // View Pager 초기 설정
+        intro_images = (ViewPager) findViewById(R.id.pager);
+        pager_indicator = (LinearLayout) findViewById(R.id.viewPagerCountDots);
+        mAdapter = new ViewPagerAdapter(getApplicationContext(), mResources);
+        intro_images.setAdapter(mAdapter);
+        intro_images.setCurrentItem(0);
+        intro_images.setOnPageChangeListener(MainActivity.this);
+        setUiPageViewController();
     }
 
     /*
@@ -413,7 +259,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_item_image_view);
             imageView.setImageBitmap(mResources[position]);
 
-            if(position < recommend_bitmaps.size())
+            if(position < recommend_bitmaps.size() &&
+                    position != 0)
             {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
