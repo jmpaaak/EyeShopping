@@ -150,57 +150,57 @@ public class ActivityRecommendProducts extends AppCompatActivity {
     }
 
     public void makeLocalDummyData() {
-        DBInstance.insertSearchedProduct("nike shoes running air",
+        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
                                                       20170527, 1,
                                                        "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg",
-                                                       35000);
-        DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
+                                                       35000, "http://www.naver.com");
+        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
                                                       20170605, 1,
                                                        "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg",
-                                                        56000);
-        DBInstance.insertSearchedProduct("woman wallet MCM long black",
+                                                        56000, "http://www.naver.com");
+        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
                                                       20170402, 1,
                                                        "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg",
-                                                        235000);
+                                                        235000, "http://www.naver.com");
 
-        DBInstance.insertMatchingCombinationLocal("nike shoes running air",
+        MainActivity.DBInstance.insertMatchingCombinationLocal("nike shoes running air",
                             "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
-        DBInstance.insertMatchingCombinationLocal("Starbucks tumbler 400ml stainless",
+        MainActivity.DBInstance.insertMatchingCombinationLocal("Starbucks tumbler 400ml stainless",
                 "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
-        DBInstance.insertMatchingCombinationLocal("woman wallet MCM long black",
+        MainActivity.DBInstance.insertMatchingCombinationLocal("woman wallet MCM long black",
                 "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
 
-        DBInstance.insertKeywordInCombinationLocal("nike", "nike shoes running air");
-        DBInstance.insertKeywordInCombinationLocal("shoes", "nike shoes running air");
-        DBInstance.insertKeywordInCombinationLocal("running", "nike shoes running air");
-        DBInstance.insertKeywordInCombinationLocal("air", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("nike", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("shoes", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("running", "nike shoes running air");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("air", "nike shoes running air");
 
-        DBInstance.insertKeywordInCombinationLocal("Starbucks", "Starbucks tumbler 400ml stainless");
-        DBInstance.insertKeywordInCombinationLocal("tumbler", "Starbucks tumbler 400ml stainless");
-        DBInstance.insertKeywordInCombinationLocal("400ml", "Starbucks tumbler 400ml stainless");
-        DBInstance.insertKeywordInCombinationLocal("stainless", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("Starbucks", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("tumbler", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("400ml", "Starbucks tumbler 400ml stainless");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("stainless", "Starbucks tumbler 400ml stainless");
 
-        DBInstance.insertKeywordInCombinationLocal("woman", "woman wallet MCM long black");
-        DBInstance.insertKeywordInCombinationLocal("wallet", "woman wallet MCM long black");
-        DBInstance.insertKeywordInCombinationLocal("MCM", "woman wallet MCM long black");
-        DBInstance.insertKeywordInCombinationLocal("long", "woman wallet MCM long black");
-        DBInstance.insertKeywordInCombinationLocal("black", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("woman", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("wallet", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("MCM", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("long", "woman wallet MCM long black");
+        MainActivity.DBInstance.insertKeywordInCombinationLocal("black", "woman wallet MCM long black");
 
-        DBInstance.insertKeywordCountLocal("nike", 5);
-        DBInstance.insertKeywordCountLocal("shoes", 40);
-        DBInstance.insertKeywordCountLocal("running", 2);
-        DBInstance.insertKeywordCountLocal("air", 2);
+        MainActivity.DBInstance.insertKeywordCountLocal("nike", 5);
+        MainActivity.DBInstance.insertKeywordCountLocal("shoes", 40);
+        MainActivity.DBInstance.insertKeywordCountLocal("running", 2);
+        MainActivity.DBInstance.insertKeywordCountLocal("air", 2);
 
-        DBInstance.insertKeywordCountLocal("Starbucks", 5);
-        DBInstance.insertKeywordCountLocal("tumbler", 20);
-        DBInstance.insertKeywordCountLocal("400ml", 1);
-        DBInstance.insertKeywordCountLocal("stainless", 30);
+        MainActivity.DBInstance.insertKeywordCountLocal("Starbucks", 5);
+        MainActivity.DBInstance.insertKeywordCountLocal("tumbler", 20);
+        MainActivity.DBInstance.insertKeywordCountLocal("400ml", 1);
+        MainActivity.DBInstance.insertKeywordCountLocal("stainless", 30);
 
-        DBInstance.insertKeywordCountLocal("woman", 100);
-        DBInstance.insertKeywordCountLocal("wallet", 70);
-        DBInstance.insertKeywordCountLocal("MCM", 10);
-        DBInstance.insertKeywordCountLocal("long", 15);
-        DBInstance.insertKeywordCountLocal("black", 200);
+        MainActivity.DBInstance.insertKeywordCountLocal("woman", 100);
+        MainActivity.DBInstance.insertKeywordCountLocal("wallet", 70);
+        MainActivity.DBInstance.insertKeywordCountLocal("MCM", 10);
+        MainActivity.DBInstance.insertKeywordCountLocal("long", 15);
+        MainActivity.DBInstance.insertKeywordCountLocal("black", 200);
     }
 
     public void makeServerDummyData()
