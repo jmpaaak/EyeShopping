@@ -25,8 +25,6 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import static com.team.formal.eyeshopping.MainActivity.DBInstance;
-
 /**
  * Created by NaJM on 2017. 6. 4..
  */
@@ -46,12 +44,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 111, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",1111111,"http://www.naver.com");
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 222, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",2222222,"http://www.naver.com");
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 333, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",3333333,"http://www.naver.com");
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 444, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",4444444,"http://www.naver.com");
-
-        final Cursor c = DBInstance.getTuples("searched_product");
+        final Cursor c = MainActivity.DBInstance.getTuples("searched_product");
         c.moveToNext();
         final int count = c.getCount();
 
@@ -197,8 +190,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
                     intent.putExtra("product_thumbnail", aItem.getThumb());   // 상품 이미지
                     intent.putExtra("product_name", aItem.getProductName());  // 상품 이름
                     intent.putExtra("product_price", aItem.getPriceText());   // 상품 가격
-                    intent.putExtra("product_url", aItem.getUrl());           // 이미지 url
-                    intent.putExtra("mall_url", aItem.getMall_url());         // 쇼핑 url
+                    intent.putExtra("product_url", aItem.getMall_url());      // 상품 url
                     startActivityForResult(intent, 17777);
                 }
             });

@@ -42,7 +42,6 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         //Log.i("pName", productName);
         String price = (String) intent.getSerializableExtra("product_price");
         productUrl = (String) intent.getSerializableExtra("product_url");
-        mallUrl = (String) intent.getSerializableExtra("mall_url");
 
         //TEST
         ImageView imageView = (ImageView) findViewById(R.id.view_image);
@@ -51,6 +50,14 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         TextView textView1 = (TextView) findViewById(R.id.Product_price);
         textView.setText(productName);
         textView1.setText(price);
+
+        Cursor c = MainActivity.DBInstance.getTuples("searched_product");
+        while(c.moveToNext()) {
+            if(c.getString(6).equals(productUrl) && c.getInt(3) == 1) {
+                CheckBox likeBox = (CheckBox) findViewById(R.id.likeBox);
+                likeBox.setChecked(true);
+            }
+        }
 
 //        // Url과 Uri를 부모 액티비티에서 받는다.
 //        final String url = intent.getStringExtra("sample");
@@ -70,19 +77,32 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-        CheckBox checkbox = (CheckBox) findViewById(R.id.checkbox);
+        CheckBox checkbox = (CheckBox) findViewById(R.id.likeBox);
         checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                int curID = 0;
+                if(isChecked) {
                     //db 저장
                     //앞에서 id 넘겨주고 여기다가 update
-                    //DBInstance.updateSearchedProductLike(ID,1);
+                    Cursor c = MainActivity.DBInstance.getTuples("searched_product");
+                    while(c.moveToNext()) {
+                        if(c.getString(6).equals(productUrl)) {
+                            curID = c.getInt(0);
+                        }
+                    }
+                    MainActivity.DBInstance.updateSearchedProductLike(curID, 1);
                 }
-                else{
+                else{ 
                     //db 저장
                     //앞에서 id 넘겨주고 여기다가 update
-                    //DBInstance.updateSearchedProductLike(ID,0);
+                    Cursor c = MainActivity.DBInstance.getTuples("searched_product");
+                    while(c.moveToNext()) {
+                        if(c.getString(6).equals(productUrl)) {
+                            curID = c.getInt(0);
+                        }
+                    }
+                    MainActivity.DBInstance.updateSearchedProductLike(curID, 0);
 
                 }
             }

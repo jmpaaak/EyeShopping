@@ -50,12 +50,10 @@ public class SplashActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.deleteDatabase(DBName); // initialize DB tables
         DBInstance = new DBHelper(this, DBName, null, 1);
 
         start_time = System.currentTimeMillis();
 
-        makeLocalDummyData();
         setRecommendedProductList();
     }
 

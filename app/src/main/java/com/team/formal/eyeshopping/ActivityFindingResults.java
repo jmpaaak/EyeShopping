@@ -325,7 +325,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                     intent.putExtra("product_price", aItem.getPriceText());
                     intent.putExtra("product_url", aItem.getUrl());
 
-                    // insertAllAboutProduct
+                    // insert data to DB local & server
                     insertAllAboutProduct(aItem);
 
                     startActivityForResult(intent, 17777);

@@ -114,7 +114,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void updateSearchedProductLike(int id, int like) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE searched_product SET like=" + like + ", " +
+        db.execSQL("UPDATE searched_product SET like=" + like +
                 " WHERE _id=" + id + ";");
         Log.i(id+"", " - updateSearchedProductLike complete!");
     }
