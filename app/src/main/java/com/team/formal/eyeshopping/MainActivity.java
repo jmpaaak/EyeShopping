@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // if you want to rest call this.deleteDatabase("EyeShopping.db")
-        //this.deleteDatabase(DBName); // initialize DB tables
+        this.deleteDatabase(DBName); // initialize DB tables
         DBInstance = new DBHelper(this, DBName, null, 1);
 
 //        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
