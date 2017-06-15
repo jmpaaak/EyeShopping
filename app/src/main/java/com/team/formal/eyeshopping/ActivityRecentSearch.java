@@ -199,11 +199,11 @@ public class ActivityRecentSearch extends AppCompatActivity {
                     strView = (TextView) vg.findViewById(R.id.product_name);
                     priceView = (TextView) vg.findViewById(R.id.product_price);
 
-                    intent.putExtra("product_thumbnail", aItem.getThumb());
-                    intent.putExtra("product_name", aItem.getProductName());
-                    intent.putExtra("product_price", aItem.getPriceText());
-                    intent.putExtra("product_url", aItem.getUrl());
-                    intent.putExtra("mall_url", aItem.getMall_url());
+                    intent.putExtra("product_thumbnail", aItem.getThumb()); // 상품 이미지
+                    intent.putExtra("product_name", aItem.getProductName()); // 상품 이름
+                    intent.putExtra("product_price", aItem.getPriceText()); // 상품 가격
+                    intent.putExtra("product_url", aItem.getUrl()); // 이미지 url
+                    intent.putExtra("mall_url", aItem.getMall_url()); // 쇼핑 url
                     startActivityForResult(intent, 17777);
                 }
             });
