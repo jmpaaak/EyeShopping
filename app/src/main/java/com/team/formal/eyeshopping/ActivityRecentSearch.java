@@ -1,6 +1,7 @@
 package com.team.formal.eyeshopping;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import static com.team.formal.eyeshopping.MainActivity.DBInstance;
@@ -30,7 +32,6 @@ import static com.team.formal.eyeshopping.MainActivity.DBInstance;
  */
 
 public class ActivityRecentSearch extends AppCompatActivity {
-    private static final int SELECT_REQUEST = 2000;
 
     // Grid View 전역 변수
     GridView gridView;
@@ -45,24 +46,28 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-//        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
-//        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
-//        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 111, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",1111111,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 222, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",2222222,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 333, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",3333333,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 444, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",4444444,"http://www.naver.com");
 
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
         final int count = c.getCount();
 
-        new AsyncTask<Object, Void, ArrayList<ActivityRecentSearch.Results_GridItem>>() {
+        new AsyncTask<Object, Void, ArrayList<Results_GridItem>>() {
             @Override
-            protected ArrayList<ActivityRecentSearch.Results_GridItem> doInBackground(Object... params) {
-                ArrayList<ActivityRecentSearch.Results_GridItem> gridItems = new ArrayList<>();
+            protected ArrayList<Results_GridItem> doInBackground(Object... params) {
+                ArrayList<Results_GridItem> gridItems = new ArrayList<>();
                 HttpURLConnection connection = null;
                 for(int i=0; i<count; i++) {
                     String keyword;
                     Bitmap bitmap;
+                    String price;
+                    String mall_url;
+                    URL url;
                     try {
-                        URL url = new URL(c.getString(4));
+                        url = new URL(c.getString(4));
                         connection = (HttpURLConnection) url.openConnection();
                         connection.setDoInput(true);
                         connection.connect();
@@ -77,7 +82,11 @@ public class ActivityRecentSearch extends AppCompatActivity {
                         if (connection != null) connection.disconnect();
                     }
                     keyword = c.getString(1);
-                    gridItems.add(new Results_GridItem(bitmap,keyword));
+                    price = c.getString(5);
+                    mall_url = c.getString(6);
+                    DecimalFormat df = new DecimalFormat("#,###");
+                    String num = df.format(Integer.parseInt(price));
+                    gridItems.add(new Results_GridItem(bitmap,keyword,"최저가 " + num+ "원",url.toString(),mall_url));
                     if( c.isLast()) { break; }
                     else { c.moveToNext(); }
                 }
@@ -85,7 +94,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
                 return gridItems;
             }
 
-            protected void onPostExecute(ArrayList<ActivityRecentSearch.Results_GridItem> gridItems)
+            protected void onPostExecute(ArrayList<Results_GridItem> gridItems)
             {
                 gridView = (GridView)findViewById(R.id.recent_grid_view);
                 gridViewAdapter = new GridViewAdapter(getApplicationContext(), gridItems);
@@ -138,10 +147,23 @@ public class ActivityRecentSearch extends AppCompatActivity {
     private class Results_GridItem {
         Bitmap bitmap;
         String keyword;
-        public Results_GridItem(Bitmap bitmap, String keyword) {
+        String price;
+        private int int_price;
+        private String url;
+        private String mall_url;
+        public Results_GridItem(Bitmap bitmap, String keyword,String price, String url, String mall_url) {
             this.bitmap=bitmap;
             this.keyword=keyword;
+            this.price=price;
+            this.url=url;
+            this.mall_url =mall_url;
         }
+        public int getPrice() { return this.int_price; }
+        public String getPriceText() { return this.price; }
+        public Bitmap getThumb() { return this.bitmap; }
+        public String getProductName() { return this.keyword; }
+        public String getUrl() { return this.url; }
+        public String getMall_url() {return this.mall_url; }
     }
 
     /*
@@ -149,8 +171,8 @@ public class ActivityRecentSearch extends AppCompatActivity {
      */
     private class Results_GridView extends LinearLayout {
         private ViewGroup vGroup;
-        private ImageView thumbView;
-        private TextView strView;
+        private ImageView productImage;
+        private TextView productName;
 
         public Results_GridView(Context context, final ActivityRecentSearch.Results_GridItem aItem) {
             super(context);
@@ -158,10 +180,28 @@ public class ActivityRecentSearch extends AppCompatActivity {
             inflater.inflate(R.layout.grid_recent_item, this, true);
 
             vGroup = (ViewGroup) findViewById(R.id.grid_recent_item_list_view);
-            thumbView = (ImageView) findViewById(R.id.recent_product_thumbnail);
-            thumbView.setImageBitmap(aItem.bitmap);
-            strView = (TextView) findViewById(R.id.recent_str);
-            strView.setText(String.valueOf(aItem.keyword));
+            productImage = (ImageView) findViewById(R.id.recent_product_thumbnail);
+            productImage.setImageBitmap(aItem.bitmap);
+            productName = (TextView) findViewById(R.id.recent_str);
+            productName.setText(String.valueOf(aItem.keyword));
+
+            vGroup.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
+
+                    ViewGroup vg = (ViewGroup) v;
+                    productImage = (ImageView) vg.findViewById(R.id.product_thumbnail);
+                    productName = (TextView) vg.findViewById(R.id.product_name);
+
+                    intent.putExtra("product_thumbnail", aItem.getThumb());   // 상품 이미지
+                    intent.putExtra("product_name", aItem.getProductName());  // 상품 이름
+                    intent.putExtra("product_price", aItem.getPriceText());   // 상품 가격
+                    intent.putExtra("product_url", aItem.getUrl());           // 이미지 url
+                    intent.putExtra("mall_url", aItem.getMall_url());         // 쇼핑 url
+                    startActivityForResult(intent, 17777);
+                }
+            });
 
         }
     }

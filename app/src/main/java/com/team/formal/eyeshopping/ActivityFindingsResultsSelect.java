@@ -7,15 +7,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.text.DecimalFormat;
 
 /**
  * Created by NaJM on 2017. 6. 5..
@@ -24,6 +21,7 @@ import java.text.DecimalFormat;
 public class ActivityFindingsResultsSelect extends AppCompatActivity {
     private static final int NEXT_REQUEST = 1000;
     private String productUrl;
+    private String mallUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,16 +33,16 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         Button cancelButton = (Button) findViewById(R.id.selection_cancel);
         Button shoppingButton = (Button) findViewById(R.id.selection_shopping);
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
 
         //searchDate -> DB에 넣을것
         //ActivityFindingsResults에서 넘겨받음
         Bitmap thumb = (Bitmap) intent.getParcelableExtra("product_thumbnail");
         String productName = (String) intent.getSerializableExtra("product_name");
-        Log.i("pName", productName);
+        //Log.i("pName", productName);
         String price = (String) intent.getSerializableExtra("product_price");
         productUrl = (String) intent.getSerializableExtra("product_url");
-        //Log.i("AAAAA",getTime);
+        mallUrl = (String) intent.getSerializableExtra("mall_url");
 
         //TEST
         ImageView imageView = (ImageView) findViewById(R.id.view_image);
@@ -100,12 +98,16 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         shoppingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //http://openapi.naver.com/search/?key=머시기&query=노트북&display=10&start=1&target=shop&sort=asc
-                //key = 이용등록을 통해 받은 key string
+                // Recent에서 오는 mallUrl ( DB 완성 전 TEST용 )
+                //    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(mallUrl));
+
+                //ResultsSelect에서 오는 productUrl
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(productUrl));
+                startActivityForResult(intent, NEXT_REQUEST);
+
 //                intent.putExtra("url", url); //  웹 url
 //                intent.putExtra("uri", uri.toString()); // local uri
-                startActivityForResult(intent, NEXT_REQUEST);
+               // startActivityForResult(intent, NEXT_REQUEST);
             }
         });
 

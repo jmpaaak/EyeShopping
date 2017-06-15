@@ -23,7 +23,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +31,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+
+import static com.team.formal.eyeshopping.MainActivity.DBInstance;
 
 public class ActivityRecommendProducts extends AppCompatActivity {
 
@@ -51,32 +54,11 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        //makeLocalDummyData();
+        //makeServerDummyData();
+
         // Listview Setting
-        ListView listview = (ListView)findViewById(R.id.recommend_product_list_view);
-
-        ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
-
-        /*
-        listItems.add(new RecommendProduct_ListItem("1", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("2", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("3", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("4", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("5", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("6", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("7", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("8", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("9", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("10", "가죽백", ""));
-        */
-
-        makeDummyData();
         getRecommendedProductList();
-
-        //RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
-
-        RecommendProduct_ListViewAdapter listViewAdapter = getRecommendedProductList();
-
-        listview.setAdapter(listViewAdapter);
 
         // 기준 날짜 셋팅
         TextView recommend_date = (TextView)findViewById(R.id.recommend_date);
@@ -89,15 +71,12 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         recommend_date.setText(formattedDate);
     }
 
-    public RecommendProduct_ListViewAdapter getRecommendedProductList() {
-        SQLiteDatabase db = MainActivity.DBInstance.getReadableDatabase();
-
-        RecommendProduct_ListViewAdapter listViewAdapter = null;
-        ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
+    public void getRecommendedProductList() {
+        SQLiteDatabase db = DBInstance.getReadableDatabase();
 
         ArrayList<String> liked_keywords = new ArrayList<>();
 
-        String SQL = "select DISTINCT " + "K.combination_keyword, M.matching_image_url " +
+        String SQL = "select DISTINCT " + "C.keyword_name " +
                      "from " +
                      "searched_product AS S, keyword_in_combination_local AS K, " +
                      "keyword_count_local AS C, matching_combination_local AS M " +
@@ -108,7 +87,6 @@ public class ActivityRecommendProducts extends AppCompatActivity {
                      "order by C.count DESC";
 
         Cursor liked_keywords_cursor = db.rawQuery(SQL, null);
-        int number = 1;
 
         if(liked_keywords_cursor != null &&
                 liked_keywords_cursor.getCount() != 0)
@@ -116,39 +94,74 @@ public class ActivityRecommendProducts extends AppCompatActivity {
             liked_keywords_cursor.moveToNext();
 
             do {
-                listItems.add(new RecommendProduct_ListItem(Integer.toString(number),
-                        liked_keywords_cursor.getString(0), liked_keywords_cursor.getString(1)));
-                number++;
+                liked_keywords.add(liked_keywords_cursor.getString(0));
             }while(liked_keywords_cursor.moveToNext());
         }
 
         liked_keywords_cursor.close();
         db.close();
 
-        listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
-
-        /*
         try
         {
+            DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
+                ListView listView;
+                RecommendProduct_ListViewAdapter listViewAdapter;
+                ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
 
-        }catch(IOException ie) {
+                @Override
+                public void processFinish(Object output) {
+                    ArrayList<HashMap> outputList = (ArrayList<HashMap>) output;
+                    listView = (ListView) findViewById(R.id.recommend_product_list_view);
+
+                    int number = 1;
+                    String combi_keyword;
+                    String matching_url;
+
+                    for(int i=0;i<outputList.size();i++)
+                    {
+                        combi_keyword = (String) outputList.get(i).get("combination_keyword");
+                        matching_url = (String) outputList.get(i).get("matching_image_url");
+
+                        boolean is_there_flag = false;
+                        for(int j=0;j<listItems.size();j++) {
+                            if(combi_keyword.equals(listItems.get(j).getKeyword())) {
+                                is_there_flag = true;
+                            }
+                        }
+
+                        if(!is_there_flag)
+                        {
+                            listItems.add(new RecommendProduct_ListItem(Integer.toString(number),
+                                    combi_keyword, matching_url));
+                            number++;
+                        }
+                    }
+
+                    listViewAdapter = new RecommendProduct_ListViewAdapter(getApplicationContext(),
+                                                                            listItems);
+                    listView.setAdapter(listViewAdapter);
+                }
+            });
+        }
+        catch(IOException ie)
+        {
 
         }
-        */
-
-        return listViewAdapter;
     }
 
-    public void makeDummyData() {
-//        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
-//                                                      20170527, 1,
-//                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
-//        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
-//                                                      20170605, 1,
-//                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
-//        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
-//                                                      20170402, 1,
-//                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
+    public void makeLocalDummyData() {
+        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
+                                                      20170527, 1,
+                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg",
+                                                       35000, "http://www.naver.com");
+        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
+                                                      20170605, 1,
+                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg",
+                                                        56000, "http://www.naver.com");
+        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
+                                                      20170402, 1,
+                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg",
+                                                        235000, "http://www.naver.com");
 
         MainActivity.DBInstance.insertMatchingCombinationLocal("nike shoes running air",
                             "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
@@ -188,6 +201,226 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         MainActivity.DBInstance.insertKeywordCountLocal("MCM", 10);
         MainActivity.DBInstance.insertKeywordCountLocal("long", 15);
         MainActivity.DBInstance.insertKeywordCountLocal("black", 200);
+    }
+
+    public void makeServerDummyData()
+    {
+        String matching_combination_table_name = "matching_combination";
+        String keyword_in_combination_table_name = "keyword_in_combination";
+        String keyword_count_table_name = "keyword_count";
+
+        String matching_params[][] = new String[10][2];
+
+        matching_params[0][0] = "nike shoes running woman free";
+        matching_params[0][1] = "http://gdimg.gmarket.co.kr/goods_image2/shop_img/975/208/975208697.jpg";
+
+        matching_params[1][0] = "puma shoes casual woman";
+        matching_params[1][1] = "http://openimage.interpark.com/goods_image/6/3/9/4/4982176394s.jpg";
+
+        matching_params[2][0] = "woman wallet MCM red";
+        matching_params[2][1] = "http://i.011st.com/ex_t/R/400x400/1/85/0/src/pd/17/8/5/2/3/3/5/fTXmq/1780852335_B.jpg";
+
+        matching_params[3][0] = "woman wallet montblanc long";
+        matching_params[3][1] = "http://by-seconds.com/img/d_13465/1346476/59104c0276ef8.jpg";
+
+        matching_params[4][0] = "Starbucks tumbler set blue";
+        matching_params[4][1] = "http://bitcdn.bit-play.com/unibox/2016/11/02/09/b364923fc504b5a32cec0699b91e52c9_1118019_450.jpg";
+
+        matching_params[5][0] = "stainless tumbler 330ml lock";
+        matching_params[5][1] = "http://image.unit808.com/data/100mc_data//images/product/22/06/11/33/32/b_2206113332.gif";
+
+        matching_params[6][0] = "woman summer casual pants";
+        matching_params[6][1] = "http://shopping.phinf.naver.net/main_1147591/11475917467.20170507164948.jpg";
+
+        matching_params[7][0] = "woman winter casual skirt";
+        matching_params[7][1] = "http://fashion.freeship.co.kr/goodsimg/9302/2017-05-12/big/32742891314.jpg";
+
+        matching_params[8][0] = "Starbucks tumbler Christmas";
+        matching_params[8][1] = "http://i.011st.com/ex_t/R/400x400/1/85/0/src/pd/17/1/3/4/5/3/1/LWqMQ/1767134531_B.jpg";
+
+        matching_params[9][0] = "woman watch black city";
+        matching_params[9][1] = "http://shopping.phinf.naver.net/main_1166994/11669942818.20170608194624.jpg";
+
+        String keyword_combination_params[][] = new String[40][2];
+
+        keyword_combination_params[0][1] = "nike";
+        keyword_combination_params[0][0] = "nike shoes running woman free";
+        keyword_combination_params[1][1] = "shoes";
+        keyword_combination_params[1][0] = "nike shoes running woman free";
+        keyword_combination_params[2][1] = "running";
+        keyword_combination_params[2][0] = "nike shoes running woman free";
+        keyword_combination_params[3][1] = "woman";
+        keyword_combination_params[3][0] = "nike shoes running woman free";
+        keyword_combination_params[4][1] = "free";
+        keyword_combination_params[4][0] = "nike shoes running woman free";
+
+        keyword_combination_params[5][1] = "puma";
+        keyword_combination_params[5][0] = "puma shoes casual woman";
+        keyword_combination_params[6][1] = "shoes";
+        keyword_combination_params[6][0] = "puma shoes casual woman";
+        keyword_combination_params[7][1] = "casual";
+        keyword_combination_params[7][0] = "puma shoes casual woman";
+        keyword_combination_params[8][1] = "woman";
+        keyword_combination_params[8][0] = "puma shoes casual woman";
+
+        keyword_combination_params[9][1] = "woman";
+        keyword_combination_params[9][0] = "woman wallet MCM red";
+        keyword_combination_params[10][1] = "wallet";
+        keyword_combination_params[10][0] = "woman wallet MCM red";
+        keyword_combination_params[11][1] = "MCM";
+        keyword_combination_params[11][0] = "woman wallet MCM red";
+        keyword_combination_params[12][1] = "red";
+        keyword_combination_params[12][0] = "woman wallet MCM red";
+
+        keyword_combination_params[13][1] = "woman";
+        keyword_combination_params[13][0] = "woman wallet montblanc long";
+        keyword_combination_params[14][1] = "wallet";
+        keyword_combination_params[14][0] = "woman wallet montblanc long";
+        keyword_combination_params[15][1] = "montblanc";
+        keyword_combination_params[15][0] = "woman wallet montblanc long";
+        keyword_combination_params[16][1] = "long";
+        keyword_combination_params[16][0] = "woman wallet montblanc long";
+
+        keyword_combination_params[17][1] = "Starbucks";
+        keyword_combination_params[17][0] = "Starbucks tumbler set blue";
+        keyword_combination_params[18][1] = "tumbler";
+        keyword_combination_params[18][0] = "Starbucks tumbler set blue";
+        keyword_combination_params[19][1] = "set";
+        keyword_combination_params[19][0] = "Starbucks tumbler set blue";
+        keyword_combination_params[20][1] = "blue";
+        keyword_combination_params[20][0] = "Starbucks tumbler set blue";
+
+        keyword_combination_params[21][1] = "stainless";
+        keyword_combination_params[21][0] = "stainless tumbler 330ml lock";
+        keyword_combination_params[22][1] = "tumbler";
+        keyword_combination_params[22][0] = "stainless tumbler 330ml lock";
+        keyword_combination_params[23][1] = "330ml";
+        keyword_combination_params[23][0] = "stainless tumbler 330ml lock";
+        keyword_combination_params[24][1] = "lock";
+        keyword_combination_params[24][0] = "stainless tumbler 330ml lock";
+
+        keyword_combination_params[25][1] = "woman";
+        keyword_combination_params[25][0] = "woman summer casual pants";
+        keyword_combination_params[26][1] = "summer";
+        keyword_combination_params[26][0] = "woman summer casual pants";
+        keyword_combination_params[27][1] = "casual";
+        keyword_combination_params[27][0] = "woman summer casual pants";
+        keyword_combination_params[28][1] = "pants";
+        keyword_combination_params[28][0] = "woman summer casual pants";
+
+        keyword_combination_params[29][1] = "woman";
+        keyword_combination_params[29][0] = "woman winter casual skirt";
+        keyword_combination_params[30][1] = "winter";
+        keyword_combination_params[30][0] = "woman winter casual skirt";
+        keyword_combination_params[31][1] = "casual";
+        keyword_combination_params[31][0] = "woman winter casual skirt";
+        keyword_combination_params[32][1] = "skirt";
+        keyword_combination_params[32][0] = "woman winter casual skirt";
+
+        keyword_combination_params[33][1] = "Starbucks";
+        keyword_combination_params[33][0] = "Starbucks tumbler Christmas";
+        keyword_combination_params[34][1] = "tumbler";
+        keyword_combination_params[34][0] = "Starbucks tumbler Christmas";
+        keyword_combination_params[35][1] = "Christmas";
+        keyword_combination_params[35][0] = "Starbucks tumbler Christmas";
+
+        keyword_combination_params[36][1] = "woman";
+        keyword_combination_params[36][0] = "woman watch black city";
+        keyword_combination_params[37][1] = "watch";
+        keyword_combination_params[37][0] = "woman watch black city";
+        keyword_combination_params[38][1] = "black";
+        keyword_combination_params[38][0] = "woman watch black city";
+        keyword_combination_params[39][1] = "city";
+        keyword_combination_params[39][0] = "woman watch black city";
+
+        String keyword_count_params[][] = new String[40][2];
+
+        keyword_count_params[0][0] = "nike";
+        keyword_count_params[0][1] = "1000";
+        keyword_count_params[1][0] = "shoes";
+        keyword_count_params[1][1] = "500";
+        keyword_count_params[2][0] = "running";
+        keyword_count_params[2][1] = "100";
+        keyword_count_params[3][0] = "woman";
+        keyword_count_params[3][1] = "20000";
+        keyword_count_params[4][0] = "free";
+        keyword_count_params[4][1] = "10";
+
+        keyword_count_params[5][0] = "puma";
+        keyword_count_params[5][1] = "50";
+        keyword_count_params[6][0] = "casual";
+        keyword_count_params[6][1] = "2000";
+
+        keyword_count_params[7][0] = "wallet";
+        keyword_count_params[7][1] = "4000";
+        keyword_count_params[8][0] = "MCM";
+        keyword_count_params[8][1] = "400";
+        keyword_count_params[9][0] = "red";
+        keyword_count_params[9][1] = "1200";
+
+        keyword_count_params[10][0] = "montblanc";
+        keyword_count_params[10][1] = "50";
+        keyword_count_params[11][0] = "long";
+        keyword_count_params[11][1] = "420";
+
+        keyword_count_params[12][0] = "Starbucks";
+        keyword_count_params[12][1] = "250";
+        keyword_count_params[13][0] = "tumbler";
+        keyword_count_params[13][1] = "700";
+        keyword_count_params[14][0] = "set";
+        keyword_count_params[14][1] = "132";
+        keyword_count_params[15][0] = "blue";
+        keyword_count_params[15][1] = "6000";
+
+        keyword_count_params[16][0] = "stainless";
+        keyword_count_params[16][1] = "3";
+        keyword_count_params[17][0] = "330ml";
+        keyword_count_params[17][1] = "4";
+        keyword_count_params[18][0] = "lock";
+        keyword_count_params[18][1] = "16";
+
+        keyword_count_params[19][0] = "summer";
+        keyword_count_params[19][1] = "777";
+        keyword_count_params[20][0] = "pants";
+        keyword_count_params[20][1] = "3200";
+
+        keyword_count_params[21][0] = "winter";
+        keyword_count_params[21][1] = "2300";
+        keyword_count_params[22][0] = "skirt";
+        keyword_count_params[22][1] = "30000";
+
+        keyword_count_params[23][0] = "Christmas";
+        keyword_count_params[23][1] = "1225";
+
+        keyword_count_params[24][0] = "watch";
+        keyword_count_params[24][1] = "17000";
+        keyword_count_params[25][0] = "black";
+        keyword_count_params[25][1] = "23132";
+        keyword_count_params[26][0] = "city";
+        keyword_count_params[26][1] = "570";
+
+        try {
+
+            for (int i = 0; i < 10; i++) {
+                MainActivity.DBInstance.insertIntoServerTable(matching_combination_table_name,
+                        matching_params[i]);
+            }
+
+            for (int i = 0; i < 27; i++) {
+                MainActivity.DBInstance.insertIntoServerTable(keyword_count_table_name,
+                        keyword_count_params[i]);
+            }
+
+            for (int i = 0; i < 40; i++) {
+                MainActivity.DBInstance.insertIntoServerTable(keyword_in_combination_table_name,
+                        keyword_combination_params[i]);
+            }
+
+        }
+        catch(IOException ie) {
+
+        }
+
     }
 
     /*
