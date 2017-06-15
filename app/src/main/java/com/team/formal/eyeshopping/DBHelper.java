@@ -49,7 +49,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "search_date LONG, " +
                 "like BOOLEAN, " +
                 "selected_image_url TEXT, " +
-                "price INTEGER" +
+                "price INTEGER, " +
                 "FOREIGN KEY(combination_keyword) REFERENCES matching_combination_local(combination_keyword));");
 
         // keyword_name
