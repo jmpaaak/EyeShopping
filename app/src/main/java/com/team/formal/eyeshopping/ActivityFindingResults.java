@@ -19,6 +19,7 @@ package com.team.formal.eyeshopping;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -76,8 +77,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -257,9 +260,10 @@ public class ActivityFindingResults extends AppCompatActivity {
         private String url;
         private ArrayList<String> keywords;
         private String combinationKeyword;
+        private String thumbUrl;
 
         public Results_GridItem(String productName, Bitmap thumb, String price, int int_price, String url,
-                                ArrayList<String> keywords, String combinationKeyword ) {
+                                ArrayList<String> keywords, String combinationKeyword, String thumbUrl) {
             this.thumb = thumb;
             this.productName = productName;
             this.price = price;
@@ -267,6 +271,7 @@ public class ActivityFindingResults extends AppCompatActivity {
             this.url = url;
             this.keywords = keywords;
             this.combinationKeyword = combinationKeyword;
+            this.thumbUrl = thumbUrl;
         }
 
         public int getPrice() { return this.int_price; }
@@ -274,6 +279,9 @@ public class ActivityFindingResults extends AppCompatActivity {
         public Bitmap getThumb() { return this.thumb; }
         public String getProductName() { return this.productName; }
         public String getUrl() { return this.url; }
+        public ArrayList<String> getKeywords() { return this.keywords; }
+        public String getCombinationKeyword() { return this.combinationKeyword; }
+        public String getThumbUrl() { return this.thumbUrl; }
 //        public String keyworkd
     }
 
@@ -316,6 +324,10 @@ public class ActivityFindingResults extends AppCompatActivity {
                     intent.putExtra("product_name", aItem.getProductName());
                     intent.putExtra("product_price", aItem.getPriceText());
                     intent.putExtra("product_url", aItem.getUrl());
+
+                    // insertAllAboutProduct
+                    insertAllAboutProduct(aItem);
+
                     startActivityForResult(intent, 17777);
                 }
             });
@@ -467,7 +479,6 @@ public class ActivityFindingResults extends AppCompatActivity {
                     int randSize = randomRange(1, arr.length - count);
                     for (int i = 0; i < randSize; i++) {
                         while (check[(rand = randomRange(0, arr.length - 1))]) {
-                            break;
                         }
                         strArr.add(arr[rand]);
                         check[rand] = true;
@@ -490,8 +501,6 @@ public class ActivityFindingResults extends AppCompatActivity {
                             Log.d("uri", resultArrThread.get(i).toString().replaceAll(", ", "%20"));
 
                             final String xmlRaw = resultArrThread.get(i).toString().replaceAll(", ", "%20");
-
-
 
                             // 1
                             URL url = null;
@@ -553,7 +562,21 @@ public class ActivityFindingResults extends AppCompatActivity {
                                 for (final Shop shop : parsingResult) {
                                     Bitmap thumbImg = getBitmapFromURL(shop.getImage());
                                     if(thumbImg != null) {
+
+                                        ArrayList<String> keywords = new ArrayList<>(
+                                                Arrays.asList(resultArrThread.get(i).toString()
+                                                        .replace("[", "")
+                                                        .replace("]", "")
+                                                        .split(","))
+                                        );
+                                        String combinationKeyword = resultArrThread.get(i).toString()
+                                                .replace("[", "")
+                                                .replace("]", "")
+                                                .replaceAll(", ", " ");
+
                                         shop.setThumbBmp(thumbImg); // 입력 이미지 Url
+                                        shop.setCombinationKeyword(combinationKeyword);
+                                        shop.setKeywords(keywords);
                                         results.add(shop);
                                     }
                                 }
@@ -589,8 +612,9 @@ public class ActivityFindingResults extends AppCompatActivity {
                                                     mNaverPrImg,
                                                     "최저가 " + num + "원", dummyShop.getLprice(),
                                                     dummyShop.getLink(),
-                                                    new ArrayList<String>(), // TODO
-                                                    "comb_key")); // TODO
+                                                    dummyShop.getKeywords(),
+                                                    dummyShop.getCombinationKeyword(),
+                                                    dummyShop.getImage()));
                                         }
                                     }
                                 }
@@ -682,7 +706,10 @@ public class ActivityFindingResults extends AppCompatActivity {
         }
         // 짤라진 문장에서 _-로 파싱...
         for (int i = 0; i < tokenList.size(); i++) {
-            keywordList.add(tokenList.get(i).split("[-_]"));
+            keywordList.add(tokenList.get(i)
+                    .replace(".html","")
+                    .replace(".php","")
+                    .split("[-_]"));
         }
 
         return keywordList;
@@ -764,6 +791,47 @@ public class ActivityFindingResults extends AppCompatActivity {
             changeStr = "";
         }
         return changeStr;
+    }
+
+    public void insertAllAboutProduct(Results_GridItem aItem) {
+
+        String cKey = aItem.getCombinationKeyword();
+        ArrayList<String> keys = aItem.getKeywords();
+        Log.i("cKey",cKey );
+        Log.i("keys",keys.toString() );
+
+        MainActivity.DBInstance.insertMatchingCombinationLocal(cKey, aItem.getThumbUrl());
+        MainActivity.DBInstance.insertSearchedProduct(cKey, (new Date()).getTime(), 0,
+                                                    aItem.getThumbUrl(), aItem.getPrice(), aItem.getUrl());
+
+        for(int i=0; i < aItem.getKeywords().size(); i++) {
+            MainActivity.DBInstance.insertKeywordCountLocal(keys.get(i), 0);
+            MainActivity.DBInstance.insertKeywordInCombinationLocal(keys.get(i), cKey);
+        }
+
+        String[] params = new String[2];
+        try {
+            params[0] = cKey;
+            params[1] = aItem.getThumbUrl();
+            MainActivity.DBInstance.insertIntoServerTable("matching_combination", params);
+            Thread.sleep(100);
+
+            params[1] = "0";
+            for(int i=0; i < aItem.getKeywords().size(); i++) {
+                params[0] = keys.get(i);
+                MainActivity.DBInstance.insertIntoServerTable("keyword_count", params);
+                Thread.sleep(100);
+            }
+            params[0] = cKey;
+            for(int i=0; i < aItem.getKeywords().size(); i++) {
+                params[1] = keys.get(i);
+                MainActivity.DBInstance.insertIntoServerTable("keyword_in_combination", params);
+                Thread.sleep(100);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

@@ -7,6 +7,7 @@ package com.team.formal.eyeshopping;
 import android.graphics.Bitmap;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Shop implements Serializable {
@@ -27,8 +28,12 @@ public class Shop implements Serializable {
     private int productType;
     private Bitmap bmp;
 
+    private ArrayList<String> keywords;
+    private String combinationKeyword;
+
     public Shop(Date lastBuildDate, int total, int start, int display, Object item, String title, String link,
-                String image, int lprice, int hprice, String mallName, int productId, int productType) {
+                String image, int lprice, int hprice, String mallName, int productId, int productType,
+                ArrayList<String> keywords, String combinationKeyword) {
         super();
         this.lastBuildDate = lastBuildDate;
         this.total = total;
@@ -43,6 +48,8 @@ public class Shop implements Serializable {
         this.mallName = mallName;
         this.productId = productId;
         this.productType = productType;
+        this.keywords = keywords;
+        this.combinationKeyword = combinationKeyword;
     }
     public Shop() {
         super();
@@ -131,6 +138,11 @@ public class Shop implements Serializable {
     public void setProductType(int productType) {
         this.productType = productType;
     }
+    public void setKeywords(ArrayList<String> keywords) { this.keywords = keywords; }
+    public ArrayList<String> getKeywords() { return this.keywords; }
+    public void setCombinationKeyword(String combinationKeyword) { this.combinationKeyword = combinationKeyword; }
+    public String getCombinationKeyword() { return this.combinationKeyword; }
+
     @Override
     public String toString() {
         return "Shop [lastBuildDate=" + lastBuildDate + ", total=" + total + ", start=" + start + ", display=" + display

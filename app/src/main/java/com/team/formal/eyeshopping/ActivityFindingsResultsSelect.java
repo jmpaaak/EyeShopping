@@ -1,6 +1,7 @@
 package com.team.formal.eyeshopping;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,7 +53,6 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         TextView textView1 = (TextView) findViewById(R.id.Product_price);
         textView.setText(productName);
         textView1.setText(price);
-
 
 //        // Url과 Uri를 부모 액티비티에서 받는다.
 //        final String url = intent.getStringExtra("sample");

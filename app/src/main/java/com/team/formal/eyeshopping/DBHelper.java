@@ -85,13 +85,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void insertMatchingCombinationLocal(String combinationKeyword, String matchingImageUrl) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO matching_combination_local VALUES('" + combinationKeyword + "', '" + matchingImageUrl + "');");
+        db.execSQL("INSERT OR IGNORE INTO  matching_combination_local VALUES('" + combinationKeyword + "', '" + matchingImageUrl + "');");
         Log.i(combinationKeyword, " - insertMatchingCombinationLocal complete!");
     }
 
     public void insertKeywordCountLocal(String keywordName, int count) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO keyword_count_local VALUES('" + keywordName + "', " + count + ");");
+        db.execSQL("UPDATE OR IGNORE keyword_count_local SET count = (SELECT count FROM keyword_count_local WHERE keyword_name='" + keywordName +"')+1 WHERE keyword_name='" + keywordName + "'");
+        db.execSQL("INSERT OR IGNORE INTO keyword_count_local VALUES('" + keywordName + "', " + count + ");");
         Log.i(keywordName, " - insertKeywordCountLocal complete!");
     }
 

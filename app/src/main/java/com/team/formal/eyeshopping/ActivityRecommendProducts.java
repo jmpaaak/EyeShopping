@@ -140,15 +140,15 @@ public class ActivityRecommendProducts extends AppCompatActivity {
     }
 
     public void makeDummyData() {
-        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
-                                                      20170527, 1,
-                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
-        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
-                                                      20170605, 1,
-                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
-        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
-                                                      20170402, 1,
-                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
+//        MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
+//                                                      20170527, 1,
+//                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
+//        MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
+//                                                      20170605, 1,
+//                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
+//        MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
+//                                                      20170402, 1,
+//                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
 
         MainActivity.DBInstance.insertMatchingCombinationLocal("nike shoes running air",
                             "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
