@@ -43,6 +43,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         productUrl = (String) intent.getSerializableExtra("product_url");
         mallUrl = (String) intent.getSerializableExtra("mall_url");
 
+
         //TEST
         ImageView imageView = (ImageView) findViewById(R.id.view_image);
         imageView.setImageBitmap(thumb);
