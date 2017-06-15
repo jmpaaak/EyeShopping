@@ -348,26 +348,28 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void getRecommendedUrls(final ArrayList<String> keywordNameList, final AsyncResponse asyncResponse) throws IOException
+    public void getRecommendedUrls(final ArrayList<String> keywordNameList, final AsyncResponse asyncResponse, final boolean dialog_needed) throws IOException
     {
         final String join_table_name = "recommended_urls";
         final ProgressDialog progressDialog = new ProgressDialog(this.context);
 
         new AsyncTask<String, Void, String>() {
-
             @Override
             protected void onPreExecute () {
                 super.onPreExecute();
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setMessage("Data loading ...");
-                progressDialog.show();
+                if(dialog_needed == true) {
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progressDialog.setMessage("Data loading ...");
+                    progressDialog.show();
+                }
             }
 
             @Override
             protected void onPostExecute (String result) {
                 super.onPostExecute(result);
-
-                progressDialog.dismiss();
+                if(dialog_needed == true) {
+                    progressDialog.dismiss();
+                }
                 Log.d(TAG, "response  - " + result);
 
                 if (result != null) {

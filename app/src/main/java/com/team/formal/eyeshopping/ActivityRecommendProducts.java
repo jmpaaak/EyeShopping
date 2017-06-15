@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -36,8 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-
-import static com.team.formal.eyeshopping.MainActivity.DBInstance;
 
 public class ActivityRecommendProducts extends AppCompatActivity {
 
@@ -53,6 +52,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
 
         //makeLocalDummyData();
         //makeServerDummyData();
@@ -71,8 +71,18 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         recommend_date.setText(formattedDate);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void getRecommendedProductList() {
-        SQLiteDatabase db = DBInstance.getReadableDatabase();
+        SQLiteDatabase db = MainActivity.DBInstance.getReadableDatabase();
 
         ArrayList<String> liked_keywords = new ArrayList<>();
 
@@ -103,7 +113,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
 
         try
         {
-            DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
+            MainActivity.DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
                 ListView listView;
                 RecommendProduct_ListViewAdapter listViewAdapter;
                 ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
@@ -141,7 +151,7 @@ public class ActivityRecommendProducts extends AppCompatActivity {
                                                                             listItems);
                     listView.setAdapter(listViewAdapter);
                 }
-            });
+            }, false);
         }
         catch(IOException ie)
         {
