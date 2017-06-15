@@ -50,7 +50,9 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.WebDetection;
 import com.google.api.services.vision.v1.model.WebImage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public static final int RECENT_SEARCH_REQEST = 5;
     public static final int RECOMMEND_PRODUCT_REQUEST = 6;
     public static final int POPULAR_PRODUCT_REQUEST = 7;
+    public static final int SELECT_REQUEST = 8;
     String[] PERMISSIONS = {"android.permission.CAMERA"};
     static final int PERMISSIONS_REQUEST_CODE = 1000;
 
@@ -81,6 +84,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public String our_uri;
 
     // View Pager 객체 전역 변수들
+    final ArrayList<String> keywords = new ArrayList<>();
+    final ArrayList<String> urls = new ArrayList<>();
+    final ArrayList<String> uris = new ArrayList<>();
     Bitmap mResources[] = new Bitmap[4];
     int dotsCount;
     LinearLayout pager_indicator;
@@ -169,8 +175,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     @Override
                     public void processFinish(Object output) {
                         ArrayList<HashMap> outputList = (ArrayList<HashMap>) output;
-                        ArrayList<String> keywords = new ArrayList<>();
-                        final ArrayList<String> urls = new ArrayList<>();
 
                         String combi_keyword;
                         String matching_url;
@@ -213,7 +217,23 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                                 for (int i = 0; i < urls.size(); i++) {
                                     try {
                                         URL url = new URL(urls.get(i));
+                                        String uri;
                                         Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                                        File tempDir= getApplicationContext().getCacheDir();
+                                        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+                                        tempDir.mkdir();
+                                        File tempFile = File.createTempFile("selected_image", ".jpg", tempDir);
+                                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                                        byte[] bitmapData = bytes.toByteArray();
+
+                                        //write the bytes in file
+                                        FileOutputStream fos = new FileOutputStream(tempFile);
+                                        fos.write(bitmapData);
+                                        fos.flush();
+                                        fos.close();
+                                        uri = Uri.fromFile(tempFile).toString();
+                                        uris.add(uri);
                                         recommend_bitmaps.add(bitmap);
                                         Log.d(TAG, "mResources: " + Integer.toString(recommend_bitmaps.size()));
                                     } catch (IOException e) {
@@ -387,11 +407,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(ViewGroup container, final int position) {
             View itemView = LayoutInflater.from(mContext).inflate(R.layout.main_pager_item, container, false);
 
             ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_item_image_view);
             imageView.setImageBitmap(mResources[position]);
+
+            if(position < recommend_bitmaps.size())
+            {
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getApplicationContext(), ActivityShowVisuallySimilarImagesSelect.class);
+                        intent.putExtra("url", urls.get(position-1));
+                        intent.putExtra("uri", uris.get(position-1));
+                        startActivityForResult(intent, SELECT_REQUEST);
+                    }
+                });
+            }
 
             container.addView(itemView);
             return itemView;
