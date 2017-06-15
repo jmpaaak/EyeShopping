@@ -831,19 +831,19 @@ public class ActivityFindingResults extends AppCompatActivity {
             params[0] = cKey;
             params[1] = aItem.getThumbUrl();
             MainActivity.DBInstance.insertIntoServerTable("matching_combination", params);
-            Thread.sleep(600);
+            Thread.sleep(800);
 
             params[1] = "0";
             for(int i=0; i < aItem.getKeywords().size(); i++) {
                 params[0] = keys.get(i);
                 MainActivity.DBInstance.insertIntoServerTable("keyword_count", params);
-                Thread.sleep(600);
+                Thread.sleep(800);
             }
             params[0] = cKey;
             for(int i=0; i < aItem.getKeywords().size(); i++) {
                 params[1] = keys.get(i);
                 MainActivity.DBInstance.insertIntoServerTable("keyword_in_combination", params);
-                Thread.sleep(600);
+                Thread.sleep(800);
             }
 
         } catch (IOException | InterruptedException e) {
