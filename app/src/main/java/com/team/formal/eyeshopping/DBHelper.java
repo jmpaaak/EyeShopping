@@ -50,6 +50,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "like BOOLEAN, " +
                 "selected_image_url TEXT, " +
                 "price INTEGER, " +
+                "mall_url TEXT, " +
                 "FOREIGN KEY(combination_keyword) REFERENCES matching_combination_local(combination_keyword));");
 
         // keyword_name
@@ -72,9 +73,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     /***** INSERT INTO TABLE *****/
 
-    public void insertSearchedProduct(String combinationKeyword, long searchDate, int like, String selectedImageUrl, int price) { // like 0=false, 1=true
+    public void insertSearchedProduct(String combinationKeyword, long searchDate, int like, String selectedImageUrl, int price, String mall_url) { // like 0=false, 1=true
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO searched_product VALUES(null, '" + combinationKeyword + "', " + searchDate + ", " + like + ", '" + selectedImageUrl + "', "+ price + ");");
+        db.execSQL("INSERT INTO searched_product VALUES(null, '" + combinationKeyword + "', " + searchDate + ", " + like + ", '" + selectedImageUrl + "', "+ price + ", '" + mall_url + "');");
         Log.i(combinationKeyword, " - insertSearchedProduct complete!");
     }
 

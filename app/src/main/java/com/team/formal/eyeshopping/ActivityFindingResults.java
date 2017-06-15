@@ -255,13 +255,18 @@ public class ActivityFindingResults extends AppCompatActivity {
         private String price;
         private int int_price;
         private String url;
+        private ArrayList<String> keywords;
+        private String combinationKeyword;
 
-        public Results_GridItem(String productName, Bitmap thumb, String price, int int_price, String url) {
+        public Results_GridItem(String productName, Bitmap thumb, String price, int int_price, String url,
+                                ArrayList<String> keywords, String combinationKeyword ) {
             this.thumb = thumb;
             this.productName = productName;
             this.price = price;
             this.int_price = int_price;
             this.url = url;
+            this.keywords = keywords;
+            this.combinationKeyword = combinationKeyword;
         }
 
         public int getPrice() { return this.int_price; }
@@ -269,6 +274,7 @@ public class ActivityFindingResults extends AppCompatActivity {
         public Bitmap getThumb() { return this.thumb; }
         public String getProductName() { return this.productName; }
         public String getUrl() { return this.url; }
+//        public String keyworkd
     }
 
     /*
@@ -482,7 +488,10 @@ public class ActivityFindingResults extends AppCompatActivity {
                         for (int i = 0; i < resultArrThread.size(); i++) {
                             System.out.println(resultArrThread.get(i).toString().replaceAll(", ", "%20"));
                             Log.d("uri", resultArrThread.get(i).toString().replaceAll(", ", "%20"));
+
                             final String xmlRaw = resultArrThread.get(i).toString().replaceAll(", ", "%20");
+
+
 
                             // 1
                             URL url = null;
@@ -579,7 +588,9 @@ public class ActivityFindingResults extends AppCompatActivity {
                                             findingItems.add(new Results_GridItem(dummyShop.getTitle(),
                                                     mNaverPrImg,
                                                     "최저가 " + num + "원", dummyShop.getLprice(),
-                                                    dummyShop.getLink()));
+                                                    dummyShop.getLink(),
+                                                    new ArrayList<String>(), // TODO
+                                                    "comb_key")); // TODO
                                         }
                                     }
                                 }
