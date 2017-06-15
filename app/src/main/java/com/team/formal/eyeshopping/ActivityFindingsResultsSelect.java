@@ -93,7 +93,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
                     }
                     MainActivity.DBInstance.updateSearchedProductLike(curID, 1);
                 }
-                else{ 
+                else{
                     //db 저장
                     //앞에서 id 넘겨주고 여기다가 update
                     Cursor c = MainActivity.DBInstance.getTuples("searched_product");
