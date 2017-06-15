@@ -23,7 +23,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +31,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class ActivityRecommendProducts extends AppCompatActivity {
 
@@ -51,32 +52,10 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        // Listview Setting
-        ListView listview = (ListView)findViewById(R.id.recommend_product_list_view);
-
-        ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
-
-        /*
-        listItems.add(new RecommendProduct_ListItem("1", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("2", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("3", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("4", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("5", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("6", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("7", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("8", "가죽백", ""));
-        listItems.add(new RecommendProduct_ListItem("9", "나이키", ""));
-        listItems.add(new RecommendProduct_ListItem("10", "가죽백", ""));
-        */
-
         makeDummyData();
+
+        // Listview Setting
         getRecommendedProductList();
-
-        //RecommendProduct_ListViewAdapter listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
-
-        RecommendProduct_ListViewAdapter listViewAdapter = getRecommendedProductList();
-
-        listview.setAdapter(listViewAdapter);
 
         // 기준 날짜 셋팅
         TextView recommend_date = (TextView)findViewById(R.id.recommend_date);
@@ -89,15 +68,12 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         recommend_date.setText(formattedDate);
     }
 
-    public RecommendProduct_ListViewAdapter getRecommendedProductList() {
+    public void getRecommendedProductList() {
         SQLiteDatabase db = MainActivity.DBInstance.getReadableDatabase();
-
-        RecommendProduct_ListViewAdapter listViewAdapter = null;
-        ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
 
         ArrayList<String> liked_keywords = new ArrayList<>();
 
-        String SQL = "select DISTINCT " + "K.combination_keyword, M.matching_image_url " +
+        String SQL = "select DISTINCT " + "C.keyword_name " +
                      "from " +
                      "searched_product AS S, keyword_in_combination_local AS K, " +
                      "keyword_count_local AS C, matching_combination_local AS M " +
@@ -108,7 +84,6 @@ public class ActivityRecommendProducts extends AppCompatActivity {
                      "order by C.count DESC";
 
         Cursor liked_keywords_cursor = db.rawQuery(SQL, null);
-        int number = 1;
 
         if(liked_keywords_cursor != null &&
                 liked_keywords_cursor.getCount() != 0)
@@ -116,27 +91,48 @@ public class ActivityRecommendProducts extends AppCompatActivity {
             liked_keywords_cursor.moveToNext();
 
             do {
-                listItems.add(new RecommendProduct_ListItem(Integer.toString(number),
-                        liked_keywords_cursor.getString(0), liked_keywords_cursor.getString(1)));
-                number++;
+                liked_keywords.add(liked_keywords_cursor.getString(0));
             }while(liked_keywords_cursor.moveToNext());
         }
 
         liked_keywords_cursor.close();
         db.close();
 
-        listViewAdapter = new RecommendProduct_ListViewAdapter(this, listItems);
-
-        /*
         try
         {
+            MainActivity.DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
+                ListView listView;
+                RecommendProduct_ListViewAdapter listViewAdapter;
+                ArrayList<RecommendProduct_ListItem> listItems = new ArrayList<>();
 
-        }catch(IOException ie) {
+                @Override
+                public void processFinish(Object output) {
+                    ArrayList<HashMap> outputList = (ArrayList<HashMap>) output;
+                    listView = (ListView) findViewById(R.id.recommend_product_list_view);
+
+                    int number = 1;
+                    String combi_keyword;
+                    String matching_url;
+
+                    for(int i=0;i<outputList.size();i++)
+                    {
+                        combi_keyword = (String) outputList.get(i).get("combination_keyword");
+                        matching_url = (String) outputList.get(i).get("matching_image_url");
+
+                        listItems.add(new RecommendProduct_ListItem(Integer.toString(number),
+                                                                combi_keyword, matching_url));
+                    }
+
+                    listViewAdapter = new RecommendProduct_ListViewAdapter(getApplicationContext(),
+                                                                            listItems);
+                    listView.setAdapter(listViewAdapter);
+                }
+            });
+        }
+        catch(IOException ie)
+        {
 
         }
-        */
-
-        return listViewAdapter;
     }
 
     public void makeDummyData() {
@@ -188,6 +184,8 @@ public class ActivityRecommendProducts extends AppCompatActivity {
         MainActivity.DBInstance.insertKeywordCountLocal("MCM", 10);
         MainActivity.DBInstance.insertKeywordCountLocal("long", 15);
         MainActivity.DBInstance.insertKeywordCountLocal("black", 200);
+
+
     }
 
     /*
