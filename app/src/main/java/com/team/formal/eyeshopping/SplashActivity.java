@@ -35,11 +35,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.team.formal.eyeshopping.MainActivity.DBInstance;
 import static com.team.formal.eyeshopping.MainActivity.DBName;
 
 public class SplashActivity extends Activity {
     private static final String TAG = SplashActivity.class.getSimpleName();
+    public static DBHelper Splash_DBInstance;
     // View Pager 객체 전역 변수들
     final ArrayList<String> keywords = new ArrayList<>();
     final ArrayList<String> urls = new ArrayList<>();
@@ -50,7 +50,7 @@ public class SplashActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DBInstance = new DBHelper(this, DBName, null, 1);
+        Splash_DBInstance = new DBHelper(this, DBName, null, 1);
 
         start_time = System.currentTimeMillis();
 
@@ -70,7 +70,7 @@ public class SplashActivity extends Activity {
     }
 
     public void setRecommendedProductList() {
-        SQLiteDatabase db = DBInstance.getReadableDatabase();
+        SQLiteDatabase db = Splash_DBInstance.getReadableDatabase();
 
         ArrayList<String> liked_keywords = new ArrayList<>();
 
@@ -100,7 +100,7 @@ public class SplashActivity extends Activity {
 
         if (liked_keywords.size() != 0) {
             try {
-                DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
+                Splash_DBInstance.getRecommendedUrls(liked_keywords, new AsyncResponse() {
                     @Override
                     public void processFinish(Object output) {
                         ArrayList<HashMap> outputList = (ArrayList<HashMap>) output;

@@ -20,7 +20,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -75,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     static final String DBName = "EyeShopping.db";
 
+    public static boolean main_first_flag = true;
+
     // 갤러리 카메라에서 받은 이미지를 다음 액티비티로 넘겨주기 위한 URI
     public String our_uri;
 
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.DBInstance = SplashActivity.Splash_DBInstance;
 
 //        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
 //        DBInstance.insertSearchedProduct("test2 cKeyword", (new Date()).getTime(), 0);
@@ -128,24 +130,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //        }
 
         setContentView(R.layout.activity_main);
+
         setRecommendedProductList();
     }
 
+
     public void setRecommendedProductList() {
-        SQLiteDatabase db = DBInstance.getReadableDatabase();
-
-        ArrayList<String> liked_keywords = new ArrayList<>();
-
-        String SQL = "select DISTINCT " + "C.keyword_name " +
-                "from " +
-                "searched_product AS S, keyword_in_combination_local AS K, " +
-                "keyword_count_local AS C, matching_combination_local AS M " +
-                "where " + "S.like = 1 " +
-                "AND S.combination_keyword = K.combination_keyword " +
-                "AND K.combination_keyword = M.combination_keyword " +
-                "AND K.keyword_name = C.keyword_name " +
-                "order by C.count DESC";
-
         Intent intent = getIntent();
         keywords =
                 (ArrayList<String>)intent.getSerializableExtra("keywords");
