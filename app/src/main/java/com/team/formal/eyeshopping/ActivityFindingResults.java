@@ -254,18 +254,21 @@ public class ActivityFindingResults extends AppCompatActivity {
         private String productName;
         private String price;
         private int int_price;
+        private String url;
 
-        public Results_GridItem(String productName, Bitmap thumb, String price, int int_price) {
+        public Results_GridItem(String productName, Bitmap thumb, String price, int int_price, String url) {
             this.thumb = thumb;
             this.productName = productName;
             this.price = price;
             this.int_price = int_price;
+            this.url = url;
         }
 
         public int getPrice() { return this.int_price; }
         public String getPriceText() { return this.price; }
         public Bitmap getThumb() { return this.thumb; }
         public String getProductName() { return this.productName; }
+        public String getUrl() { return this.url; }
     }
 
     /*
@@ -306,6 +309,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                     intent.putExtra("product_thumbnail",  aItem.getThumb());
                     intent.putExtra("product_name", aItem.getProductName());
                     intent.putExtra("product_price", aItem.getPriceText());
+                    intent.putExtra("product_url", aItem.getUrl());
                     startActivityForResult(intent, 17777);
                 }
             });
@@ -574,7 +578,8 @@ public class ActivityFindingResults extends AppCompatActivity {
                                         if(exist_flag == 0) {
                                             findingItems.add(new Results_GridItem(dummyShop.getTitle(),
                                                     mNaverPrImg,
-                                                    "최저가 " + num + "원", dummyShop.getLprice()));
+                                                    "최저가 " + num + "원", dummyShop.getLprice(),
+                                                    dummyShop.getLink()));
                                         }
                                     }
                                 }

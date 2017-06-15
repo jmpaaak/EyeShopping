@@ -42,16 +42,17 @@
 
     <TextView
         android:id="@+id/Product_name"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
         android:layout_weight="1"
-        android:layout_gravity="right"
-        android:layout_marginRight="120dp"
-        android:layout_marginTop="30dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:singleLine="true"
         android:text="상품 "
         android:textColor="#FF000000"
-        android:textSize="18dp"
-        />
+        android:textSize="18dp" />
 
     <TextView
         android:id="@+id/Product_price"
@@ -64,7 +65,7 @@
         android:layout_weight="1"
         android:text="최저가 "
         android:textColor="@android:color/holo_red_dark"
-        android:textSize="18dp" />
+        android:textSize="20dp" />
 
     <CheckBox
         android:id="@+id/checkbox"
@@ -79,7 +80,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.5"
+        android:layout_weight="2"
         android:background="@color/main_bottom"
         android:orientation="horizontal">
 

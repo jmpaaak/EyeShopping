@@ -22,6 +22,7 @@ import java.text.DecimalFormat;
 
 public class ActivityFindingsResultsSelect extends AppCompatActivity {
     private static final int NEXT_REQUEST = 1000;
+    private String productUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         String productName = (String) intent.getSerializableExtra("product_name");
         Log.i("pName", productName);
         String price = (String) intent.getSerializableExtra("product_price");
+        productUrl = (String) intent.getSerializableExtra("product_url");
         //Log.i("AAAAA",getTime);
 
         //TEST
@@ -100,7 +102,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
             public void onClick(View v) {
                 //http://openapi.naver.com/search/?key=머시기&query=노트북&display=10&start=1&target=shop&sort=asc
                 //key = 이용등록을 통해 받은 key string
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://sports.news.naver.com/index.nhn"));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(productUrl));
 //                intent.putExtra("url", url); //  웹 url
 //                intent.putExtra("uri", uri.toString()); // local uri
                 startActivityForResult(intent, NEXT_REQUEST);
