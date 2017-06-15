@@ -316,6 +316,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                     intent.putExtra("product_name", aItem.getProductName());
                     intent.putExtra("product_price", aItem.getPriceText());
                     intent.putExtra("product_url", aItem.getUrl());
+                    intent.putExtra("identifier",2);
                     startActivityForResult(intent, 17777);
                 }
             });

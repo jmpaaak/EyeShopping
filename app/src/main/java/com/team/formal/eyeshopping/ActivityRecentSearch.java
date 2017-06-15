@@ -48,8 +48,10 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
-        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",77777);
-        DBInstance.insertSearchedProduct("아오", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",222222);
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",7777777,"http://www.naver.com");
 
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
@@ -64,6 +66,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
                     String keyword;
                     Bitmap bitmap;
                     String price;
+                    String mall_url;
                     URL url;
                     try {
                         url = new URL(c.getString(4));
@@ -82,9 +85,10 @@ public class ActivityRecentSearch extends AppCompatActivity {
                     }
                     keyword = c.getString(1);
                     price = c.getString(5);
+                    mall_url = c.getString(6);
                     DecimalFormat df = new DecimalFormat("#,###");
                     String num = df.format(Integer.parseInt(price));
-                    gridItems.add(new Results_GridItem(bitmap,keyword,"최저가 " + num+ "원",url.toString()));
+                    gridItems.add(new Results_GridItem(bitmap,keyword,"최저가 " + num+ "원",url.toString(),mall_url));
                     if( c.isLast()) { break; }
                     else { c.moveToNext(); }
                 }
@@ -148,17 +152,20 @@ public class ActivityRecentSearch extends AppCompatActivity {
         String price;
         private int int_price;
         private String url;
-        public Results_GridItem(Bitmap bitmap, String keyword,String price, String url) {
+        private String mall_url;
+        public Results_GridItem(Bitmap bitmap, String keyword,String price, String url, String mall_url) {
             this.bitmap=bitmap;
             this.keyword=keyword;
             this.price=price;
             this.url=url;
+            this.mall_url =mall_url;
         }
         public int getPrice() { return this.int_price; }
         public String getPriceText() { return this.price; }
         public Bitmap getThumb() { return this.bitmap; }
         public String getProductName() { return this.keyword; }
         public String getUrl() { return this.url; }
+        public String getMall_url() {return this.mall_url; }
     }
 
     /*
@@ -196,6 +203,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
                     intent.putExtra("product_name", aItem.getProductName());
                     intent.putExtra("product_price", aItem.getPriceText());
                     intent.putExtra("product_url", aItem.getUrl());
+                    intent.putExtra("mall_url", aItem.getMall_url());
                     startActivityForResult(intent, 17777);
                 }
             });
