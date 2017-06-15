@@ -364,16 +364,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public void getRecommendedUrls(final ArrayList<String> keywordNameList, final AsyncResponse asyncResponse) throws IOException
     {
         final String join_table_name = "recommended_urls";
+        final ProgressDialog progressDialog = new ProgressDialog(this.context);
 
         new AsyncTask<String, Void, String>() {
-            ProgressDialog progressDialog;
 
             @Override
             protected void onPreExecute () {
                 super.onPreExecute();
 
-                progressDialog = ProgressDialog.show(context,
-                        "서버 접속 중 입니다..", null, true, true);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage("Data loading..");
+                progressDialog.show();
             }
 
             @Override
@@ -397,16 +398,19 @@ public class DBHelper extends SQLiteOpenHelper {
                     URL url = new URL(serverURL + "get_" + join_table_name + ".php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
 
-                    httpURLConnection.setReadTimeout(50000);
-                    httpURLConnection.setConnectTimeout(50000);
+
+                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setConnectTimeout(5000);
                     httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                     httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setDoOutput(true);
+                    httpURLConnection.setDoInput(true);
+                    httpURLConnection.connect();
 
-                    ArrayList<NameValuePair> postData = new ArrayList<>();
-
-                    for(String keyword : keywordNameList) {
-                        postData.add(new BasicNameValuePair("keywordNames[]", keyword));
+                    String postParameters = "";
+                    postParameters += "keywordNames[]=" + keywordNameList.get(0);
+                    keywordNameList.remove(0);
+                    for (String keyword : keywordNameList) {
+                        postParameters += "&keywordNames[]=" + keyword;
                     }
 
 //                    connection.setRequestMethod("POST");
@@ -417,15 +421,10 @@ public class DBHelper extends SQLiteOpenHelper {
 //                    request.close();
 
 
-                    OutputStream os = httpURLConnection.getOutputStream();
-                    BufferedWriter writer = new BufferedWriter(
-                            new OutputStreamWriter(os, "UTF-8"));
-                    writer.write(String.valueOf(postData));
-                    writer.flush();
-                    writer.close();
-                    os.close();
-
-                    httpURLConnection.connect();
+                    OutputStream outputStream = httpURLConnection.getOutputStream();
+                    outputStream.write(postParameters.getBytes("UTF-8"));
+                    outputStream.flush();
+                    outputStream.close();
 
                     int responseStatusCode = httpURLConnection.getResponseCode();
                     Log.d(TAG, "response code - " + responseStatusCode);
