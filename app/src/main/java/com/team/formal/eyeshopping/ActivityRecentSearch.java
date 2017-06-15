@@ -1,6 +1,7 @@
 package com.team.formal.eyeshopping;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import static com.team.formal.eyeshopping.MainActivity.DBInstance;
@@ -45,24 +47,26 @@ public class ActivityRecentSearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-//        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
-//        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
-//        DBInstance.insertSearchedProduct("asd", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140");
+        //URL , 키워드 조합 받아와서 INSERT 할 것!!!!!
+        DBInstance.insertSearchedProduct("Marmont Red Gucci", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",77777);
+        DBInstance.insertSearchedProduct("아오", 123, 1, "http://shopping.phinf.naver.net/main_1144437/11444373299.jpg?type=f140",222222);
 
         final Cursor c = DBInstance.getTuples("searched_product");
         c.moveToNext();
         final int count = c.getCount();
 
-        new AsyncTask<Object, Void, ArrayList<ActivityRecentSearch.Results_GridItem>>() {
+        new AsyncTask<Object, Void, ArrayList<Results_GridItem>>() {
             @Override
-            protected ArrayList<ActivityRecentSearch.Results_GridItem> doInBackground(Object... params) {
-                ArrayList<ActivityRecentSearch.Results_GridItem> gridItems = new ArrayList<>();
+            protected ArrayList<Results_GridItem> doInBackground(Object... params) {
+                ArrayList<Results_GridItem> gridItems = new ArrayList<>();
                 HttpURLConnection connection = null;
                 for(int i=0; i<count; i++) {
                     String keyword;
                     Bitmap bitmap;
+                    String price;
+                    URL url;
                     try {
-                        URL url = new URL(c.getString(4));
+                        url = new URL(c.getString(4));
                         connection = (HttpURLConnection) url.openConnection();
                         connection.setDoInput(true);
                         connection.connect();
@@ -77,7 +81,10 @@ public class ActivityRecentSearch extends AppCompatActivity {
                         if (connection != null) connection.disconnect();
                     }
                     keyword = c.getString(1);
-                    gridItems.add(new Results_GridItem(bitmap,keyword));
+                    price = c.getString(5);
+                    DecimalFormat df = new DecimalFormat("#,###");
+                    String num = df.format(Integer.parseInt(price));
+                    gridItems.add(new Results_GridItem(bitmap,keyword,"최저가 " + num+ "원",url.toString()));
                     if( c.isLast()) { break; }
                     else { c.moveToNext(); }
                 }
@@ -85,7 +92,7 @@ public class ActivityRecentSearch extends AppCompatActivity {
                 return gridItems;
             }
 
-            protected void onPostExecute(ArrayList<ActivityRecentSearch.Results_GridItem> gridItems)
+            protected void onPostExecute(ArrayList<Results_GridItem> gridItems)
             {
                 gridView = (GridView)findViewById(R.id.recent_grid_view);
                 gridViewAdapter = new GridViewAdapter(getApplicationContext(), gridItems);
@@ -138,10 +145,20 @@ public class ActivityRecentSearch extends AppCompatActivity {
     private class Results_GridItem {
         Bitmap bitmap;
         String keyword;
-        public Results_GridItem(Bitmap bitmap, String keyword) {
+        String price;
+        private int int_price;
+        private String url;
+        public Results_GridItem(Bitmap bitmap, String keyword,String price, String url) {
             this.bitmap=bitmap;
             this.keyword=keyword;
+            this.price=price;
+            this.url=url;
         }
+        public int getPrice() { return this.int_price; }
+        public String getPriceText() { return this.price; }
+        public Bitmap getThumb() { return this.bitmap; }
+        public String getProductName() { return this.keyword; }
+        public String getUrl() { return this.url; }
     }
 
     /*
@@ -149,8 +166,9 @@ public class ActivityRecentSearch extends AppCompatActivity {
      */
     private class Results_GridView extends LinearLayout {
         private ViewGroup vGroup;
-        private ImageView thumbView;
-        private TextView strView;
+        private ImageView thumbView; //이미지
+        private TextView strView; //이름
+        private TextView priceView;
 
         public Results_GridView(Context context, final ActivityRecentSearch.Results_GridItem aItem) {
             super(context);
@@ -162,6 +180,25 @@ public class ActivityRecentSearch extends AppCompatActivity {
             thumbView.setImageBitmap(aItem.bitmap);
             strView = (TextView) findViewById(R.id.recent_str);
             strView.setText(String.valueOf(aItem.keyword));
+
+            vGroup.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
+
+                    //이미지 가격 이름 url 보내
+                    ViewGroup vg = (ViewGroup) v;
+                    thumbView = (ImageView) vg.findViewById(R.id.product_thumbnail);
+                    strView = (TextView) vg.findViewById(R.id.product_name);
+                    priceView = (TextView) vg.findViewById(R.id.product_price);
+
+                    intent.putExtra("product_thumbnail", aItem.getThumb());
+                    intent.putExtra("product_name", aItem.getProductName());
+                    intent.putExtra("product_price", aItem.getPriceText());
+                    intent.putExtra("product_url", aItem.getUrl());
+                    startActivityForResult(intent, 17777);
+                }
+            });
 
         }
     }

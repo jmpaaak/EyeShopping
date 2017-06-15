@@ -23,7 +23,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,13 +141,13 @@ public class ActivityRecommendProducts extends AppCompatActivity {
     public void makeDummyData() {
         MainActivity.DBInstance.insertSearchedProduct("nike shoes running air",
                                                       20170527, 1,
-                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");
+                                                       "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg",123);
         MainActivity.DBInstance.insertSearchedProduct("Starbucks tumbler 400ml stainless",
                                                       20170605, 1,
-                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg");
+                                                       "http://ecx.images-amazon.com/images/I/31snxgr7C0L.jpg",123);
         MainActivity.DBInstance.insertSearchedProduct("woman wallet MCM long black",
                                                       20170402, 1,
-                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg");
+                                                       "http://ecx.images-amazon.com/images/I/417u6vjlu5L._AC_UL500_SR500,500_.jpg",123);
 
         MainActivity.DBInstance.insertMatchingCombinationLocal("nike shoes running air",
                             "http://img.wondershoes.co.kr/img/d_14345/1434590/IMG_L.jpg");

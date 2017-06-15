@@ -6,15 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.text.DecimalFormat;
 
 /**
  * Created by NaJM on 2017. 6. 5..
@@ -40,7 +37,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         //ActivityFindingsResults에서 넘겨받음
         Bitmap thumb = (Bitmap) intent.getParcelableExtra("product_thumbnail");
         String productName = (String) intent.getSerializableExtra("product_name");
-        Log.i("pName", productName);
+        //Log.i("pName", productName);
         String price = (String) intent.getSerializableExtra("product_price");
         productUrl = (String) intent.getSerializableExtra("product_url");
         //Log.i("AAAAA",getTime);
