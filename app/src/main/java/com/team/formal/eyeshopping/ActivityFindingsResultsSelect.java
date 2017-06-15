@@ -98,7 +98,7 @@ public class ActivityFindingsResultsSelect extends AppCompatActivity {
         shoppingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Recent에서 오는 mallUrl
+                // Recent에서 오는 mallUrl ( DB 완성 전 TEST용 )
                 //    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(mallUrl));
 
                 //ResultsSelect에서 오는 productUrl
