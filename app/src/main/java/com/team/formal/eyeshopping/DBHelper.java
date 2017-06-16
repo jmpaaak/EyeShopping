@@ -94,8 +94,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void insertKeywordInCombinationLocal(String keywordName, String combinationKeyword) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO keyword_in_combination_local VALUES(null, '" + keywordName + "', '" + combinationKeyword + "');");
-        Log.i(keywordName, " - insertKeywordInCombinationLocal complete!");
+
+        //Cursor cursor = db.rawQuery("SELECT * FROM keyword_count_local WHERE keyword_name= "+ keywordName, null);
+        if(true) {
+            db.execSQL("INSERT INTO keyword_in_combination_local VALUES(null, '" + keywordName + "', '" + combinationKeyword + "');");
+            Log.i(keywordName, " - insertKeywordInCombinationLocal complete!");
+        } else {
+            /*
+            int newCount = cursor.getInt(1) + 1;
+            db.execSQL("UPDATE keyword_count_local SET count=" + newCount + ", " +
+                    " WHERE keyword_name='" + keywordName + "';");
+            Log.i(keywordName, " - updateKeywordCountLocalCount complete!");
+            */
+        }
     }
 
 
@@ -131,18 +142,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 super.onPreExecute();
 
                 progressDialog = ProgressDialog.show(context,
-                        "Saving data ...", null, true, true);
+                        "데이터를 서버에 전송 중입니다..", null, true, true);
             }
 
             @Override
             protected void onPostExecute (String result){
                 super.onPostExecute(result);
+
                 progressDialog.dismiss();
                 Log.d(TAG, "POST response  - " + result);
             }
 
             @Override
-            protected String doInBackground (String[] params) {
+            protected String doInBackground (String[] params){
 
                 // set post params
                 String postParameters = null;

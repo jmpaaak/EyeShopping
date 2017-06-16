@@ -322,7 +322,7 @@ public class ActivityFindingResults extends AppCompatActivity {
             vGroup.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
+                    Intent intent = new Intent(getApplicationContext(), ActivityFindingsResultsSelect.class);
                     //searchDate를 ActivityFindingsResultsSelect로 넘겨줌
 
                     ViewGroup vg = (ViewGroup) v;
@@ -335,9 +335,10 @@ public class ActivityFindingResults extends AppCompatActivity {
                     intent.putExtra("product_price", aItem.getPriceText());
                     intent.putExtra("product_url", aItem.getUrl());
 
+                    // insert data to DB local & server
                     insertAllAboutProduct(aItem);
 
-                    startActivityForResult(intent, 1777);
+                    startActivityForResult(intent, 17777);
                 }
             });
         }
@@ -462,61 +463,41 @@ public class ActivityFindingResults extends AppCompatActivity {
                 ArrayList<ArrayList<String>> resultArr = new ArrayList<ArrayList<String>>();
 
                 for (Map.Entry<String, Integer> entry : map.entrySet()) {
-                    if (entry.getValue() >= 4) {
+                    if (entry.getValue() >= 3) {
                         System.out.println("keyword : " + entry.getKey() + " Count : " + entry.getValue());
                         rankCount.add(entry.getKey());
                     }
                 }
 
-                final ArrayList<String> coreKeywords = new ArrayList<>();
+                for (String arr[] : parsedUrl) {
+                    int count = 0;
+                    boolean check[] = new boolean[arr.length];
+                    ArrayList<String> strArr = new ArrayList<>();
 
-                if(!rankCount.isEmpty()) {
-                    for (int k = 0; k < 7; k++) {
-                        int randomCount = randomRange(1, rankCount.size());
-                        boolean checkDuplicate[] = new boolean[rankCount.size()];
-                        String combiw = "";
-                        for (int i = 0; i < randomCount; i++) {
-                            int rand1;
-                            while (checkDuplicate[(rand1 = randomRange(0, rankCount.size() - 1))]) {
+                    for (int i = 0; i < arr.length; i++) {
+                        for (String rank : rankCount) {
+                            if (arr[i].equals(rank)) {
+                                check[i] = true;
+                                strArr.add(arr[i]);
+                                count++;
                             }
-                            combiw += rankCount.get(rand1) + "%20";
-                            Log.d("combi", combiw);
-                            checkDuplicate[rand1] = true;
                         }
-                        coreKeywords.add(combiw);
+                        Log.d("strArr", strArr.toString());
                     }
-                    for (int i = 0; i < coreKeywords.size(); i++) {
-                        Log.d("coreKey", coreKeywords.get(i));
-                    }
-//                    for (String arr[] : parsedUrl) {
-//                        int count = 0;
-//                        boolean check[] = new boolean[arr.length];
-//                        ArrayList<String> strArr = new ArrayList<>();
-//
-//                        for (int i = 0; i < arr.length; i++) {
-//                            for (String rank : rankCount) {
-//                                if (arr[i].equals(rank)) {
-//                                    check[i] = true;
-//                                    strArr.add(arr[i]);
-//                                    count++;
-//                                }
-//                            }
-//                            Log.d("strArr", strArr.toString());
-//                        }
-//
-//                        int rand;
-//                        int randSize = randomRange(1, arr.length - count);
-//                        for (int i = 0; i < randSize; i++) {
-//                            while (check[(rand = randomRange(0, arr.length - 1))]) {
-//                            }
-//                            strArr.add(arr[rand]);
-//                            check[rand] = true;
-//                        }
-//                        resultArr.add(strArr);
-//                        Log.d("raa", resultArr.toString());
-//                    }
-                } // end of isEmpty()
 
+                    int rand;
+                    int randSize = randomRange(1, arr.length - count);
+                    for (int i = 0; i < randSize; i++) {
+                        while (check[(rand = randomRange(0, arr.length - 1))]) {
+                        }
+                        strArr.add(arr[rand]);
+                        check[rand] = true;
+                    }
+                    resultArr.add(strArr);
+                    Log.d("raa", resultArr.toString());
+                }
+
+                final ArrayList<ArrayList<String>> resultArrThread = resultArr;
                 new AsyncTask<Object, Void, List<Shop>>() {
                     @Override
                     protected List<Shop> doInBackground(Object... params) {
@@ -525,11 +506,11 @@ public class ActivityFindingResults extends AppCompatActivity {
                         if(results.size() > 5)
                             results = results.subList(0, 5);
 
-                        for (int i = 0; i < coreKeywords.size(); i++) {
-                            System.out.println(coreKeywords.get(i).toString().replaceAll(", ", "%20"));
-                            Log.d("uri", coreKeywords.get(i).toString().replaceAll(", ", "%20"));
+                        for (int i = 0; i < resultArrThread.size(); i++) {
+                            System.out.println(resultArrThread.get(i).toString().replaceAll(", ", "%20"));
+                            Log.d("uri", resultArrThread.get(i).toString().replaceAll(", ", "%20"));
 
-                            final String xmlRaw = coreKeywords.get(i).toString().replaceAll(", ", "%20");
+                            final String xmlRaw = resultArrThread.get(i).toString().replaceAll(", ", "%20");
 
                             // 1
                             URL url = null;
@@ -591,16 +572,17 @@ public class ActivityFindingResults extends AppCompatActivity {
                                 for (final Shop shop : parsingResult) {
                                     Bitmap thumbImg = getBitmapFromURL(shop.getImage());
                                     if(thumbImg != null) {
+
                                         ArrayList<String> keywords = new ArrayList<>(
-                                                Arrays.asList(coreKeywords.get(i)
+                                                Arrays.asList(resultArrThread.get(i).toString()
                                                         .replace("[", "")
                                                         .replace("]", "")
-                                                        .split("%20"))
+                                                        .split(","))
                                         );
-                                        String combinationKeyword = coreKeywords.get(i)
+                                        String combinationKeyword = resultArrThread.get(i).toString()
                                                 .replace("[", "")
                                                 .replace("]", "")
-                                                .replaceAll("%20", " ");
+                                                .replaceAll(", ", " ");
 
                                         shop.setThumbBmp(thumbImg); // 입력 이미지 Url
                                         shop.setCombinationKeyword(combinationKeyword);
@@ -630,7 +612,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                                         String num = df.format(dummyShop.getLprice());
                                         int exist_flag = 0;
                                         for(int ii=0;ii<findingItems.size();ii++) {
-                                            if(findingItems.get(ii).getProductName().equals(dummyShop.getTitle())) {
+                                            if(findingItems.get(ii).getProductName() == dummyShop.getTitle()) {
                                                 exist_flag = 1;
                                                 break;
                                             }
@@ -693,6 +675,7 @@ public class ActivityFindingResults extends AppCompatActivity {
                             gridViewAdapter = new GridViewAdapter(getApplicationContext(), findingItems);
                             gridView.setAdapter(gridViewAdapter);
                         }
+
                         asyncDialog.dismiss();
                     }
                 }.execute();
@@ -841,21 +824,20 @@ public class ActivityFindingResults extends AppCompatActivity {
             params[0] = cKey;
             params[1] = aItem.getThumbUrl();
             MainActivity.DBInstance.insertIntoServerTable("matching_combination", params);
-            Thread.sleep(600);
+            Thread.sleep(100);
 
             params[1] = "0";
             for(int i=0; i < aItem.getKeywords().size(); i++) {
                 params[0] = keys.get(i);
                 MainActivity.DBInstance.insertIntoServerTable("keyword_count", params);
-                Thread.sleep(600);
+                Thread.sleep(100);
             }
             params[0] = cKey;
             for(int i=0; i < aItem.getKeywords().size(); i++) {
                 params[1] = keys.get(i);
                 MainActivity.DBInstance.insertIntoServerTable("keyword_in_combination", params);
-                Thread.sleep(600);
+                Thread.sleep(100);
             }
-
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
