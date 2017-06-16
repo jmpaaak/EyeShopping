@@ -20,6 +20,12 @@
         android:id="@+id/recent_str"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+<<<<<<< HEAD
+=======
+        android:layout_gravity="top|center"
+        android:singleLine="true"
+        android:textSize="18dp"
+>>>>>>> a470730c49aab09bab26eeab1cdd1e9e6d9f3522
         android:layout_alignTop="@+id/recent_product_thumbnail"
         android:layout_gravity="top|center"
         android:singleLine="true"
