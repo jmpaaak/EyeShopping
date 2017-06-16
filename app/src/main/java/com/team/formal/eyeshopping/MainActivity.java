@@ -93,13 +93,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-<<<<<<< HEAD
         this.DBInstance = SplashActivity.Splash_DBInstance;
-=======
-        // if you want to rest call this.deleteDatabase("EyeShopping.db")
-        // this.deleteDatabase(DBName); // initialize DB tables
-        DBInstance = new DBHelper(this, DBName, null, 1);
->>>>>>> e68b77ead9dc69fb5b437e14cf5fb3948157121a
 
 //        DBInstance.insertSearchedProduct("test1 cKeyword", (new Date()).getTime(), 0);
 //        DBInstance.insertSearchedProduct("test2 cKeyword", (new Date()).getTime(), 0);
@@ -136,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 //        }
 
         setContentView(R.layout.activity_main);
-
         setRecommendedProductList();
     }
 

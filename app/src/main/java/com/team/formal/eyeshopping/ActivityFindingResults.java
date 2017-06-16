@@ -824,31 +824,19 @@ public class ActivityFindingResults extends AppCompatActivity {
             params[0] = cKey;
             params[1] = aItem.getThumbUrl();
             MainActivity.DBInstance.insertIntoServerTable("matching_combination", params);
-<<<<<<< HEAD
-            Thread.sleep(100);
-=======
             Thread.sleep(800);
->>>>>>> e68b77ead9dc69fb5b437e14cf5fb3948157121a
 
             params[1] = "0";
             for(int i=0; i < aItem.getKeywords().size(); i++) {
                 params[0] = keys.get(i);
                 MainActivity.DBInstance.insertIntoServerTable("keyword_count", params);
-<<<<<<< HEAD
-                Thread.sleep(100);
-=======
                 Thread.sleep(800);
->>>>>>> e68b77ead9dc69fb5b437e14cf5fb3948157121a
             }
             params[0] = cKey;
             for(int i=0; i < aItem.getKeywords().size(); i++) {
                 params[1] = keys.get(i);
                 MainActivity.DBInstance.insertIntoServerTable("keyword_in_combination", params);
-<<<<<<< HEAD
-                Thread.sleep(100);
-=======
                 Thread.sleep(800);
->>>>>>> e68b77ead9dc69fb5b437e14cf5fb3948157121a
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
